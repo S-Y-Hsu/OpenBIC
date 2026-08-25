@@ -22,6 +22,7 @@
 #include "plat_i2c.h"
 #include "plat_util.h"
 #include "plat_class.h"
+#include "emc1413.h"
 
 LOG_MODULE_REGISTER(plat_pldm_sensor);
 
@@ -31,6 +32,7 @@ static bool plat_sensor_temp_polling_enable_flag = true;
 static bool plat_sensor_vr_polling_enable_flag = true;
 static uint8_t plat_sensor_one_step_power_enable_flag = 0;
 
+/* Thread related */
 static uint32_t quick_vr_poll_interval = QUICK_POLL_INTERVAL;
 static bool is_quick_vr_poll_changed = false;
 
@@ -69,29 +71,6 @@ static bool is_quick_vr_sensor(uint8_t sensor_num)
 	return false;
 }
 
-typedef struct {
-	uint8_t orig_addr; // old MPS
-	uint8_t rns_addr; // old rns
-} addr_map_t;
-
-static const addr_map_t addr_map_table[] = {
-};
-
-uint8_t convert_vr_addr(uint8_t addr, uint8_t vr_change_mode)
-{
-	for (int i = 0; i < ARRAY_SIZE(addr_map_table); i++) {
-		if (addr_map_table[i].orig_addr == addr) {
-			if (vr_change_mode == OLD_RNS)
-				return addr_map_table[i].rns_addr;
-			else if (vr_change_mode == OLD_MPS)
-				LOG_DBG("don't need to change VR address");
-			else
-				LOG_ERR("vr_change_mode: 0x%x error", vr_change_mode);
-		}
-	}
-	return addr;
-}
-
 uint8_t check_sensor_type(uint8_t sensor_num)
 {
 	if (sensor_num == 0 || sensor_num >= SENSOR_NUM_NUMBERS)
@@ -100,7 +79,7 @@ uint8_t check_sensor_type(uint8_t sensor_num)
 	if (sensor_num <= SENSOR_NUM_ASIC_HAMSA_LS_TEMP_C)
 		return TEMP_SENSOR_THREAD_ID;
 
-	if (sensor_num <= SENSOR_NUM_ASIC_P1V8_VPP_HBM2367_PWR_W)
+	if (sensor_num <= SENSOR_NUM_ASIC_P0V85_HAMSA_VDD_PWR_W)
 		return is_quick_vr_sensor(sensor_num) ? QUICK_VR_SENSOR_THREAD_ID :
 							VR_SENSOR_THREAD_ID;
 
@@ -110,6 +89,225 @@ uint8_t check_sensor_type(uint8_t sensor_num)
 	return MAX_SENSOR_THREAD_ID;
 }
 
+/* VR address changing function */
+typedef struct {
+	uint8_t bus;
+	uint8_t addr[MAX_VR_ADDRESS_VIRSION]; // [FAB1_MPS]: main source addr, others: per VR vendor addr
+} addr_map_t;
+
+static const addr_map_t vr_addr_map_table[] = {
+	// PU1
+	{ I2C_BUS2,
+	  { [FAB1_MPS] = ASIC_P1V05_VDDC_HBM0145_ADDR,
+	    [FAB1_RNS] = ASIC_P1V05_VDDC_HBM0145_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P1V05_VDDC_HBM0145_SNI_ADDR } },
+	// PU2
+	{ I2C_BUS2,
+	  { [FAB1_MPS] = ASIC_P0V75_OWL_W_VDD_ADDR,
+	    [FAB1_RNS] = ASIC_P0V75_OWL_W_VDD_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P0V75_OWL_W_VDD_SNI_ADDR } },
+	// PU3
+	{ I2C_BUS2,
+	  { [FAB1_MPS] = ASIC_P0V75_VDDPHY_HBM0145_ADDR,
+	    [FAB1_RNS] = ASIC_P0V75_VDDPHY_HBM0145_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P0V75_VDDPHY_HBM0145_SNI_ADDR } },
+	// PU4
+	{ I2C_BUS2,
+	  { [FAB1_MPS] = ASIC_P1V05_VDDC_HBM2367_ADDR,
+	    [FAB1_RNS] = ASIC_P1V05_VDDC_HBM2367_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P1V05_VDDC_HBM2367_SNI_ADDR } },
+	// PU5
+	{ I2C_BUS2,
+	  { [FAB1_MPS] = ASIC_P0V75_OWL_E_VDD_ADDR,
+	    [FAB1_RNS] = ASIC_P0V75_OWL_E_VDD_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P0V75_OWL_E_VDD_SNI_ADDR } },
+	// PU6
+	{ I2C_BUS2,
+	  { [FAB1_MPS] = ASIC_P0V75_VDDPHY_HBM2367_ADDR,
+	    [FAB1_RNS] = ASIC_P0V75_VDDPHY_HBM2367_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P0V75_VDDPHY_HBM2367_SNI_ADDR } },
+	// PU7
+	{ I2C_BUS9,
+	  { [FAB1_MPS] = ASIC_P0V75_ZORA11_VDDL_ADDR,
+	    [FAB1_RNS] = ASIC_P0V75_ZORA11_VDDL_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P0V75_ZORA11_VDDL_SNI_ADDR } },
+	// PU8
+	{ I2C_BUS9,
+	  { [FAB1_MPS] = ASIC_P0V75_ZORA10_VDDL_ADDR,
+	    [FAB1_RNS] = ASIC_P0V75_ZORA10_VDDL_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P0V75_ZORA10_VDDL_SNI_ADDR } },
+	// PU9
+	{ I2C_BUS9,
+	  { [FAB1_MPS] = ASIC_P0V75_ZORA01_VDDL_ADDR,
+	    [FAB1_RNS] = ASIC_P0V75_ZORA01_VDDL_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P0V75_ZORA01_VDDL_SNI_ADDR } },
+	// PU10
+	{ I2C_BUS8,
+	  { [FAB1_MPS] = ASIC_P0V75_ZORA00_VDDL_ADDR,
+	    [FAB1_RNS] = ASIC_P0V75_ZORA00_VDDL_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P0V75_ZORA00_VDDL_SNI_ADDR } },
+	// PU11
+	{ I2C_BUS3,
+	  { [FAB1_MPS] = ASIC_P1V8_ADDR,
+	    [FAB1_RNS] = ASIC_P1V8_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P1V8_SNI_ADDR } },
+	// PU624
+	{ I2C_BUS3,
+	  { [FAB1_MPS] = ASIC_P0V75_MAX_EW2_VDD_ADDR,
+	    [FAB1_RNS] = ASIC_P0V75_MAX_EW2_VDD_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P0V75_MAX_EW2_VDD_SNI_ADDR } },
+	// PU626
+	{ I2C_BUS3,
+	  { [FAB1_MPS] = ASIC_P0V75_MAX_EW1_VDD_ADDR,
+	    [FAB1_RNS] = ASIC_P0V75_MAX_EW1_VDD_RNS_ADDR,
+	    [FAB1_SNU] = ADDR_UNKNOWN,
+	    [FAB1_SNI] = ASIC_P0V75_MAX_EW1_VDD_SNI_ADDR } },
+};
+
+uint8_t convert_vr_addr(uint8_t bus, uint8_t addr, uint8_t vr_change_mode)
+{
+	if (vr_change_mode >= MAX_VR_ADDRESS_VIRSION) {
+		LOG_ERR("vr_change_mode: 0x%x error", vr_change_mode);
+		return addr;
+	}
+
+	for (int i = 0; i < ARRAY_SIZE(vr_addr_map_table); i++) {
+		if (vr_addr_map_table[i].bus == bus &&
+		    vr_addr_map_table[i].addr[FAB1_MPS] == addr) {
+			return vr_addr_map_table[i].addr[vr_change_mode];
+		}
+	}
+	return addr;
+}
+
+void change_vr_sensor_cfg(uint8_t asic_board_id, uint8_t vr_module, uint8_t ubc_module,
+			  uint8_t board_rev_id)
+{
+	uint8_t vr_change_mode = FAB1_MPS;
+
+	LOG_INF("board_rev_id: %d, vr_module: %d", board_rev_id, vr_module);
+	// VR check version
+	switch (vr_module) {
+	case VR_MODULE_MPS:
+		vr_change_mode = FAB1_MPS;
+		break;
+	case VR_MODULE_RNS:
+		vr_change_mode = FAB1_RNS;
+		break;
+	case VR_MODULE_SNU:
+		vr_change_mode = FAB1_SNU;
+		break;
+	case VR_MODULE_SNI:
+		vr_change_mode = FAB1_SNI;
+		break;
+	default:
+		LOG_ERR("Unknown vr_module: 0x%x", vr_module);
+		break;
+	}
+	LOG_INF("vr change mode: 0x%x", vr_change_mode);
+	// vr sensor
+	for (uint8_t i = VR_SENSOR_THREAD_ID; i <= QUICK_VR_SENSOR_THREAD_ID; i++) {
+		if (vr_change_mode == FAB1_MPS)
+			continue;
+
+		pldm_sensor_info *table = plat_pldm_sensor_load(i);
+		if (table == NULL)
+			return;
+
+		int count = plat_pldm_sensor_get_sensor_count(i);
+		if (count < 0)
+			return;
+		// change VR address
+		for (uint8_t j = 0; j < count; j++) {
+			// waiting for sensor driver to be ready
+			table[j].pldm_sensor_cfg.type = sensor_dev_max;
+
+			table[j].pldm_sensor_cfg.target_addr =
+				convert_vr_addr(table[j].pldm_sensor_cfg.port,
+						table[j].pldm_sensor_cfg.target_addr,
+						vr_change_mode);
+			LOG_INF("change VR sensors 0x%x address to 0x%x",
+				table[j].pldm_sensor_cfg.num, table[j].pldm_sensor_cfg.target_addr);
+		}
+	}
+}
+
+/* TEMP address changing function */
+typedef struct {
+	uint8_t bus;
+	uint8_t tmp432_addr; // main source addr
+	uint8_t emc1413_addr;
+} tmp_addr_map_t;
+
+static const tmp_addr_map_t tmp_addr_map_table[] = {
+	// ZORA10 / ZORA11
+	{ I2C_BUS3, ASIC_ZORA10_SENSOR_ADDR, ASIC_EMC_ZORA10_SENSOR_ADDR },
+	// OWL_W / OWL_E
+	{ I2C_BUS3, ASIC_OWL_W_ADDR, ASIC_EMC_OWL_W_ADDR },
+	// HAMSA_CRM / HAMSA_LS
+	{ I2C_BUS2, ASIC_HAMSA_CRM_ADDR, ASIC_EMC_HAMSA_CRM_ADDR },
+	// ZORA00 / ZORA01
+	{ I2C_BUS2, ASIC_ZORA00_SENSOR_ADDR, ASIC_EMC_ZORA00_SENSOR_ADDR },
+};
+
+uint8_t convert_tmp_addr(uint8_t bus, uint8_t addr)
+{
+	for (int i = 0; i < ARRAY_SIZE(tmp_addr_map_table); i++) {
+		if (tmp_addr_map_table[i].bus == bus && tmp_addr_map_table[i].tmp432_addr == addr) {
+			return tmp_addr_map_table[i].emc1413_addr;
+		}
+	}
+	return addr;
+}
+
+void change_tmp_sensor_cfg(uint8_t asic_board_id, uint8_t tmp_module, uint8_t ubc_module,
+			   uint8_t board_rev_id)
+{
+	LOG_INF("board_rev_id: %d, tmp_module: %d, ubc_module: %d", board_rev_id, tmp_module,
+		ubc_module);
+	// temp check module
+	if (tmp_module == TMP_MODULE_TMP432)
+		return;
+
+	pldm_sensor_info *tmp_table = plat_pldm_sensor_load(TEMP_SENSOR_THREAD_ID);
+	if (tmp_table == NULL)
+		return;
+
+	int tmp_count = plat_pldm_sensor_get_sensor_count(TEMP_SENSOR_THREAD_ID);
+	if (tmp_count < 0)
+		return;
+	for (uint8_t i = 0; i < tmp_count; i++) {
+		uint8_t num = tmp_table[i].pldm_sensor_cfg.num;
+		// waiting for PDR to be ready
+		if (num < SENSOR_NUM_ASIC_ZORA00_TEMP_C || num > SENSOR_NUM_ASIC_HAMSA_LS_TEMP_C) {
+			continue;
+		}
+		tmp_table[i].pldm_sensor_cfg.type = sensor_dev_emc1413;
+		if (tmp_table[i].pldm_sensor_cfg.offset == TMP432_REMOTE_TEMPERATRUE_1) {
+			tmp_table[i].pldm_sensor_cfg.offset = EMC1413_REMOTE_TEMPERATRUE_1;
+		} else if (tmp_table[i].pldm_sensor_cfg.offset == TMP432_REMOTE_TEMPERATRUE_2) {
+			tmp_table[i].pldm_sensor_cfg.offset = EMC1413_REMOTE_TEMPERATRUE_2;
+		}
+		tmp_table[i].pldm_sensor_cfg.target_addr =
+			convert_tmp_addr(tmp_table[i].pldm_sensor_cfg.port,
+					 tmp_table[i].pldm_sensor_cfg.target_addr);
+	}
+	LOG_INF("TEMP source change to EMC1413");
+}
+
+/* PLDM SENSOR */
 pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 	{
 		{
@@ -608,9 +806,9 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 
 			/***numeric sensor format***/
 			0x0000, //uint16_t PLDM_terminus_handle;
-			SENSOR_NUM_ASIC_ZORA00_SENSOR_TEMP_C, //uint16_t sensor_id;
+			SENSOR_NUM_ASIC_ZORA00_TEMP_C, //uint16_t sensor_id;
 			0x0000, //uint16_t entity_type; //Need to check
-			SENSOR_NUM_ASIC_ZORA00_SENSOR_TEMP_C, //uint16_t entity_instance_number;
+			SENSOR_NUM_ASIC_ZORA00_TEMP_C, //uint16_t entity_instance_number;
 			0x0000, //uint16_t container_id;
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
@@ -651,7 +849,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 		},
 		.update_time = 0,
 		{
-			.num = SENSOR_NUM_ASIC_ZORA00_SENSOR_TEMP_C,
+			.num = SENSOR_NUM_ASIC_ZORA00_TEMP_C,
 			.type = sensor_dev_tmp431,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_ZORA00_SENSOR_ADDR,
@@ -677,9 +875,9 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 
 			/***numeric sensor format***/
 			0x0000, //uint16_t PLDM_terminus_handle;
-			SENSOR_NUM_ASIC_ZORA01_SENSOR_TEMP_C, //uint16_t sensor_id;
+			SENSOR_NUM_ASIC_ZORA01_TEMP_C, //uint16_t sensor_id;
 			0x0000, //uint16_t entity_type; //Need to check
-			SENSOR_NUM_ASIC_ZORA01_SENSOR_TEMP_C, //uint16_t entity_instance_number;
+			SENSOR_NUM_ASIC_ZORA01_TEMP_C, //uint16_t entity_instance_number;
 			0x0000, //uint16_t container_id;
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
@@ -720,7 +918,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 		},
 		.update_time = 0,
 		{
-			.num = SENSOR_NUM_ASIC_ZORA01_SENSOR_TEMP_C,
+			.num = SENSOR_NUM_ASIC_ZORA01_TEMP_C,
 			.type = sensor_dev_tmp431,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_ZORA01_SENSOR_ADDR,
@@ -10842,7 +11040,7 @@ PDR_sensor_auxiliary_names plat_pdr_sensor_aux_names_table[] = {
 			.data_length = 0x0000,
 		},
 		.terminus_handle = 0x0000,
-		.sensor_id = SENSOR_NUM_ASIC_ZORA00_SENSOR_TEMP_C,
+		.sensor_id = SENSOR_NUM_ASIC_ZORA00_TEMP_C,
 		.sensor_count = 0x1,
 		.nameStringCount = 0x1,
 		.nameLanguageTag = "en",
@@ -10857,7 +11055,7 @@ PDR_sensor_auxiliary_names plat_pdr_sensor_aux_names_table[] = {
 			.data_length = 0x0000,
 		},
 		.terminus_handle = 0x0000,
-		.sensor_id = SENSOR_NUM_ASIC_ZORA01_SENSOR_TEMP_C,
+		.sensor_id = SENSOR_NUM_ASIC_ZORA01_TEMP_C,
 		.sensor_count = 0x1,
 		.nameStringCount = 0x1,
 		.nameLanguageTag = "en",
@@ -13312,63 +13510,6 @@ PDR_numeric_sensor *get_pdr_numeric_sensor_by_sensor_id(uint8_t sensor_id)
 	}
 
 	return NULL;
-}
-
-#define SENSOR_CFG_NO_CHANGE 0xFF
-
-void change_sensor_cfg(uint8_t asic_board_id, uint8_t vr_module, uint8_t ubc_module,
-		       uint8_t board_rev_id)
-{
-	// uint8_t ubc1_change_flag = 0;
-	uint8_t vr_change_mode = OLD_MPS;
-	/*
-	When changing the address version, you first need to check the board type (EVB or Electra), and then check the board revision ID.
-	FAB2 corresponds to EVT1B
-	FAB3 corresponds to EVT2
-	There are two VR vendors, and their settings are different:
-	RNS
-	MPS
-	For the two UBC chips, both need to be changed on FAB2.
-	*/
-
-	LOG_INF("asic_board_id: %d, board_rev_id: %d, vr_module: %d", asic_board_id, board_rev_id,
-		vr_module);
-	// VR check version
-	switch (asic_board_id) {
-	case ASIC_BOARD_ID_ELECTRA:
-		if (vr_module == VR_MODULE_RNS) {
-			LOG_WRN("change VR address to old RNS");
-			vr_change_mode = OLD_RNS;
-		}
-		// default is old MPS so do nothing
-		break;
-	default:
-		break;
-	}
-	LOG_INF("vr change mode: 0x%x", vr_change_mode);
-	// vr sensor
-	for (uint8_t i = VR_SENSOR_THREAD_ID; i <= QUICK_VR_SENSOR_THREAD_ID; i++) {
-		if (vr_change_mode == OLD_MPS)
-			continue;
-
-		pldm_sensor_info *table = plat_pldm_sensor_load(i);
-		if (table == NULL)
-			return;
-
-		int count = plat_pldm_sensor_get_sensor_count(i);
-		if (count < 0)
-			return;
-		// change VR address
-		for (uint8_t j = 0; j < count; j++) {
-			if (vr_change_mode == OLD_RNS)
-				table[j].pldm_sensor_cfg.type = sensor_dev_raa228249;
-
-			table[j].pldm_sensor_cfg.target_addr = convert_vr_addr(
-				table[j].pldm_sensor_cfg.target_addr, vr_change_mode);
-			LOG_INF("change VR sensors 0x%x address to 0x%x",
-				table[j].pldm_sensor_cfg.num, table[j].pldm_sensor_cfg.target_addr);
-		}
-	}
 }
 
 bool is_dc_access(uint8_t sensor_num)

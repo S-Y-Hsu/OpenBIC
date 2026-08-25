@@ -8,6 +8,7 @@
 #include "plat_kernel_obj.h"
 #include <logging/log.h>
 
+// check when board come (astrid: 0x20)
 #define CPLD_ADDR (0x4C >> 1)
 #define I2C_BUS_CPLD I2C_BUS11
 
@@ -55,7 +56,7 @@ typedef struct _vr_error_callback_info_ {
 } vr_error_callback_info;
 
 bool vr_error_callback(cpld_info *cpld_info, uint8_t *current_cpld_value, uint8_t expected_val,
-			uint8_t status_changed_bit);
+		       uint8_t status_changed_bit);
 
 // clang-format off
 cpld_info cpld_info_table[] = {
