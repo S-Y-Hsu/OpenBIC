@@ -29,7 +29,7 @@
 #define TOP_INLET_ADDR (0x92 >> 1)
 #define BOT_INLET_ADDR (0x94 >> 1)
 #define BOT_OUTLET_ADDR (0x96 >> 1)
-// page 52
+// tmp432 address
 #define ASIC_ZORA10_SENSOR_ADDR (0x98 >> 1)
 #define ASIC_ZORA11_SENSOR_ADDR (0x98 >> 1)
 #define ASIC_OWL_W_ADDR (0x9A >> 1)
@@ -38,6 +38,15 @@
 #define ASIC_HAMSA_LS_ADDR (0x98 >> 1)
 #define ASIC_ZORA00_SENSOR_ADDR (0x9A >> 1)
 #define ASIC_ZORA01_SENSOR_ADDR (0x9A >> 1)
+// emc1413 address
+#define ASIC_EMC_ZORA10_SENSOR_ADDR (0xD8 >> 1)
+#define ASIC_EMC_ZORA11_SENSOR_ADDR (0xD8 >> 1)
+#define ASIC_EMC_OWL_W_ADDR (0x38 >> 1)
+#define ASIC_EMC_OWL_E_ADDR (0x38 >> 1)
+#define ASIC_EMC_HAMSA_CRM_ADDR (0xD8 >> 1)
+#define ASIC_EMC_HAMSA_LS_ADDR (0xD8 >> 1)
+#define ASIC_EMC_ZORA00_SENSOR_ADDR (0x38 >> 1)
+#define ASIC_EMC_ZORA01_SENSOR_ADDR (0x38 >> 1)
 
 // VR_MODULE_MPS module addr
 //PU1
@@ -193,9 +202,9 @@ enum SENSOR_NUM_LIST {
 	SENSOR_NUM_BOT_INLET_TEMP_C,
 	SENSOR_NUM_BOT_OUTLET_TEMP_C,
 	//ZORA00_VTMON_SENSOR_0_THERM
-	SENSOR_NUM_ASIC_ZORA00_SENSOR_TEMP_C,
+	SENSOR_NUM_ASIC_ZORA00_TEMP_C,
 	//ZORA01_VTMON_SENSOR_0_THERM
-	SENSOR_NUM_ASIC_ZORA01_SENSOR_TEMP_C,
+	SENSOR_NUM_ASIC_ZORA01_TEMP_C,
 	//OW L_W_VTMON0
 	SENSOR_NUM_ASIC_OWL_W_TEMP_C,
 	//OW L_E_VTMON1
@@ -401,7 +410,7 @@ enum SENSOR_THREAD_LIST {
 
 enum PCA9554APW_REG { INPUT_PORT = 0, OUTPUT_PORT = 1, POLARITY_INVERSION = 2, CONFIG = 3 };
 
-enum VR_ADDRESS_VIRSION { OLD_MPS = 0, OLD_RNS, MAX_VR_ADDRESS_VIRSION };
+enum VR_ADDRESS_VIRSION { FAB1_MPS = 0, FAB1_RNS, FAB1_SNU, FAB1_SNI, MAX_VR_ADDRESS_VIRSION };
 
 int plat_pldm_sensor_get_sensor_count(int thread_id);
 sensor_cfg *get_sensor_cfg_by_sensor_id(uint8_t sensor_id);
@@ -426,9 +435,12 @@ char16_t *char16_strcpy(char16_t *dest, const char16_t *src);
 char16_t *char16_strcat_char(char16_t *dest, char16_t ch);
 
 bool get_raw_data_from_sensor_id(uint8_t sensor_id, uint8_t offset, uint8_t *val, uint8_t len);
-void change_sensor_cfg(uint8_t asic_board_id, uint8_t vr_module, uint8_t ubc_module,
-		       uint8_t board_rev_id);
-uint8_t convert_vr_addr(uint8_t addr, uint8_t vr_change_mode);
+void change_tmp_sensor_cfg(uint8_t asic_board_id, uint8_t tmp_module, uint8_t ubc_module,
+			   uint8_t board_rev_id);
+void change_vr_sensor_cfg(uint8_t asic_board_id, uint8_t vr_module, uint8_t ubc_module,
+			  uint8_t board_rev_id);
+uint8_t convert_vr_addr(uint8_t bus, uint8_t addr, uint8_t vr_change_mode);
+uint8_t convert_tmp_addr(uint8_t bus, uint8_t addr);
 uint32_t plat_get_pdr_size(uint8_t pdr_type);
 uint32_t plat_pldm_sensor_get_quick_vr_poll_interval();
 void plat_pldm_sensor_set_quick_vr_poll_interval(uint32_t value);
