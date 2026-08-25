@@ -27,6 +27,7 @@
 #include "plat_class.h"
 #include "plat_cpld.h"
 #include "plat_log.h"
+#include "plat_hwmon.h"
 
 LOG_MODULE_REGISTER(plat_init);
 
@@ -42,6 +43,7 @@ void pal_pre_init()
 	init_plat_config();
 	plat_led_init();
 	vr_mutex_init();
+	init_pwm_dev();
 	plat_i3c_set_pid();
 }
 
