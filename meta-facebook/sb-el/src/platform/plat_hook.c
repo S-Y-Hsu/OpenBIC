@@ -980,6 +980,16 @@ err:
 	return ret;
 }
 
+uint16_t plat_get_vr_status_pmbus_reg(uint8_t vr_status_rail)
+{
+	if (vr_status_rail >= VR_STAUS_E_MAX) {
+		LOG_ERR("invalid vr_status_rail %u", vr_status_rail);
+		return 0;
+	}
+
+	return vr_status_table[vr_status_rail].pmbus_reg;
+}
+
 bool plat_clear_vr_status(uint8_t rail)
 {
 	if (rail >= VR_RAIL_E_MAX) {

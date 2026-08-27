@@ -24,7 +24,6 @@
 #include "plat_cpld.h"
 #include "plat_log.h"
 #include "plat_led.h"
-#include "pmbus.h"
 
 LOG_MODULE_REGISTER(plat_event);
 
@@ -111,15 +110,6 @@ const vr_fault_info vr_fault_table[] = {
 	{ ARKE_NUWA0_VDD_ALERT_R_N, VR_SMBUS_ALERT_EVENT_LOG_REG, BIT(7), false },
 	// VR TEMP OVER
 };
-const vr_mapping_status vr_status_rail_list[] = {
-	{ .index = VR_STAUS_E_STATUS_BYTE, .pmbus_reg = PMBUS_STATUS_BYTE },
-	{ .index = VR_STAUS_E_STATUS_WORD, .pmbus_reg = PMBUS_STATUS_WORD },
-	{ .index = VR_STAUS_E_STATUS_VOUT, .pmbus_reg = PMBUS_STATUS_VOUT },
-	{ .index = VR_STAUS_E_STATUS_IOUT, .pmbus_reg = PMBUS_STATUS_IOUT },
-	{ .index = VR_STAUS_E_STATUS_INPUT, .pmbus_reg = PMBUS_STATUS_INPUT },
-	{ .index = VR_STAUS_E_STATUS_TEMPERATURE, .pmbus_reg = PMBUS_STATUS_TEMPERATURE },
-	{ .index = VR_STAUS_E_STATUS_CML, .pmbus_reg = PMBUS_STATUS_CML },
-};
 void process_mtia_vr_power_fault_sel(cpld_info *cpld_info, uint8_t *current_cpld_value)
 {
 	CHECK_NULL_ARG(cpld_info);
@@ -170,29 +160,27 @@ void process_mtia_vr_power_fault_sel(cpld_info *cpld_info, uint8_t *current_cpld
 			// wait 10ms for vr monitor stop
 			k_msleep(10);
 
-			uint8_t vr_reg_list_len = ARRAY_SIZE(vr_status_rail_list);
-			struct pldm_addsel_data sel_msg[vr_reg_list_len];
+			struct pldm_addsel_data sel_msg[VR_STAUS_E_MAX];
 			memset(sel_msg, 0, sizeof(sel_msg));
 			uint8_t sel_msg_idx = 0;
-			for (int j = 0; j < ARRAY_SIZE(vr_status_rail_list); j++) {
-				uint8_t vr_status_rail = vr_status_rail_list[j].index;
+			for (int j = 0; j < VR_STAUS_E_MAX; j++) {
+				uint16_t pmbus_reg = plat_get_vr_status_pmbus_reg(j);
 				uint16_t vr_status = 0xFFFF;
-				if (!plat_get_vr_status(vr->rail_id, vr_status_rail, &vr_status)) {
+				if (!plat_get_vr_status(vr->rail_id, j, &vr_status)) {
 					LOG_ERR("Fail get VR st: VR[0x%02X] reg[0x%02X]",
-						vr->mtia_event_source,
-						vr_status_rail_list[j].pmbus_reg);
+						vr->mtia_event_source, pmbus_reg);
 				}
 				LOG_INF("VR rail id[0x%02X] status: reg[0x%02X] 0x%04X",
-					vr->rail_id, vr_status_rail_list[j].pmbus_reg, vr_status);
+					vr->rail_id, pmbus_reg, vr_status);
 
 				sel_msg[sel_msg_idx].assert_type =
 					is_assert ? LOG_ASSERT : LOG_DEASSERT;
 				sel_msg[sel_msg_idx].event_type = ARKE_FAULT;
 				sel_msg[sel_msg_idx].event_data_1 = vr->mtia_event_source;
 				sel_msg[sel_msg_idx].event_data_2 =
-					(vr_status_rail_list[j].pmbus_reg == PMBUS_STATUS_WORD) ?
+					(j == VR_STAUS_E_STATUS_WORD) ?
 						(uint8_t)((vr_status >> 8) & 0xFF) :
-						vr_status_rail_list[j].pmbus_reg;
+						pmbus_reg;
 				sel_msg[sel_msg_idx].event_data_3 = (uint8_t)(vr_status & 0xFF);
 				sel_msg_idx += 1;
 			}

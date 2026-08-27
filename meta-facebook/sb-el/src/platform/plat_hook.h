@@ -248,6 +248,7 @@ bool vr_status_name_get(uint8_t rail, uint8_t **name);
 bool vr_rail_enum_get(uint8_t *name, uint8_t *num);
 bool vr_status_enum_get(uint8_t *name, uint8_t *num);
 bool plat_get_vr_status(uint8_t rail, uint8_t vr_status_rail, uint16_t *vr_status);
+uint16_t plat_get_vr_status_pmbus_reg(uint8_t vr_status_rail);
 bool plat_clear_vr_status(uint8_t rail);
 bool plat_set_vout_command(uint8_t rail, uint16_t *millivolt, bool is_perm);
 bool plat_get_vout_command(uint8_t rail, uint16_t *millivolt);
