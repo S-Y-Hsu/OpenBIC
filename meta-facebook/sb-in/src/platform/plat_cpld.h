@@ -20,7 +20,6 @@ typedef struct _cpld_info_ {
 	bool is_fault_log; // if true, check the value is defaut or not
 	uint8_t is_fault_bit_map; //flag for fault
 
-	/* is_send_bmc in electra */
 	bool send_to_bmc_flag; //flag for sending alert to bmc
 
 	//temp data for last polling
@@ -36,7 +35,6 @@ typedef struct _cpld_info_ {
 bool plat_read_cpld(uint8_t offset, uint8_t *data, uint8_t len);
 bool plat_write_cpld(uint8_t offset, uint8_t *data);
 void init_cpld_polling(void);
-void get_cpld_polling_power_info(int *reading);
 void set_cpld_polling_enable_flag(bool status);
 bool get_cpld_polling_enable_flag(void);
 

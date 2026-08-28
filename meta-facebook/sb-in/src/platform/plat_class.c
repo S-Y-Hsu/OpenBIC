@@ -127,11 +127,6 @@ uint8_t get_vr_module()
 	return vr_module;
 }
 
-uint8_t get_ubc_module()
-{
-	return ubc_module;
-}
-
 uint8_t get_mmc_slot()
 {
 	return mmc_slot;
@@ -140,16 +135,6 @@ uint8_t get_mmc_slot()
 uint8_t get_asic_board_id()
 {
 	return asic_board_id;
-}
-
-uint8_t get_board_rev_id()
-{
-	return board_rev_id;
-}
-
-uint8_t get_tray_location()
-{
-	return tray_location;
 }
 
 // clang-format off

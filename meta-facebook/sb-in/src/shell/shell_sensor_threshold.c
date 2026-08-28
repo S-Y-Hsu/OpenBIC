@@ -20,7 +20,7 @@
 #include "pdr.h"
 #include "plat_pldm_sensor.h"
 
-#define MINERVA_THRESHOLD_UNIT 0.001
+#define SENSOR_THRESHOLD_UNIT 0.001
 
 void cmd_set_sensor_threshold(const struct shell *shell, size_t argc, char **argv)
 {
@@ -54,7 +54,7 @@ void cmd_set_sensor_threshold(const struct shell *shell, size_t argc, char **arg
 	snprintf(threshold_type, sizeof(threshold_type), "%s", argv[2]);
 	value = strtol(argv[3], NULL, 10);
 	threshold_value = (float)value *
-			  MINERVA_THRESHOLD_UNIT; // If user want to send 3.3V, "value" will be 3300
+			  SENSOR_THRESHOLD_UNIT; // If user want to send 3.3V, "value" will be 3300
 
 	if (strcmp(threshold_type, "UCT") == 0) {
 		result = change_pdr_table_critical_high_with_sensor_id(sensor_id, threshold_value);

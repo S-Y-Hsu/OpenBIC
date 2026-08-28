@@ -31,15 +31,6 @@ bool plat_write_cpld(uint8_t offset, uint8_t *data)
 void check_cpld_handler();
 K_WORK_DELAYABLE_DEFINE(check_cpld_work, check_cpld_handler);
 
-void check_ubc_delayed_timer_handler(struct k_timer *timer);
-K_TIMER_DEFINE(init_ubc_delayed_timer, check_ubc_delayed_timer_handler, NULL);
-void check_ubc_delayed(struct k_work *work);
-K_WORK_DEFINE(check_ubc_delayed_work, check_ubc_delayed);
-void check_ubc_delayed_timer_handler(struct k_timer *timer)
-{
-	k_work_submit(&check_ubc_delayed_work);
-}
-
 K_THREAD_STACK_DEFINE(cpld_polling_stack, POLLING_CPLD_STACK_SIZE);
 struct k_thread cpld_polling_thread;
 k_tid_t cpld_polling_tid;
@@ -79,49 +70,6 @@ bool get_cpld_polling_enable_flag(void)
 }
 
 bool ubc_enabled_delayed_status = false;
-
-void check_ubc_delayed(struct k_work *work)
-{
-	/* FM_PLD_UBC_EN_R
-	 * 1 -> UBC is enabled
-	 * 0 -> UBC is disabled
-	 */
-	bool is_ubc_enabled = (gpio_get(FM_PLD_UBC_EN_R) == GPIO_HIGH);
-
-	bool is_dc_on = is_mb_dc_on();
-
-	if (is_ubc_enabled) {
-		if (is_dc_on != is_ubc_enabled) {
-			//send event to bmc
-			uint16_t error_code = (POWER_ON_SEQUENCE_TRIGGER_CAUSE << 13);
-			error_log_event(error_code, LOG_ASSERT);
-			LOG_ERR("Generated error code: 0x%x", error_code);
-		}
-	}
-
-	ubc_enabled_delayed_status = is_ubc_enabled;
-
-	LOG_DBG("UBC enabled delayed status: %d", ubc_enabled_delayed_status);
-
-	/* cpld tbd
-	if (is_ubc_enabled == true) {
-		k_work_submit(&vr_vout_work);
-	} */
-}
-
-void reset_error_log_states(uint8_t err_type)
-{
-	// Reset cpld_info_table
-	for (size_t i = 0; i < ARRAY_SIZE(cpld_info_table); i++) {
-		cpld_info_table[i].is_fault_bit_map = 0x00;
-		cpld_info_table[i].last_polling_value = 0x00;
-	}
-
-	// Remove and DEASSERT error logs with the err_type
-	reset_error_log_event(err_type);
-
-	LOG_INF("Reset error_log_states with err_type = 0x%02x", err_type);
-}
 
 bool vr_error_callback(cpld_info *cpld_info, uint8_t *current_cpld_value, uint8_t expected_val,
 			uint8_t status_changed_bit)
