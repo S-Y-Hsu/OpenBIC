@@ -89,7 +89,66 @@ uint8_t check_sensor_type(uint8_t sensor_num)
 	return MAX_SENSOR_THREAD_ID;
 }
 
-/* VR address changing function */
+/* TEMP cfg changing function */
+typedef struct {
+	uint8_t bus;
+	uint8_t tmp432_addr; // main source addr
+	uint8_t emc1413_addr;
+} tmp_addr_map_t;
+
+static const tmp_addr_map_t tmp_addr_map_table[] = {
+	// ZORA10 / ZORA11
+	{ I2C_BUS3, ASIC_ZORA10_SENSOR_ADDR, ASIC_EMC_ZORA10_SENSOR_ADDR },
+	// OWL_W / OWL_E
+	{ I2C_BUS3, ASIC_OWL_W_ADDR, ASIC_EMC_OWL_W_ADDR },
+	// HAMSA_CRM / HAMSA_LS
+	{ I2C_BUS2, ASIC_HAMSA_CRM_ADDR, ASIC_EMC_HAMSA_CRM_ADDR },
+	// ZORA00 / ZORA01
+	{ I2C_BUS2, ASIC_ZORA00_SENSOR_ADDR, ASIC_EMC_ZORA00_SENSOR_ADDR },
+};
+
+uint8_t convert_tmp_addr(uint8_t bus, uint8_t addr)
+{
+	for (int i = 0; i < ARRAY_SIZE(tmp_addr_map_table); i++) {
+		if (tmp_addr_map_table[i].bus == bus && tmp_addr_map_table[i].tmp432_addr == addr) {
+			return tmp_addr_map_table[i].emc1413_addr;
+		}
+	}
+	return addr;
+}
+
+void change_tmp_sensor_cfg(uint8_t asic_board_id, uint8_t tmp_module, uint8_t board_rev_id)
+{
+	// temp check module
+	if (tmp_module == TMP_MODULE_TMP432)
+		return;
+
+	pldm_sensor_info *tmp_table = plat_pldm_sensor_load(TEMP_SENSOR_THREAD_ID);
+	if (tmp_table == NULL)
+		return;
+
+	int tmp_count = plat_pldm_sensor_get_sensor_count(TEMP_SENSOR_THREAD_ID);
+	if (tmp_count < 0)
+		return;
+	for (uint8_t i = 0; i < tmp_count; i++) {
+		uint8_t num = tmp_table[i].pldm_sensor_cfg.num;
+		// waiting for PDR to be ready
+		if (num < SENSOR_NUM_ASIC_ZORA00_TEMP_C || num > SENSOR_NUM_ASIC_HAMSA_LS_TEMP_C) {
+			continue;
+		}
+		tmp_table[i].pldm_sensor_cfg.type = sensor_dev_emc1413;
+		if (tmp_table[i].pldm_sensor_cfg.offset == TMP432_REMOTE_TEMPERATRUE_1) {
+			tmp_table[i].pldm_sensor_cfg.offset = EMC1413_REMOTE_TEMPERATRUE_1;
+		} else if (tmp_table[i].pldm_sensor_cfg.offset == TMP432_REMOTE_TEMPERATRUE_2) {
+			tmp_table[i].pldm_sensor_cfg.offset = EMC1413_REMOTE_TEMPERATRUE_2;
+		}
+		tmp_table[i].pldm_sensor_cfg.target_addr =
+			convert_tmp_addr(tmp_table[i].pldm_sensor_cfg.port,
+					 tmp_table[i].pldm_sensor_cfg.target_addr);
+	}
+}
+
+/* VR cfg changing function */
 typedef struct {
 	uint8_t bus;
 	uint8_t addr[MAX_VR_ADDRESS_VIRSION]; // [FAB1_MPS]: main source addr, others: per VR vendor addr
@@ -192,12 +251,10 @@ uint8_t convert_vr_addr(uint8_t bus, uint8_t addr, uint8_t vr_change_mode)
 	return addr;
 }
 
-void change_vr_sensor_cfg(uint8_t asic_board_id, uint8_t vr_module, uint8_t ubc_module,
-			  uint8_t board_rev_id)
+void change_vr_sensor_cfg(uint8_t asic_board_id, uint8_t vr_module, uint8_t board_rev_id)
 {
 	uint8_t vr_change_mode = FAB1_MPS;
 
-	LOG_INF("board_rev_id: %d, vr_module: %d", board_rev_id, vr_module);
 	// VR check version
 	switch (vr_module) {
 	case VR_MODULE_MPS:
@@ -213,10 +270,9 @@ void change_vr_sensor_cfg(uint8_t asic_board_id, uint8_t vr_module, uint8_t ubc_
 		vr_change_mode = FAB1_SNI;
 		break;
 	default:
-		LOG_ERR("Unknown vr_module: 0x%x", vr_module);
 		break;
 	}
-	LOG_INF("vr change mode: 0x%x", vr_change_mode);
+
 	// vr sensor
 	for (uint8_t i = VR_SENSOR_THREAD_ID; i <= QUICK_VR_SENSOR_THREAD_ID; i++) {
 		if (vr_change_mode == FAB1_MPS)
@@ -238,73 +294,40 @@ void change_vr_sensor_cfg(uint8_t asic_board_id, uint8_t vr_module, uint8_t ubc_
 				convert_vr_addr(table[j].pldm_sensor_cfg.port,
 						table[j].pldm_sensor_cfg.target_addr,
 						vr_change_mode);
-			LOG_INF("change VR sensors 0x%x address to 0x%x",
-				table[j].pldm_sensor_cfg.num, table[j].pldm_sensor_cfg.target_addr);
 		}
 	}
 }
 
-/* TEMP address changing function */
-typedef struct {
-	uint8_t bus;
-	uint8_t tmp432_addr; // main source addr
-	uint8_t emc1413_addr;
-} tmp_addr_map_t;
-
-static const tmp_addr_map_t tmp_addr_map_table[] = {
-	// ZORA10 / ZORA11
-	{ I2C_BUS3, ASIC_ZORA10_SENSOR_ADDR, ASIC_EMC_ZORA10_SENSOR_ADDR },
-	// OWL_W / OWL_E
-	{ I2C_BUS3, ASIC_OWL_W_ADDR, ASIC_EMC_OWL_W_ADDR },
-	// HAMSA_CRM / HAMSA_LS
-	{ I2C_BUS2, ASIC_HAMSA_CRM_ADDR, ASIC_EMC_HAMSA_CRM_ADDR },
-	// ZORA00 / ZORA01
-	{ I2C_BUS2, ASIC_ZORA00_SENSOR_ADDR, ASIC_EMC_ZORA00_SENSOR_ADDR },
-};
-
-uint8_t convert_tmp_addr(uint8_t bus, uint8_t addr)
+/* UBC cfg changing function */
+void change_ubc_sensor_cfg(uint8_t asic_board_id, uint8_t ubc_module, uint8_t board_rev_id)
 {
-	for (int i = 0; i < ARRAY_SIZE(tmp_addr_map_table); i++) {
-		if (tmp_addr_map_table[i].bus == bus && tmp_addr_map_table[i].tmp432_addr == addr) {
-			return tmp_addr_map_table[i].emc1413_addr;
-		}
+	uint8_t ubc_sensor_type = sensor_dev_bmr316;
+	switch (ubc_module) {
+	case UBC_MODULE_FLEX:
+		// default table is already authored for FLEX(bmr316), nothing to change
+		return;
+	case UBC_MODULE_LUX:
+		ubc_sensor_type = sensor_dev_lx6301;
+		break;
+	case UBC_MODULE_REED:
+		// waiting for sensor driver to be ready, use sensor_dev_rsm3514e once it's added to common code
+		// ubc_sensor_type = sensor_dev_rsm3514e;
+		break;
+	default:
+		return;
 	}
-	return addr;
-}
 
-void change_tmp_sensor_cfg(uint8_t asic_board_id, uint8_t tmp_module, uint8_t ubc_module,
-			   uint8_t board_rev_id)
-{
-	LOG_INF("board_rev_id: %d, tmp_module: %d, ubc_module: %d", board_rev_id, tmp_module,
-		ubc_module);
-	// temp check module
-	if (tmp_module == TMP_MODULE_TMP432)
+	pldm_sensor_info *table = plat_pldm_sensor_load(UBC_SENSOR_THREAD_ID);
+	if (table == NULL)
 		return;
 
-	pldm_sensor_info *tmp_table = plat_pldm_sensor_load(TEMP_SENSOR_THREAD_ID);
-	if (tmp_table == NULL)
+	int count = plat_pldm_sensor_get_sensor_count(UBC_SENSOR_THREAD_ID);
+	if (count < 0)
 		return;
 
-	int tmp_count = plat_pldm_sensor_get_sensor_count(TEMP_SENSOR_THREAD_ID);
-	if (tmp_count < 0)
-		return;
-	for (uint8_t i = 0; i < tmp_count; i++) {
-		uint8_t num = tmp_table[i].pldm_sensor_cfg.num;
-		// waiting for PDR to be ready
-		if (num < SENSOR_NUM_ASIC_ZORA00_TEMP_C || num > SENSOR_NUM_ASIC_HAMSA_LS_TEMP_C) {
-			continue;
-		}
-		tmp_table[i].pldm_sensor_cfg.type = sensor_dev_emc1413;
-		if (tmp_table[i].pldm_sensor_cfg.offset == TMP432_REMOTE_TEMPERATRUE_1) {
-			tmp_table[i].pldm_sensor_cfg.offset = EMC1413_REMOTE_TEMPERATRUE_1;
-		} else if (tmp_table[i].pldm_sensor_cfg.offset == TMP432_REMOTE_TEMPERATRUE_2) {
-			tmp_table[i].pldm_sensor_cfg.offset = EMC1413_REMOTE_TEMPERATRUE_2;
-		}
-		tmp_table[i].pldm_sensor_cfg.target_addr =
-			convert_tmp_addr(tmp_table[i].pldm_sensor_cfg.port,
-					 tmp_table[i].pldm_sensor_cfg.target_addr);
+	for (uint8_t i = 0; i < count; i++) {
+		table[i].pldm_sensor_cfg.type = ubc_sensor_type;
 	}
-	LOG_INF("TEMP source change to EMC1413");
 }
 
 /* PLDM SENSOR */
@@ -10351,7 +10374,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_UBC1_P12V_TEMP_C,
-			.type = sensor_dev_u50su4p180pmdafc,
+			.type = sensor_dev_bmr316,
 			.port = I2C_BUS10,
 			.target_addr = UBC1_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -10420,7 +10443,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_UBC1_P12V_VOLT_V,
-			.type = sensor_dev_u50su4p180pmdafc,
+			.type = sensor_dev_bmr316,
 			.port = I2C_BUS10,
 			.target_addr = UBC1_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -10489,7 +10512,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_UBC1_P12V_CURR_A,
-			.type = sensor_dev_u50su4p180pmdafc,
+			.type = sensor_dev_bmr316,
 			.port = I2C_BUS10,
 			.target_addr = UBC1_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -10558,7 +10581,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_UBC1_P12V_PWR_W,
-			.type = sensor_dev_u50su4p180pmdafc,
+			.type = sensor_dev_bmr316,
 			.port = I2C_BUS10,
 			.target_addr = UBC1_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -10627,7 +10650,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_UBC1_P52V_INPUT_VOLT_V,
-			.type = sensor_dev_u50su4p180pmdafc,
+			.type = sensor_dev_bmr316,
 			.port = I2C_BUS10,
 			.target_addr = UBC1_ADDR,
 			.offset = PMBUS_READ_VIN,
@@ -10696,7 +10719,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_UBC2_P12V_TEMP_C,
-			.type = sensor_dev_u50su4p180pmdafc,
+			.type = sensor_dev_bmr316,
 			.port = I2C_BUS10,
 			.target_addr = UBC2_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -10765,7 +10788,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_UBC2_P12V_VOLT_V,
-			.type = sensor_dev_u50su4p180pmdafc,
+			.type = sensor_dev_bmr316,
 			.port = I2C_BUS10,
 			.target_addr = UBC2_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -10834,7 +10857,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_UBC2_P12V_CURR_A,
-			.type = sensor_dev_u50su4p180pmdafc,
+			.type = sensor_dev_bmr316,
 			.port = I2C_BUS10,
 			.target_addr = UBC2_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -10903,7 +10926,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_UBC2_P12V_PWR_W,
-			.type = sensor_dev_u50su4p180pmdafc,
+			.type = sensor_dev_bmr316,
 			.port = I2C_BUS10,
 			.target_addr = UBC2_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -10972,7 +10995,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_UBC2_P52V_INPUT_VOLT_V,
-			.type = sensor_dev_u50su4p180pmdafc,
+			.type = sensor_dev_bmr316,
 			.port = I2C_BUS10,
 			.target_addr = UBC2_ADDR,
 			.offset = PMBUS_READ_VIN,
