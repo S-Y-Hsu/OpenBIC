@@ -171,18 +171,18 @@ void init_tmp_vendor_type(void)
 	i2c_msg.data[0] = 0xFE; //MFG ID REG
 
 	int ret = 0;
-	if (ret == i2c_master_read(&i2c_msg, retry)) {
-		LOG_INF("Assume TMP is TMP432 by address check");
+	if (ret == i2c_master_read_without_error_log(&i2c_msg, retry)) {
+		LOG_INF("TEMP_MODULD = TMP432");
 		tmp_module = TMP_MODULE_TMP432;
 		return;
 	} else {
-		LOG_INF("Assume TMP is EMC1413 by register check");
+		LOG_INF("TEMP_MODULD = EMC1413");
 		tmp_module = TMP_MODULE_EMC1413;
 		return;
 	}
 }
 
-void init_vr_vendor_type(void)
+void init_vr_ubc_vendor_type(void)
 {
 	//get CPLD VR_VENDOR_TYPE
 	if (!plat_read_cpld(CPLD_OFFSET_VR_VENDER_TYPE, &vr_vendor_module, 1)) {
@@ -220,9 +220,9 @@ void init_vr_vendor_type(void)
 		vr_module = VR_MODULE_UNKNOWN;
 		break;
 	}
-
-	LOG_INF("vr_vendor_module=%s (ubc=%s, vr=%s)", vr_vendor_module_name[vr_vendor_module],
-		ubc_module_name[ubc_module], vr_module_name[vr_module]);
+	
+	LOG_INF("VR_MODULE = %s", vr_module_name[vr_module]);
+	LOG_INF("UBC_MODULE = %s", ubc_module_name[ubc_module]);
 }
 
 void init_plat_config()
@@ -230,9 +230,10 @@ void init_plat_config()
 	init_board_type();
 	init_board_stage();
 	init_tmp_vendor_type();
-	change_tmp_sensor_cfg(asic_board_id, tmp_module, ubc_module, board_rev_id);
-	init_vr_vendor_type();
-	change_vr_sensor_cfg(asic_board_id, vr_module, ubc_module, board_rev_id);
+	change_tmp_sensor_cfg(asic_board_id, tmp_module, board_rev_id);
+	init_vr_ubc_vendor_type();
+	change_vr_sensor_cfg(asic_board_id, vr_module, board_rev_id);
+	change_ubc_sensor_cfg(asic_board_id, ubc_module, board_rev_id);
 
 	// cpld fru offset 0: slot
 	plat_cpld_eerprom_read(&mmc_slot, MMC_SLOT_USER_SETTING_OFFSET, 1);

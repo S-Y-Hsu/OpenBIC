@@ -435,10 +435,9 @@ char16_t *char16_strcpy(char16_t *dest, const char16_t *src);
 char16_t *char16_strcat_char(char16_t *dest, char16_t ch);
 
 bool get_raw_data_from_sensor_id(uint8_t sensor_id, uint8_t offset, uint8_t *val, uint8_t len);
-void change_tmp_sensor_cfg(uint8_t asic_board_id, uint8_t tmp_module, uint8_t ubc_module,
-			   uint8_t board_rev_id);
-void change_vr_sensor_cfg(uint8_t asic_board_id, uint8_t vr_module, uint8_t ubc_module,
-			  uint8_t board_rev_id);
+void change_tmp_sensor_cfg(uint8_t asic_board_id, uint8_t tmp_module, uint8_t board_rev_id);
+void change_vr_sensor_cfg(uint8_t asic_board_id, uint8_t vr_module, uint8_t board_rev_id);
+void change_ubc_sensor_cfg(uint8_t asic_board_id, uint8_t ubc_module, uint8_t board_rev_id);
 uint8_t convert_vr_addr(uint8_t bus, uint8_t addr, uint8_t vr_change_mode);
 uint8_t convert_tmp_addr(uint8_t bus, uint8_t addr);
 uint32_t plat_get_pdr_size(uint8_t pdr_type);
