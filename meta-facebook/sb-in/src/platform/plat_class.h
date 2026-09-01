@@ -22,7 +22,7 @@
 // raw CPLD VR_VENDOR_TYPE code (TYPE[3:0]) -> UBC x VR pair, direct lookup (not bit-decomposable):
 // 00h FLEX+MPS(LPD) 01h FLEX+SNI(LPD) 02h REED+RNS(LPD)
 // 03h REED+MPS(PT)  04h LUX+SNU(PT)   05h REED+RNS(PT)  06h~0Fh Reserved
-enum EL_VR_VENDER_MODULE {
+enum IN_VR_VENDER_MODULE {
 	FLEX_UBC_AND_MPS_VR_LPD,
 	FLEX_UBC_AND_SNI_VR_LPD,
 	REED_UBC_AND_RNS_VR_LPD,
