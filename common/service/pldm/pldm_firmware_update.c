@@ -42,6 +42,7 @@
 #include "mp29816a.h"
 #include "raa228249.h"
 #include "mp29526.h"
+#include "xdpe1e3g6a.h"
 
 LOG_MODULE_DECLARE(pldm);
 
@@ -332,6 +333,18 @@ uint8_t pldm_vr_update(void *fw_update_param)
 	else if (!strncmp(p->comp_version_str, KEYWORD_VR_RAA229140A,
 			  ARRAY_SIZE(KEYWORD_VR_RAA229140A) - 1)) {
 		if (!raa229140a_fwupdate(p->bus, p->addr, hex_buff, fw_update_cfg.image_size))
+			goto exit;
+	}
+#endif
+#ifdef ENABLE_xdpe1e3g6a
+	else if (!strncmp(p->comp_version_str, KEYWORD_VR_XDPE1E3G6A,
+			  ARRAY_SIZE(KEYWORD_VR_XDPE1E3G6A) - 1)) {
+		if (!xdpe1e3g6a_fwupdate(p->bus, p->addr, hex_buff, fw_update_cfg.image_size))
+			goto exit;
+	}
+	else if (!strncmp(p->comp_version_str, KEYWORD_VR_XDPE1EE496A,
+			  ARRAY_SIZE(KEYWORD_VR_XDPE1EE496A) - 1)) {
+		if (!xdpe1e496a_fwupdate(p->bus, p->addr, hex_buff, fw_update_cfg.image_size))
 			goto exit;
 	}
 #endif
