@@ -132,7 +132,6 @@ void change_tmp_sensor_cfg(uint8_t asic_board_id, uint8_t tmp_module, uint8_t bo
 		return;
 	for (uint8_t i = 0; i < tmp_count; i++) {
 		uint8_t num = tmp_table[i].pldm_sensor_cfg.num;
-		// waiting for PDR to be ready
 		if (num < SENSOR_NUM_ASIC_ZORA00_TEMP_C || num > SENSOR_NUM_ASIC_HAMSA_LS_TEMP_C) {
 			continue;
 		}
