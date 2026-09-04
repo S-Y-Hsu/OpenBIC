@@ -36,6 +36,7 @@
 #include "plat_i2c.h"
 
 #define PLAT_WAIT_SENSOR_POLLING_END_DELAY_MS 1000
+#define ARKE_BOOT0_IMG_SIZE 0x1FFFFB
 
 LOG_MODULE_REGISTER(plat_fwupdate);
 
@@ -43,6 +44,7 @@ static uint8_t pldm_pre_vr_update(void *fw_update_param);
 static uint8_t pldm_post_vr_update(void *fw_update_param);
 static uint8_t pldm_pre_bic_update(void *fw_update_param);
 static bool get_vr_fw_version(void *info_p, uint8_t *buf, uint8_t *len);
+static bool get_boot0_hamsa_fw_version(void *info_p, uint8_t *buf, uint8_t *len);
 
 const struct device *i2c_dev;
 
@@ -113,7 +115,7 @@ bool find_sensor_id_and_name_by_firmware_comp_id(uint8_t comp_identifier, uint8_
 static uint8_t pldm_pre_vr_update(void *fw_update_param)
 {
 	CHECK_NULL_ARG_WITH_RETURN(fw_update_param, 1);
-
+	
 	pldm_fw_update_param_t *p = (pldm_fw_update_param_t *)fw_update_param;
 	// if (get_asic_board_id() != ASIC_BOARD_ID_EVB && p->comp_id == COMPNT_VR_3V3) {
 	// 	LOG_ERR("only evb support 3V3 vr update");
@@ -278,6 +280,218 @@ err:
 	return ret;
 }
 
+/* ASIC FW update function */
+static uint8_t plat_pldm_pre_mtia_flash_update(void *fw_update_param)
+{
+	CHECK_NULL_ARG_WITH_RETURN(fw_update_param, 1);
+
+	// waiting for CPLD to confirm reset reg location
+	// plat_set_cpld_reset_reg(RESET_CPLD_OFF);
+
+
+	gpio_set(SPI_HAMSA_MUX_IN1, 1);
+	LOG_INF("switch hamsa spi to MMC");
+
+	// re-init flash
+	const struct device *flash_dev;
+	flash_dev = device_get_binding("spi_fiu0_cs1");
+	int rc = 0;
+	rc = spi_nor_re_init(flash_dev);
+	if (rc != 0) {
+		LOG_ERR("spi_nor_re_init fail");
+		// waiting for CPLD to confirm reset reg location
+		// plat_set_cpld_reset_reg(RESET_CPLD_ON);
+		return 1;
+	}
+
+	return 0;
+}
+
+uint8_t plat_pldm_mtia_flash_update(void *fw_update_param)
+{
+	CHECK_NULL_ARG_WITH_RETURN(fw_update_param, 1);
+
+	return pldm_fw_update(fw_update_param, DEVSPI_SPI1_CS1);
+}
+
+static uint32_t hamsa_boot0_crc32;
+static uint32_t hamsa_boot0_version;
+
+static uint8_t plat_pldm_post_mtia_flash_update(void *fw_update_param)
+{
+	CHECK_NULL_ARG_WITH_RETURN(fw_update_param, 1);
+
+	//read data back to calculate CRC32
+	uint8_t *rxbuf = NULL;
+	// image data is from 0x0 to 0x1FFFFB, 0x1FFFFC to 0x1FFFFF is CRC32
+	int remain = ARKE_BOOT0_IMG_SIZE + 1;
+	uint32_t offset = 0;
+	uint32_t crc32 = 0;
+
+	rxbuf = malloc(PLAT_CRC32_READ_SIZE);
+	if (rxbuf == NULL) {
+		LOG_ERR("Fail to allocate size %d", PLAT_CRC32_READ_SIZE);
+		// waiting for CPLD to confirm reset reg location
+		// plat_set_cpld_reset_reg(RESET_CPLD_ON);
+		return 1;
+	}
+
+	while (remain > 0) {
+		if (remain > PLAT_CRC32_READ_SIZE) {
+			if (read_fw_image(offset, PLAT_CRC32_READ_SIZE, rxbuf, DEVSPI_SPI1_CS1)) {
+				LOG_ERR("Fail to read offset %x", offset);
+				break;
+			}
+			crc32 = crc32_ieee_update(crc32, rxbuf, PLAT_CRC32_READ_SIZE);
+			remain = remain - PLAT_CRC32_READ_SIZE;
+			offset += PLAT_CRC32_READ_SIZE;
+		} else {
+			if (read_fw_image(offset, remain, rxbuf, DEVSPI_SPI1_CS1)) {
+				LOG_ERR("Fail to read offset %x", offset);
+				break;
+			}
+			crc32 = crc32_ieee_update(crc32, rxbuf, remain);
+			remain = 0;
+			break;
+		}
+	}
+
+	// CRC32 read is done with rxbuf; reuse the same buffer to read the 3-byte version field
+	if (read_fw_image(PLAT_FLASH_BOOT0_VER_OFFSET, PLAT_FLASH_BOOT0_VER_SIZE, rxbuf,
+			  DEVSPI_SPI1_CS1)) {
+		LOG_ERR("read flash : read_fw_image fail");
+		// waiting for CPLD to confirm reset reg location
+		// plat_set_cpld_reset_reg(RESET_CPLD_ON);
+		SAFE_FREE(rxbuf);
+		return 1;
+	}
+	uint32_t ver_value = rxbuf[0] << 16 | rxbuf[1] << 8 | rxbuf[2];
+	SAFE_FREE(rxbuf);
+
+	hamsa_boot0_crc32 = crc32;
+	hamsa_boot0_version = ver_value;
+
+	// disable spi node
+	gpio_set(SPI_HAMSA_MUX_IN1, 0);
+	LOG_INF("Disable spi node");
+	// waiting for CPLD to confirm reset reg location
+	// plat_set_cpld_reset_reg(RESET_CPLD_ON);
+	return 0;
+}
+
+uint32_t plat_get_image_crc_checksum(void)
+{
+	return hamsa_boot0_crc32;
+}
+
+uint32_t plat_get_image_version(void)
+{
+	return hamsa_boot0_version;
+}
+
+void update_temp_boot0_version(uint32_t version)
+{
+	hamsa_boot0_version = version;
+}
+
+bool plat_get_image_crc_checksum_from_flash(uint32_t *data_ver, uint32_t *data_crc)
+{
+	CHECK_NULL_ARG_WITH_RETURN(data_ver, false);
+	CHECK_NULL_ARG_WITH_RETURN(data_crc, false);
+
+	gpio_set(SPI_HAMSA_MUX_IN1, 1);
+
+	// re-init flash
+	const struct device *flash_dev = device_get_binding("spi_fiu0_cs1");
+	if (spi_nor_re_init(flash_dev) != 0) {
+		LOG_ERR("spi_nor_re_init fail");
+		gpio_set(SPI_HAMSA_MUX_IN1, 0);
+		return false;
+	}
+
+	/*
+	read data back to combine Ver and CRC32
+	0x1FFFF8 (Byte 0): VERSION_PATCH
+	0x1FFFF9 (Byte 1): VERSION_MINOR
+	0x1FFFFA (Byte 2): VERSION_MAJOR
+
+	0x1FFFFC: CRC32 byte 0
+	0x1FFFFD: CRC32 byte 1
+	0x1FFFFE: CRC32 byte 2
+	0x1FFFFF: CRC32 byte 3
+	*/
+	uint8_t rxbuf[PLAT_FLASH_BOOT0_VER_CRC_SIZE] = { 0 };
+	if (read_fw_image(PLAT_FLASH_BOOT0_VER_OFFSET, PLAT_FLASH_BOOT0_VER_CRC_SIZE, rxbuf,
+			  DEVSPI_SPI1_CS1)) {
+		LOG_ERR("read_fw_image fail");
+		gpio_set(SPI_HAMSA_MUX_IN1, 0);
+		return false;
+	}
+
+	*data_ver = rxbuf[0] << 16 | rxbuf[1] << 8 | rxbuf[2];
+	*data_crc = rxbuf[4] << 24 | rxbuf[5] << 16 | rxbuf[6] << 8 | rxbuf[7];
+	hamsa_boot0_version = *data_ver;
+	hamsa_boot0_crc32 = *data_crc;
+
+	gpio_set(SPI_HAMSA_MUX_IN1, 0);
+	return true;
+}
+
+#define ASIC_VERSION_BYTE 0x68
+#define I2C_MAX_RETRY 3
+
+void get_fw_version_boot0_from_asic(void)
+{
+	I2C_MSG i2c_msg = { .bus = I2C_BUS12, .target_addr = 0x32 };
+	i2c_msg.tx_len = 1;
+	// Only HAMSA
+	// waiting for asic team to confirm.
+	i2c_msg.rx_len = 11;
+	i2c_msg.data[0] = ASIC_VERSION_BYTE;
+	i2c_master_read(&i2c_msg, I2C_MAX_RETRY);
+
+	LOG_INF("boot1 VER : %02d.%02d.%02d", i2c_msg.data[3], i2c_msg.data[2], i2c_msg.data[1]);
+	LOG_INF("boot0 VER : %02d.%02d.%02d", i2c_msg.data[8], i2c_msg.data[7], i2c_msg.data[6]);
+	uint32_t data_p = i2c_msg.data[8] << 16 | i2c_msg.data[7] << 8 | i2c_msg.data[6];
+	if (data_p) {
+		LOG_INF("update boot0 version read from asic");
+		hamsa_boot0_version = data_p;
+	}
+}
+
+static bool get_boot0_hamsa_fw_version(void *info_p, uint8_t *buf, uint8_t *len)
+{
+	CHECK_NULL_ARG_WITH_RETURN(info_p, false);
+	CHECK_NULL_ARG_WITH_RETURN(buf, false);
+	CHECK_NULL_ARG_WITH_RETURN(len, false);
+
+	get_fw_version_boot0_from_asic();
+
+	const char *remain_str_p = "flash hamsa BOOT0: ";
+	uint8_t *buf_p = buf;
+	*len = 0;
+
+	memcpy(buf_p, remain_str_p, strlen(remain_str_p));
+	buf_p += strlen(remain_str_p);
+	*len += strlen(remain_str_p);
+
+	// bin2hex: 3 bytes -> 6 chars
+	int hex_len = bin2hex((uint8_t *)&hamsa_boot0_version, 3, buf_p, 6);
+	buf_p += hex_len;
+	*len += hex_len;
+
+	const char *space = " ";
+	memcpy(buf_p, space, strlen(space));
+	buf_p += strlen(space);
+	*len += strlen(space);
+
+	int crc_hex_len = bin2hex((uint8_t *)&hamsa_boot0_crc32, 4, buf_p, 8);
+	buf_p += crc_hex_len;
+	*len += crc_hex_len;
+
+	return true;
+}
+
 /* PLDM FW update table */
 pldm_fw_update_info_t PLDMUPDATE_FW_CONFIG_TABLE[] = {
 	{
@@ -308,6 +522,21 @@ pldm_fw_update_info_t PLDMUPDATE_FW_CONFIG_TABLE[] = {
 	VR_COMPONENT_DEF(COMPNT_VR_11),
 	VR_COMPONENT_DEF(COMPNT_VR_12),
 	VR_COMPONENT_DEF(COMPNT_VR_13),
+	{
+		.enable = true,
+		.comp_classification = COMP_CLASS_TYPE_DOWNSTREAM,
+		.comp_identifier = COMPNT_HAMSA,
+		.comp_classification_index = 0x00,
+		.pre_update_func = plat_pldm_pre_mtia_flash_update,
+		.update_func = plat_pldm_mtia_flash_update,
+		.pos_update_func = plat_pldm_post_mtia_flash_update,
+		.inf = COMP_UPDATE_VIA_SPI,
+		.activate_method = COMP_ACT_SELF,
+		.self_act_func = NULL,
+		.get_fw_version_fn = get_boot0_hamsa_fw_version,
+		.self_apply_work_func = NULL,
+		.comp_version_str = NULL,
+	},
 };
 
 uint8_t plat_pldm_query_device_identifiers(const uint8_t *buf, uint16_t len, uint8_t *resp,
