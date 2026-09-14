@@ -13619,17 +13619,6 @@ bool is_vr_access(uint8_t sensor_num)
 	}
 }
 
-uint32_t plat_pldm_sensor_get_quick_vr_poll_interval()
-{
-	return quick_vr_poll_interval;
-}
-
-void plat_pldm_sensor_set_quick_vr_poll_interval(uint32_t value)
-{
-	quick_vr_poll_interval = value;
-	is_quick_vr_poll_changed = true;
-}
-
 void plat_pldm_sensor_change_poll_interval(int thread_id, uint32_t *poll_interval_ms)
 {
 	CHECK_NULL_ARG(poll_interval_ms);
