@@ -4,7 +4,6 @@
 #include "plat_util.h"
 #include "plat_gpio.h"
 #include "plat_log.h"
-#include "plat_hook.h"
 #include "plat_kernel_obj.h"
 #include <logging/log.h>
 
@@ -26,19 +25,6 @@ bool plat_read_cpld(uint8_t offset, uint8_t *data, uint8_t len)
 bool plat_write_cpld(uint8_t offset, uint8_t *data)
 {
 	return plat_i2c_write(I2C_BUS_CPLD, CPLD_ADDR, offset, data, 1);
-}
-
-// cpld polling
-void check_cpld_handler();
-K_WORK_DELAYABLE_DEFINE(check_cpld_work, check_cpld_handler);
-
-void check_ubc_delayed_timer_handler(struct k_timer *timer);
-K_TIMER_DEFINE(init_ubc_delayed_timer, check_ubc_delayed_timer_handler, NULL);
-void check_ubc_delayed(struct k_work *work);
-K_WORK_DEFINE(check_ubc_delayed_work, check_ubc_delayed);
-void check_ubc_delayed_timer_handler(struct k_timer *timer)
-{
-	k_work_submit(&check_ubc_delayed_work);
 }
 
 K_THREAD_STACK_DEFINE(cpld_polling_stack, POLLING_CPLD_STACK_SIZE);
@@ -77,37 +63,6 @@ void set_cpld_polling_enable_flag(bool status)
 bool get_cpld_polling_enable_flag(void)
 {
 	return cpld_polling_enable_flag;
-}
-
-bool ubc_enabled_delayed_status = false;
-
-void check_ubc_delayed(struct k_work *work)
-{
-	/* FM_PLD_UBC_EN_R
-	 * 1 -> UBC is enabled
-	 * 0 -> UBC is disabled
-	 */
-	bool is_ubc_enabled = (gpio_get(FM_PLD_UBC_EN_R) == GPIO_HIGH);
-
-	bool is_dc_on = is_mb_dc_on();
-
-	if (is_ubc_enabled) {
-		if (is_dc_on != is_ubc_enabled) {
-			//send event to bmc
-			uint16_t error_code = (POWER_ON_SEQUENCE_TRIGGER_CAUSE << 13);
-			error_log_event(error_code, LOG_ASSERT);
-			LOG_ERR("Generated error code: 0x%x", error_code);
-		}
-	}
-
-	ubc_enabled_delayed_status = is_ubc_enabled;
-
-	LOG_DBG("UBC enabled delayed status: %d", ubc_enabled_delayed_status);
-
-	/* cpld tbd
-	if (is_ubc_enabled == true) {
-		k_work_submit(&vr_vout_work);
-	} */
 }
 
 void reset_error_log_states(uint8_t err_type)
@@ -173,9 +128,8 @@ void poll_cpld_info_table(void)
 			continue;
 		}
 
-		uint8_t expected_val = ubc_enabled_delayed_status ?
-						cpld_info_table[i].dc_on_defaut :
-						cpld_info_table[i].dc_off_defaut;
+		uint8_t expected_val = plat_get_ubc_status() ? cpld_info_table[i].dc_on_defaut :
+								cpld_info_table[i].dc_off_defaut;
 
 		uint8_t new_fault_map = (data ^ expected_val) & cpld_info_table[i].bit_check_mask;
 
@@ -208,19 +162,6 @@ void poll_cpld_registers()
 
 		poll_cpld_info_table();
 	}
-}
-
-void check_cpld_handler()
-{
-	uint8_t data[4] = { 0 };
-	uint32_t version = 0;
-	if (!plat_i2c_read(I2C_BUS_CPLD, CPLD_ADDR, CPLD_OFFSET_USERCODE, data, 4)) {
-		LOG_ERR("Failed to read cpld version from cpld");
-	}
-	version = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
-	LOG_DBG("The cpld version: %08x", version);
-
-	k_work_schedule(&check_cpld_work, K_MSEC(5000));
 }
 
 void init_cpld_polling(void)
