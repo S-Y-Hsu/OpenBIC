@@ -33,60 +33,60 @@ const cpld_bit_name_table_t cpld_bit_name_table[] = {
 	  {
 		  "RSVD",
 		  "RSVD",
-		  "HAMSA_VDDHRXTX_PCIE",
-		  "HAMSA_AVDD_PCIE",
-		  "OWL_W_TRVDD0P75",
-		  "OWL_E_TRVDD0P75",
-		  "OWL_W_TRVDD0P9",
-		  "OWL_E_TRVDD0P9",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
 	  } },
 	{ VR_POWER_FAULT_2_REG,
 	  "VR Power Fault   (1:Power Fault, 0=Normal)",
 	  {
-		  "MAX_N_VDD",
-		  "MAX_M_VDD",
-		  "MAX_S_VDD",
-		  "HAMSA_VDD",
-		  "OWL_W_VDD",
-		  "OWL_E_VDD",
-		  "NUWA0_VDD",
-		  "NUWA1_VDD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
 	  } },
 	{ VR_POWER_FAULT_3_REG,
 	  "VR Power Fault   (1:Power Fault, 0=Normal)",
 	  {
-		  "VDDPHY_HBM1_HBM3_HBM5_HBM7",
-		  "VPP_HBM1_HBM3_HBM5_HBM7",
-		  "VDDQC_HBM1_HBM3_HBM5_HBM7",
-		  "VDDQL_HBM1_HBM3_HBM5_HBM7",
-		  "VDDPHY_HBM0_HBM2_HBM4_HBM6",
-		  "VPP_HBM0_HBM2_HBM4_HBM6",
-		  "VDDQC_HBM0_HBM2_HBM4_HBM6",
-		  "VDDQL_HBM0_HBM2_HBM4_HBM6",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
 	  } },
 	{ VR_POWER_FAULT_4_REG,
 	  "VR Power Fault   (1:Power Fault, 0=Normal)",
 	  {
-		  "P1V5_W_RVDD",
-		  "P1V5_E_RVDD",
-		  "P0V9_OWL_W_PVDD",
-		  "P0V9_OWL_E_PVDD",
-		  "PLL_VDDA15_HBM5_HBM7",
-		  "PLL_VDDA15_HBM1_HBM3",
-		  "PLL_VDDA15_HBM4_HBM6",
-		  "PLL_VDDA15_HBM0_HBM2",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
 	  } },
 	{ VR_POWER_FAULT_5_REG,
 	  "VR Power Fault   (1:Power Fault, 0=Normal)",
 	  {
-		  "PVDD1P5",
-		  "P1V5_PLL_VDDA_SOC",
-		  "P1V5_PLL_VDDA_OWL",
-		  "LDO_IN_1V2",
-		  "P1V8",
-		  "P3V3",
-		  "P5V",
-		  "P12V_UBC_PWRGD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
 	  } }
 };
 
@@ -159,6 +159,19 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 		case CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE:
 			shell_print(shell, "\t%s", reg_name);
 			shell_print(shell, "\t\t%s", bit_name);
+			shell_print(shell, "read vr sensor status word(0x79):");
+			shell_print(shell, "\tlow  byte: 0x%02x", log.error_data[0]);
+			shell_print(shell, "\thigh byte: 0x%02x", log.error_data[1]);
+			shell_print(shell, "read vr sensor status vout(0x20): 0x%02x",
+				    log.error_data[2]);
+			shell_print(shell, "read vr sensor status iout(0x21): 0x%02x",
+				    log.error_data[3]);
+			shell_print(shell, "read vr sensor status input(0x22): 0x%02x",
+				    log.error_data[4]);
+			shell_print(shell, "read vr sensor status temperature(0x24): 0x%02x",
+				    log.error_data[5]);
+			shell_print(shell, "read vr sensor status CML(0x7e): 0x%02x",
+				    log.error_data[6]);
 			break;
 		case POWER_ON_SEQUENCE_TRIGGER_CAUSE:
 			shell_print(shell, "\tPOWER_ON_SEQUENCE_TRIGGER");

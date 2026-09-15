@@ -29,6 +29,7 @@
 #include "plat_class.h"
 #include "plat_pldm_sensor.h"
 #include "pldm_oem.h"
+#include "pmbus.h"
 
 LOG_MODULE_REGISTER(plat_log);
 
@@ -46,94 +47,72 @@ static uint16_t next_log_position; // next RAM/EEPROM slot to write, 0-based
 static uint16_t next_index; // next value for err_log_data[].index, 0-based, wraps at LOG_MAX_INDEX
 static uint8_t log_num; // Number of logs in EEPROM
 
+#define NOT_VR_RAIL 0xFF
+
 typedef struct _vr_error_callback_info_ {
 	uint8_t cpld_offset;
-	uint8_t vr_status_word_access_map;
 	uint8_t bit_mapping_vr_sensor_num[8];
 } vr_error_callback_info;
 
-vr_error_callback_info vr_error_callback_info_table[] = {
-	// cpld_offset, reading mask, bit_mapping_vr_sensor_num
+const vr_error_callback_info vr_error_callback_info_table[] = {
 	{ VR_POWER_FAULT_1_REG,
-	  0xFC,
-	  { VR_INDEX_E_3, VR_INDEX_E_13, VR_INDEX_E_3, VR_INDEX_E_13, VR_INDEX_E_8, VR_INDEX_E_9,
-	    0x00, 0x00 } },
+	  { VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX,
+	    VR_RAIL_E_MAX, VR_RAIL_E_MAX, NOT_VR_RAIL } },
 	{ VR_POWER_FAULT_2_REG,
-	  0xFF,
-	  { VR_INDEX_E_1, VR_INDEX_E_2, VR_INDEX_E_5, VR_INDEX_E_12, VR_INDEX_E_9, VR_INDEX_E_12,
-	    VR_INDEX_E_4, VR_INDEX_E_8 } },
+	  { VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX,
+	    VR_RAIL_E_MAX, VR_RAIL_E_MAX, NOT_VR_RAIL } },
 	{ VR_POWER_FAULT_3_REG,
-	  0xFF,
-	  { VR_INDEX_E_11, VR_INDEX_E_10, VR_INDEX_E_10, VR_INDEX_E_11, VR_INDEX_E_5, VR_INDEX_E_6,
-	    VR_INDEX_E_6, VR_INDEX_E_4 } },
+	  { VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX,
+	    VR_RAIL_E_MAX, VR_RAIL_E_MAX, NOT_VR_RAIL } },
 	{ VR_POWER_FAULT_4_REG,
-	  0,
-	  { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } }, // to_do not sure
+	  { VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX,
+	    VR_RAIL_E_MAX, VR_RAIL_E_MAX, NOT_VR_RAIL } },
 	{ VR_POWER_FAULT_5_REG,
-	  0,
-	  { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } }, // to_do not sure
+	  { VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX, VR_RAIL_E_MAX,
+	    VR_RAIL_E_MAX, VR_RAIL_E_MAX, NOT_VR_RAIL } },
 };
-
-void plat_log_read(uint8_t *log_data, uint8_t cmd_size, uint16_t order)
-{
-	CHECK_NULL_ARG(log_data);
-
-	// Calculate the target log position based on next_log_position (0-based)
-	uint16_t zero_base_log_position = (next_log_position + LOG_MAX_NUM - order) % LOG_MAX_NUM;
-
-	uint16_t eeprom_address =
-		FRU_LOG_START + zero_base_log_position * sizeof(plat_err_log_mapping);
-
-	LOG_DBG("order: %d, log_position: %d, eeprom_address: 0x%X", order,
-		(zero_base_log_position + 1),
-		eeprom_address); //remove after all log function is ready
-
-	plat_err_log_mapping log_entry;
-
-	if (!plat_eeprom_read(eeprom_address, (uint8_t *)&log_entry,
-			      sizeof(plat_err_log_mapping))) {
-		LOG_ERR("Failed to read log from EEPROM at position %d (address: 0x%X)", order,
-			eeprom_address);
-		memset(log_data, 0x00, cmd_size);
-		return;
-	}
-
-	memcpy(log_data, &log_entry, cmd_size);
-
-	const plat_err_log_mapping *p = (plat_err_log_mapping *)log_data;
-
-	LOG_HEXDUMP_DBG(log_data, cmd_size, "plat_log_read_before");
-
-	if (p->index == 0xFFFF) {
-		memset(log_data, 0x00, cmd_size);
-	}
-
-	LOG_HEXDUMP_DBG(log_data, cmd_size, "plat_log_read_after");
-}
-
-// Clear logs from memory and EEPROM with error handling
-void plat_clear_log()
-{
-	memset(err_log_data, 0xFF, sizeof(err_log_data));
-	memset(err_code_caches, 0, sizeof(err_code_caches));
-
-	for (uint8_t i = 0; i < LOG_MAX_NUM; i++) {
-		if (!plat_eeprom_write(FRU_LOG_START + sizeof(plat_err_log_mapping) * i,
-				       (uint8_t *)err_log_data, sizeof(plat_err_log_mapping))) {
-			LOG_ERR("Clear EEPROM Log failed at index %d", i);
-		}
-		k_msleep(EEPROM_MAX_WRITE_TIME);
-	}
-	log_num = 0;
-	next_index = 0;
-}
 
 bool vr_fault_get_error_data(uint8_t sensor_id, uint8_t *data)
 {
 	CHECK_NULL_ARG_WITH_RETURN(data, false);
 
-	// vr status word
-	return get_raw_data_from_sensor_id(sensor_id, 0x79, data, 2);
+	bool ret = true;
+	uint8_t vr_status_buf[7] = { 0 };
+
+	if (!get_raw_data_from_sensor_id(sensor_id, PMBUS_STATUS_WORD, &vr_status_buf[0], 2)) {
+		LOG_ERR("Failed to read VR status word, sensor_id %d", sensor_id);
+		ret = false;
+	}
+
+	if (!get_raw_data_from_sensor_id(sensor_id, PMBUS_STATUS_VOUT, &vr_status_buf[2], 1)) {
+		LOG_ERR("Failed to read VR status vout, sensor_id %d", sensor_id);
+		ret = false;
+	}
+
+	if (!get_raw_data_from_sensor_id(sensor_id, PMBUS_STATUS_IOUT, &vr_status_buf[3], 1)) {
+		LOG_ERR("Failed to read VR status iout, sensor_id %d", sensor_id);
+		ret = false;
+	}
+
+	if (!get_raw_data_from_sensor_id(sensor_id, PMBUS_STATUS_INPUT, &vr_status_buf[4], 1)) {
+		LOG_ERR("Failed to read VR status input, sensor_id %d", sensor_id);
+		ret = false;
+	}
+
+	if (!get_raw_data_from_sensor_id(sensor_id, PMBUS_STATUS_TEMPERATURE, &vr_status_buf[5],
+					 1)) {
+		LOG_ERR("Failed to read VR status temperature, sensor_id %d", sensor_id);
+		ret = false;
+	}
+
+	if (!get_raw_data_from_sensor_id(sensor_id, PMBUS_STATUS_CML, &vr_status_buf[6], 1)) {
+		LOG_ERR("Failed to read VR status CML, sensor_id %d", sensor_id);
+		ret = false;
+	}
+
+	memcpy(data, vr_status_buf, sizeof(vr_status_buf));
+
+	return ret;
 }
 
 bool get_error_data(uint16_t error_code, uint8_t *data)
@@ -150,7 +129,47 @@ bool get_error_data(uint16_t error_code, uint8_t *data)
 	}
 	}
 
-	return true;
+	// Below handles CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE, dispatched by which CPLD register
+	// (cpld_offset) triggered the fault.
+	uint8_t cpld_offset = error_code & 0xFF;
+	uint8_t bit_position = (error_code >> 8) & 0x07;
+
+	switch (cpld_offset) {
+	case VR_POWER_FAULT_1_REG:
+	case VR_POWER_FAULT_2_REG:
+	case VR_POWER_FAULT_3_REG:
+	case VR_POWER_FAULT_4_REG:
+	case VR_POWER_FAULT_5_REG: {
+		uint8_t rail = NOT_VR_RAIL;
+		for (size_t i = 0; i < ARRAY_SIZE(vr_error_callback_info_table); i++) {
+			if (vr_error_callback_info_table[i].cpld_offset == cpld_offset) {
+				rail = vr_error_callback_info_table[i]
+					       .bit_mapping_vr_sensor_num[bit_position];
+				break;
+			}
+		}
+
+		uint8_t sensor_id = 0x00;
+		if (rail == NOT_VR_RAIL) {
+			LOG_WRN("Pwr fault on cpld_offset: 0x%x, bit: %d, but this device is not a VR rail",
+				cpld_offset, bit_position);
+			return false;
+		}
+		if (!vr_rail_sensor_id_get(rail, &sensor_id)) {
+			LOG_ERR("Invalid value in vr_error_callback_info_table for cpld_offset: 0x%x, bit: %d",
+				cpld_offset, bit_position);
+			return false;
+		}
+		if (!vr_fault_get_error_data(sensor_id, data)) {
+			LOG_ERR("Failed to retrieve VR fault data for sensor_num: 0x%x", sensor_id);
+			return false;
+		}
+		return true;
+	}
+	default:
+		LOG_WRN("No decode handler for cpld_offset: 0x%x", cpld_offset);
+		return false;
+	}
 }
 
 // Find error_code in the active-fault cache. Returns the slot index, or -1 if not present.
@@ -261,6 +280,60 @@ void reset_error_log_event(uint8_t err_type)
 uint8_t plat_log_get_num(void)
 {
 	return log_num;
+}
+
+void plat_log_read(uint8_t *log_data, uint8_t cmd_size, uint16_t order)
+{
+	CHECK_NULL_ARG(log_data);
+
+	// Calculate the target log position based on next_log_position (0-based)
+	uint16_t zero_base_log_position = (next_log_position + LOG_MAX_NUM - order) % LOG_MAX_NUM;
+
+	uint16_t eeprom_address =
+		FRU_LOG_START + zero_base_log_position * sizeof(plat_err_log_mapping);
+
+	LOG_DBG("order: %d, log_position: %d, eeprom_address: 0x%X", order,
+		(zero_base_log_position + 1),
+		eeprom_address); //remove after all log function is ready
+
+	plat_err_log_mapping log_entry;
+
+	if (!plat_eeprom_read(eeprom_address, (uint8_t *)&log_entry,
+			      sizeof(plat_err_log_mapping))) {
+		LOG_ERR("Failed to read log from EEPROM at position %d (address: 0x%X)", order,
+			eeprom_address);
+		memset(log_data, 0x00, cmd_size);
+		return;
+	}
+
+	memcpy(log_data, &log_entry, cmd_size);
+
+	const plat_err_log_mapping *p = (plat_err_log_mapping *)log_data;
+
+	LOG_HEXDUMP_DBG(log_data, cmd_size, "plat_log_read_before");
+
+	if (p->index == 0xFFFF) {
+		memset(log_data, 0x00, cmd_size);
+	}
+
+	LOG_HEXDUMP_DBG(log_data, cmd_size, "plat_log_read_after");
+}
+
+// Clear logs from memory and EEPROM with error handling
+void plat_clear_log()
+{
+	memset(err_log_data, 0xFF, sizeof(err_log_data));
+	memset(err_code_caches, 0, sizeof(err_code_caches));
+
+	for (uint8_t i = 0; i < LOG_MAX_NUM; i++) {
+		if (!plat_eeprom_write(FRU_LOG_START + sizeof(plat_err_log_mapping) * i,
+				       (uint8_t *)err_log_data, sizeof(plat_err_log_mapping))) {
+			LOG_ERR("Clear EEPROM Log failed at index %d", i);
+		}
+		k_msleep(EEPROM_MAX_WRITE_TIME);
+	}
+	log_num = 0;
+	next_index = 0;
 }
 
 void find_last_log_position()
