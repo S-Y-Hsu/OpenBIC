@@ -20,6 +20,7 @@
 #include "plat_log.h"
 #include "plat_fru.h"
 #include "plat_cpld.h"
+#include "plat_hook.h"
 
 typedef struct {
 	uint8_t cpld_offset;
@@ -78,6 +79,30 @@ const cpld_bit_name_table_t cpld_bit_name_table[] = {
 	  } },
 	{ VR_POWER_FAULT_5_REG,
 	  "VR Power Fault   (1:Power Fault, 0=Normal)",
+	  {
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+	  } },
+	{ SMBUS_ALERT_1_REG,
+	  "SMBus Alert   (0:Alert, 1=Normal)",
+	  {
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+		  "RSVD",
+	  } },
+	{ SMBUS_ALERT_2_REG,
+	  "SMBus Alert   (0:Alert, 1=Normal)",
 	  {
 		  "RSVD",
 		  "RSVD",
@@ -157,21 +182,59 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 
 		switch (err_type) {
 		case CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE:
-			shell_print(shell, "\t%s", reg_name);
-			shell_print(shell, "\t\t%s", bit_name);
-			shell_print(shell, "read vr sensor status word(0x79):");
-			shell_print(shell, "\tlow  byte: 0x%02x", log.error_data[0]);
-			shell_print(shell, "\thigh byte: 0x%02x", log.error_data[1]);
-			shell_print(shell, "read vr sensor status vout(0x20): 0x%02x",
-				    log.error_data[2]);
-			shell_print(shell, "read vr sensor status iout(0x21): 0x%02x",
-				    log.error_data[3]);
-			shell_print(shell, "read vr sensor status input(0x22): 0x%02x",
-				    log.error_data[4]);
-			shell_print(shell, "read vr sensor status temperature(0x24): 0x%02x",
-				    log.error_data[5]);
-			shell_print(shell, "read vr sensor status CML(0x7e): 0x%02x",
-				    log.error_data[6]);
+			if (cpld_offset == SMBUS_ALERT_1_REG || cpld_offset == SMBUS_ALERT_2_REG) {
+				shell_print(shell, "\t%s", reg_name);
+				shell_print(shell, "\t\t%s", bit_name);
+
+				uint8_t vr_index;
+				if (!get_smb_alert_vr_index(cpld_offset, bit_position, &vr_index)) {
+					shell_print(shell, "no VR index mapped for this bit yet");
+					break;
+				}
+
+				const uint8_t *rails;
+				uint8_t rail_count;
+				if (!vr_index_get_rails(vr_index, &rails, &rail_count)) {
+					shell_print(shell, "invalid VR index %d", vr_index);
+					break;
+				}
+
+				for (int j = 0; j < rail_count; j++) {
+					uint8_t *rail_name;
+					uint8_t idx = j * 2;
+
+					if (!vr_rail_name_get(rails[j], &rail_name)) {
+						shell_print(
+							shell,
+							"Unknown VR rail(%u) status word(0x79):",
+							rails[j]);
+					} else {
+						shell_print(shell, "[0x%02x] %s status word(0x79):",
+							    rails[j], rail_name);
+					}
+					shell_print(shell, "\tlow  byte: 0x%02x",
+						    log.error_data[idx]);
+					shell_print(shell, "\thigh byte: 0x%02x",
+						    log.error_data[idx + 1]);
+				}
+			} else {
+				shell_print(shell, "\t%s", reg_name);
+				shell_print(shell, "\t\t%s", bit_name);
+				shell_print(shell, "read vr sensor status word(0x79):");
+				shell_print(shell, "\tlow  byte: 0x%02x", log.error_data[0]);
+				shell_print(shell, "\thigh byte: 0x%02x", log.error_data[1]);
+				shell_print(shell, "read vr sensor status vout(0x20): 0x%02x",
+					    log.error_data[2]);
+				shell_print(shell, "read vr sensor status iout(0x21): 0x%02x",
+					    log.error_data[3]);
+				shell_print(shell, "read vr sensor status input(0x22): 0x%02x",
+					    log.error_data[4]);
+				shell_print(shell,
+					    "read vr sensor status temperature(0x24): 0x%02x",
+					    log.error_data[5]);
+				shell_print(shell, "read vr sensor status CML(0x7e): 0x%02x",
+					    log.error_data[6]);
+			}
 			break;
 		case POWER_ON_SEQUENCE_TRIGGER_CAUSE:
 			shell_print(shell, "\tPOWER_ON_SEQUENCE_TRIGGER");

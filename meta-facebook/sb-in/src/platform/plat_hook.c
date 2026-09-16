@@ -36,6 +36,7 @@ static struct k_mutex vr_mutex[VR_INDEX_MAX];
 /* one {mutex, page} slot per (VR chip, PMBus page) pair; stride is VR_PAGE_NUM,
  * keep in sync with the VR_INDEX_E_x * VR_PAGE_NUM [+ page] indexing in plat_pldm_sensor.c
  */
+// clang-format off
 #define VR_PRE_PROC_ARG_ENTRY(n)                                                                 \
 	{ .mutex = vr_mutex + (n), .vr_page = 0x0 }, { .mutex = vr_mutex + (n), .vr_page = 0x1 }, \
 	{ .mutex = vr_mutex + (n), .vr_page = 0x2 },
@@ -47,7 +48,7 @@ vr_pre_proc_arg vr_pre_read_args[] = {
 	VR_PRE_PROC_ARG_ENTRY(9)  VR_PRE_PROC_ARG_ENTRY(10) VR_PRE_PROC_ARG_ENTRY(11)
 	VR_PRE_PROC_ARG_ENTRY(12)
 };
-
+// clang-format on
 #undef VR_PRE_PROC_ARG_ENTRY
 
 BUILD_ASSERT(ARRAY_SIZE(vr_pre_read_args) == VR_INDEX_MAX * VR_PAGE_NUM,
@@ -160,7 +161,8 @@ static vr_mapping_sensor vr_rail_table[] = {
 	{ SENSOR_NUM_ASIC_P0V8_MAX_S_VDD_VOLT_V, "ASIC_P0V8_MAX_S_VDD_VOLT_V", 0xffffffff },
 	{ SENSOR_NUM_ASIC_P0V4_VDDQL_HBM0145_VOLT_V, "ASIC_P0V4_VDDQL_HBM0145_VOLT_V", 0xffffffff },
 	//PU3:
-	{ SENSOR_NUM_ASIC_P0V75_VDDPHY_HBM0145_VOLT_V, "ASIC_P0V75_VDDPHY_HBM0145_VOLT_V", 0xffffffff },
+	{ SENSOR_NUM_ASIC_P0V75_VDDPHY_HBM0145_VOLT_V, "ASIC_P0V75_VDDPHY_HBM0145_VOLT_V",
+	  0xffffffff },
 	{ SENSOR_NUM_ASIC_P0V9_VDDQ_HBM0145_VOLT_V, "ASIC_P0V9_VDDQ_HBM0145_VOLT_V", 0xffffffff },
 	{ SENSOR_NUM_ASIC_P0V75_MAX_N_VDD_VOLT_V, "ASIC_P0V75_MAX_N_VDD_VOLT_V", 0xffffffff },
 	//PU4:
@@ -172,7 +174,8 @@ static vr_mapping_sensor vr_rail_table[] = {
 	{ SENSOR_NUM_ASIC_P0V4_VDDQL_HBM2367_VOLT_V, "ASIC_P0V4_VDDQL_HBM2367_VOLT_V", 0xffffffff },
 	{ SENSOR_NUM_ASIC_P0V8_MAX_M_VDD_VOLT_V, "ASIC_P0V8_MAX_M_VDD_VOLT_V", 0xffffffff },
 	//PU6:
-	{ SENSOR_NUM_ASIC_P0V75_VDDPHY_HBM2367_VOLT_V, "ASIC_P0V75_VDDPHY_HBM2367_VOLT_V", 0xffffffff },
+	{ SENSOR_NUM_ASIC_P0V75_VDDPHY_HBM2367_VOLT_V, "ASIC_P0V75_VDDPHY_HBM2367_VOLT_V",
+	  0xffffffff },
 	{ SENSOR_NUM_ASIC_P0V9_VDDQ_HBM2367_VOLT_V, "ASIC_P0V9_VDDQ_HBM2367_VOLT_V", 0xffffffff },
 	{ SENSOR_NUM_ASIC_P0V83_HAMSA_AVDD_PCIE_VOLT_V, "ASIC_P0V83_HAMSA_AVDD_PCIE_VOLT_V",
 	  0xffffffff },
@@ -237,6 +240,66 @@ bool vr_rail_sensor_id_get(uint8_t rail, uint8_t *sensor_id)
 	}
 
 	*sensor_id = vr_rail_table[rail].sensor_id;
+	return true;
+}
+
+/**************************************************************************************/
+/******************************* VR_INDEX_RAIL_TABLE ***********************************/
+/**************************************************************************************/
+// Which VR_RAIL_E pages belong to each VR_INDEX_E (IC). Mirrors the //PU groupings in
+// vr_rail_table above - each IC's rails are listed in the same order they appear there.
+typedef struct _vr_index_rail_map_ {
+	uint8_t rail_count;
+	uint8_t rails[MAX_RAILS_PER_IC];
+} vr_index_rail_map_t;
+
+static const vr_index_rail_map_t vr_index_rail_table[] = {
+	[VR_INDEX_E_1] = { 3,
+			   { VR_RAIL_E_ASIC_P1V05_VDDC_HBM0145, VR_RAIL_E_ASIC_P0V9_OWL_W_TRVDD,
+			     VR_RAIL_E_ASIC_P0V75_OWL_W_TRVDD } },
+	[VR_INDEX_E_2] = { 3,
+			   { VR_RAIL_E_ASIC_P0V75_OWL_W_VDD, VR_RAIL_E_ASIC_P0V8_MAX_S_VDD,
+			     VR_RAIL_E_ASIC_P0V4_VDDQL_HBM0145 } },
+	[VR_INDEX_E_3] = { 3,
+			   { VR_RAIL_E_ASIC_P0V75_VDDPHY_HBM0145, VR_RAIL_E_ASIC_P0V9_VDDQ_HBM0145,
+			     VR_RAIL_E_ASIC_P0V75_MAX_N_VDD } },
+	[VR_INDEX_E_4] = { 3,
+			   { VR_RAIL_E_ASIC_P1V05_VDDC_HBM2367, VR_RAIL_E_ASIC_P0V9_OWL_E_TRVDD,
+			     VR_RAIL_E_ASIC_P0V75_OWL_E_TRVDD } },
+	[VR_INDEX_E_5] = { 3,
+			   { VR_RAIL_E_ASIC_P0V75_OWL_E_VDD, VR_RAIL_E_ASIC_P0V4_VDDQL_HBM2367,
+			     VR_RAIL_E_ASIC_P0V8_MAX_M_VDD } },
+	[VR_INDEX_E_6] = { 3,
+			   { VR_RAIL_E_ASIC_P0V75_VDDPHY_HBM2367, VR_RAIL_E_ASIC_P0V9_VDDQ_HBM2367,
+			     VR_RAIL_E_ASIC_P0V83_HAMSA_AVDD_PCIE } },
+	[VR_INDEX_E_7] = { 2,
+			   { VR_RAIL_E_ASIC_P0V75_ZORA11_VDDL, VR_RAIL_E_ASIC_P0V75_ZORA11_VDDH } },
+	[VR_INDEX_E_8] = { 2,
+			   { VR_RAIL_E_ASIC_P0V75_ZORA10_VDDL, VR_RAIL_E_ASIC_P0V75_ZORA10_VDDH } },
+	[VR_INDEX_E_9] = { 2,
+			   { VR_RAIL_E_ASIC_P0V75_ZORA01_VDDL, VR_RAIL_E_ASIC_P0V75_ZORA01_VDDH } },
+	[VR_INDEX_E_10] = { 2,
+			    { VR_RAIL_E_ASIC_P0V75_ZORA00_VDDL,
+			      VR_RAIL_E_ASIC_P0V75_ZORA00_VDDH } },
+	[VR_INDEX_E_11] = { 3,
+			    { VR_RAIL_E_ASIC_P1V8_VPP_HBM0145, VR_RAIL_E_ASIC_P1V8_VPP_HBM2367,
+			      VR_RAIL_E_ASIC_P1V8 } },
+	[VR_INDEX_E_12] = { 1, { VR_RAIL_E_ASIC_P0V75_MAX_EW2_VDD } },
+	[VR_INDEX_E_13] = { 2,
+			    { VR_RAIL_E_ASIC_P0V75_MAX_EW1_VDD, VR_RAIL_E_ASIC_P0V85_HAMSA_VDD } },
+};
+
+bool vr_index_get_rails(uint8_t vr_index, const uint8_t **rails, uint8_t *count)
+{
+	CHECK_NULL_ARG_WITH_RETURN(rails, false);
+	CHECK_NULL_ARG_WITH_RETURN(count, false);
+
+	if (vr_index >= VR_INDEX_MAX) {
+		return false;
+	}
+
+	*rails = vr_index_rail_table[vr_index].rails;
+	*count = vr_index_rail_table[vr_index].rail_count;
 	return true;
 }
 

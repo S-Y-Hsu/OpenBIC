@@ -11,6 +11,18 @@
 #define CPLD_OFFSET_USERCODE 0x32
 #define CPLD_OFFSET_ASIC_BOARD_ID 0x3C
 
+/* VR Power Fault Registers */
+#define VR_POWER_FAULT_1_REG 0x0D
+#define VR_POWER_FAULT_2_REG 0x0E
+#define VR_POWER_FAULT_3_REG 0x0F
+#define VR_POWER_FAULT_4_REG 0x10
+#define VR_POWER_FAULT_5_REG 0x11
+
+/* SMBus Alert Registers */
+// TODO: placeholder offsets, not confirmed by CPLD team yet - do not treat as real addresses
+#define SMBUS_ALERT_1_REG 0xF0
+#define SMBUS_ALERT_2_REG 0xF1
+
 typedef struct _cpld_info_ cpld_info;
 
 typedef struct _cpld_info_ {
@@ -27,7 +39,7 @@ typedef struct _cpld_info_ {
 	uint8_t last_polling_value;
 
 	bool (*status_changed_cb)(cpld_info *, uint8_t *current_cpld_value, uint8_t expected_val,
-				   uint8_t status_changed_bit);
+				  uint8_t status_changed_bit);
 
 	uint8_t bit_check_mask; //bit check mask
 
