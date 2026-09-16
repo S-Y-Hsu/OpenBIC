@@ -17,6 +17,8 @@
 #define VR_POWER_FAULT_3_REG 0x0F
 #define VR_POWER_FAULT_4_REG 0x10
 #define VR_POWER_FAULT_5_REG 0x11
+#define VR_POWER_FAULT_6_REG 0x12
+#define VR_POWER_FAULT_7_REG 0x13
 
 /* SMBus Alert Registers */
 // TODO: placeholder offsets, not confirmed by CPLD team yet - do not treat as real addresses
