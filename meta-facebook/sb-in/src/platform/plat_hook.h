@@ -21,6 +21,7 @@
 
 #define VR_MUTEX_LOCK_TIMEOUT_MS 1000
 #define VR_PAGE_NUM 3 // PMBus pages reserved per VR chip in vr_pre_read_args
+#define MAX_RAILS_PER_IC 3
 
 #include "plat_pldm_sensor.h"
 
@@ -124,6 +125,7 @@ void *vr_mutex_get(enum VR_INDEX_E vr_index);
 void vr_mutex_init(void);
 bool vr_rail_name_get(uint8_t rail, uint8_t **name);
 bool vr_rail_sensor_id_get(uint8_t rail, uint8_t *sensor_id);
+bool vr_index_get_rails(uint8_t vr_index, const uint8_t **rails, uint8_t *count);
 bool vr_status_name_get(uint8_t rail, uint8_t **name);
 bool vr_rail_enum_get(uint8_t *name, uint8_t *num);
 bool vr_status_enum_get(uint8_t *name, uint8_t *num);
