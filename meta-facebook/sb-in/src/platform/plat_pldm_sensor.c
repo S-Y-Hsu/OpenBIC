@@ -288,7 +288,7 @@ void change_vr_sensor_cfg(uint8_t asic_board_id, uint8_t vr_module, uint8_t boar
 		// change VR address
 		for (uint8_t j = 0; j < count; j++) {
 			// waiting for sensor driver to be ready
-			table[j].pldm_sensor_cfg.type = sensor_dev_max;
+			table[j].pldm_sensor_cfg.type = sensor_dev_xdpe1e3g6a;
 
 			table[j].pldm_sensor_cfg.target_addr =
 				convert_vr_addr(table[j].pldm_sensor_cfg.port,
@@ -1152,7 +1152,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA00_VDDL_TEMP_C,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS8,
 			.target_addr = ASIC_P0V75_ZORA00_VDDL_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -1224,7 +1224,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA00_VDDL_CURR_A,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS8,
 			.target_addr = ASIC_P0V75_ZORA00_VDDL_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -1296,7 +1296,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA00_VDDH_TEMP_C,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS8,
 			.target_addr = ASIC_P0V75_ZORA00_VDDH_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -1368,7 +1368,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA00_VDDH_CURR_A,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS8,
 			.target_addr = ASIC_P0V75_ZORA00_VDDH_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -1440,7 +1440,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA01_VDDL_TEMP_C,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA01_VDDL_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -1512,7 +1512,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA01_VDDL_CURR_A,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA01_VDDL_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -1584,7 +1584,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA01_VDDH_TEMP_C,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA01_VDDH_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -1656,7 +1656,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA01_VDDH_CURR_A,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA01_VDDH_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -1728,7 +1728,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA10_VDDL_TEMP_C,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA10_VDDL_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -1800,7 +1800,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA10_VDDL_CURR_A,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA10_VDDL_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -1872,7 +1872,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA10_VDDH_TEMP_C,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA10_VDDH_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -1944,7 +1944,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA10_VDDH_CURR_A,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA10_VDDH_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -2016,7 +2016,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA11_VDDL_TEMP_C,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA11_VDDL_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -2088,7 +2088,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA11_VDDL_CURR_A,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA11_VDDL_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -2160,7 +2160,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA11_VDDH_TEMP_C,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA11_VDDH_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -2232,7 +2232,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA11_VDDH_CURR_A,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA11_VDDH_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -2304,7 +2304,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_OWL_E_TRVDD_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_OWL_E_TRVDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -2376,7 +2376,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_OWL_E_TRVDD_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_OWL_E_TRVDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -2448,7 +2448,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_OWL_E_TRVDD_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_OWL_E_TRVDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -2520,7 +2520,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_OWL_E_TRVDD_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_OWL_E_TRVDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -2592,7 +2592,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_E_TRVDD_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_E_TRVDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -2664,7 +2664,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_E_TRVDD_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_E_TRVDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -2736,7 +2736,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_E_TRVDD_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_E_TRVDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -2808,7 +2808,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_E_TRVDD_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_E_TRVDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -2880,7 +2880,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_E_VDD_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_E_VDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -2952,7 +2952,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_E_VDD_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_E_VDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -3024,7 +3024,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_E_VDD_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_E_VDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -3096,7 +3096,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_E_VDD_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_E_VDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -3168,7 +3168,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_OWL_W_TRVDD_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_OWL_W_TRVDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -3240,7 +3240,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_OWL_W_TRVDD_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_OWL_W_TRVDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -3312,7 +3312,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_OWL_W_TRVDD_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_OWL_W_TRVDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -3384,7 +3384,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_OWL_W_TRVDD_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_OWL_W_TRVDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -3456,7 +3456,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_W_TRVDD_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_W_TRVDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -3528,7 +3528,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_W_TRVDD_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_W_TRVDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -3600,7 +3600,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_W_TRVDD_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_W_TRVDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -3672,7 +3672,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_W_TRVDD_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_W_TRVDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -3744,7 +3744,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_W_VDD_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_W_VDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -3816,7 +3816,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_W_VDD_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_W_VDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -3888,7 +3888,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_W_VDD_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_W_VDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -3960,7 +3960,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_OWL_W_VDD_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_OWL_W_VDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -4032,7 +4032,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V8_MAX_M_VDD_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V8_MAX_M_VDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -4104,7 +4104,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V8_MAX_M_VDD_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V8_MAX_M_VDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -4176,7 +4176,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V8_MAX_M_VDD_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V8_MAX_M_VDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -4248,7 +4248,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V8_MAX_M_VDD_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V8_MAX_M_VDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -4320,7 +4320,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_MAX_N_VDD_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_MAX_N_VDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -4392,7 +4392,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_MAX_N_VDD_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_MAX_N_VDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -4464,7 +4464,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_MAX_N_VDD_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_MAX_N_VDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -4536,7 +4536,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_MAX_N_VDD_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_MAX_N_VDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -4608,7 +4608,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V8_MAX_S_VDD_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V8_MAX_S_VDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -4680,7 +4680,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V8_MAX_S_VDD_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V8_MAX_S_VDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -4752,7 +4752,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V8_MAX_S_VDD_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V8_MAX_S_VDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -4824,7 +4824,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V8_MAX_S_VDD_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V8_MAX_S_VDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -4896,7 +4896,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_MAX_EW1_VDD_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P0V75_MAX_EW1_VDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -4968,7 +4968,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_MAX_EW1_VDD_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P0V75_MAX_EW1_VDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -5040,7 +5040,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_MAX_EW1_VDD_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P0V75_MAX_EW1_VDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -5112,7 +5112,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_MAX_EW1_VDD_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P0V75_MAX_EW1_VDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -5184,7 +5184,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_MAX_EW2_VDD_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P0V75_MAX_EW2_VDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -5256,7 +5256,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_MAX_EW2_VDD_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P0V75_MAX_EW2_VDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -5328,7 +5328,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_MAX_EW2_VDD_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P0V75_MAX_EW2_VDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -5400,7 +5400,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_MAX_EW2_VDD_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P0V75_MAX_EW2_VDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -5472,7 +5472,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V83_HAMSA_AVDD_PCIE_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V83_HAMSA_AVDD_PCIE_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -5544,7 +5544,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V83_HAMSA_AVDD_PCIE_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V83_HAMSA_AVDD_PCIE_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -5616,7 +5616,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V83_HAMSA_AVDD_PCIE_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V83_HAMSA_AVDD_PCIE_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -5688,7 +5688,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V83_HAMSA_AVDD_PCIE_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V83_HAMSA_AVDD_PCIE_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -5760,7 +5760,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_HAMSA_VDD_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P0V85_HAMSA_VDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -5832,7 +5832,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_HAMSA_VDD_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P0V85_HAMSA_VDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -5904,7 +5904,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_HAMSA_VDD_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P0V85_HAMSA_VDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -5976,7 +5976,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_HAMSA_VDD_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P0V85_HAMSA_VDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -6048,7 +6048,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_VDDPHY_HBM0145_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_VDDPHY_HBM0145_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -6120,7 +6120,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_VDDPHY_HBM0145_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_VDDPHY_HBM0145_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -6192,7 +6192,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_VDDPHY_HBM0145_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_VDDPHY_HBM0145_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -6264,7 +6264,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_VDDPHY_HBM0145_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_VDDPHY_HBM0145_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -6336,7 +6336,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V4_VDDQL_HBM0145_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V4_VDDQL_HBM0145_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -6408,7 +6408,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V4_VDDQL_HBM0145_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V4_VDDQL_HBM0145_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -6480,7 +6480,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V4_VDDQL_HBM0145_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V4_VDDQL_HBM0145_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -6552,7 +6552,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V4_VDDQL_HBM0145_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V4_VDDQL_HBM0145_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -6624,7 +6624,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V05_VDDC_HBM0145_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P1V05_VDDC_HBM0145_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -6696,7 +6696,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V05_VDDC_HBM0145_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P1V05_VDDC_HBM0145_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -6768,7 +6768,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V05_VDDC_HBM0145_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P1V05_VDDC_HBM0145_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -6840,7 +6840,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V05_VDDC_HBM0145_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V05_VDDC_HBM0145_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -6912,7 +6912,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_VDDQ_HBM0145_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_VDDQ_HBM0145_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -6984,7 +6984,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_VDDQ_HBM0145_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_VDDQ_HBM0145_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -7056,7 +7056,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_VDDQ_HBM0145_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_VDDQ_HBM0145_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -7128,7 +7128,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_VDDQ_HBM0145_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_VDDQ_HBM0145_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -7200,7 +7200,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V8_VPP_HBM0145_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V8_VPP_HBM0145_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -7272,7 +7272,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V8_VPP_HBM0145_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V8_VPP_HBM0145_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -7344,7 +7344,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V8_VPP_HBM0145_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V8_VPP_HBM0145_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -7416,7 +7416,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V8_VPP_HBM0145_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V8_VPP_HBM0145_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -7488,7 +7488,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V8_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V8_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -7560,7 +7560,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V8_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V8_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -7632,7 +7632,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V8_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V8_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -7704,7 +7704,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V8_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V8_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -7776,7 +7776,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_VDDPHY_HBM2367_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_VDDPHY_HBM2367_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -7848,7 +7848,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_VDDPHY_HBM2367_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_VDDPHY_HBM2367_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -7920,7 +7920,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_VDDPHY_HBM2367_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_VDDPHY_HBM2367_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -7992,7 +7992,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_VDDPHY_HBM2367_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V75_VDDPHY_HBM2367_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -8064,7 +8064,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V4_VDDQL_HBM2367_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V4_VDDQL_HBM2367_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -8136,7 +8136,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V4_VDDQL_HBM2367_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V4_VDDQL_HBM2367_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -8208,7 +8208,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V4_VDDQL_HBM2367_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V4_VDDQL_HBM2367_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -8280,7 +8280,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V4_VDDQL_HBM2367_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V4_VDDQL_HBM2367_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -8352,7 +8352,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V05_VDDC_HBM2367_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P1V05_VDDC_HBM2367_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -8424,7 +8424,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V05_VDDC_HBM2367_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P1V05_VDDC_HBM2367_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -8496,7 +8496,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V05_VDDC_HBM2367_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P1V05_VDDC_HBM2367_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -8568,7 +8568,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V05_VDDC_HBM2367_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P1V05_VDDC_HBM2367_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -8640,7 +8640,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_VDDQ_HBM2367_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_VDDQ_HBM2367_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -8712,7 +8712,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_VDDQ_HBM2367_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_VDDQ_HBM2367_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -8784,7 +8784,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_VDDQ_HBM2367_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_VDDQ_HBM2367_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -8856,7 +8856,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V9_VDDQ_HBM2367_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V9_VDDQ_HBM2367_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -8928,7 +8928,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V8_VPP_HBM2367_TEMP_C,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V8_VPP_HBM2367_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -9000,7 +9000,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V8_VPP_HBM2367_VOLT_V,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V8_VPP_HBM2367_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -9072,7 +9072,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V8_VPP_HBM2367_CURR_A,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V8_VPP_HBM2367_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -9144,7 +9144,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P1V8_VPP_HBM2367_PWR_W,
-			.type = sensor_dev_mp2971,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS3,
 			.target_addr = ASIC_P1V8_VPP_HBM2367_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -9219,7 +9219,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA00_VDDL_VOLT_V,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS8,
 			.target_addr = ASIC_P0V75_ZORA00_VDDL_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -9291,7 +9291,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA00_VDDL_PWR_W,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS8,
 			.target_addr = ASIC_P0V75_ZORA00_VDDL_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -9363,7 +9363,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA00_VDDH_VOLT_V,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS8,
 			.target_addr = ASIC_P0V75_ZORA00_VDDH_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -9435,7 +9435,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA00_VDDH_PWR_W,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS8,
 			.target_addr = ASIC_P0V75_ZORA00_VDDH_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -9507,7 +9507,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA01_VDDL_VOLT_V,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA01_VDDL_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -9579,7 +9579,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA01_VDDL_PWR_W,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA01_VDDL_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -9651,7 +9651,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA01_VDDH_VOLT_V,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA01_VDDH_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -9723,7 +9723,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA01_VDDH_PWR_W,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA01_VDDH_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -9795,7 +9795,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA10_VDDL_VOLT_V,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA10_VDDL_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -9867,7 +9867,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA10_VDDL_PWR_W,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA10_VDDL_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -9939,7 +9939,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA10_VDDH_VOLT_V,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA10_VDDH_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -10011,7 +10011,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA10_VDDH_PWR_W,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA10_VDDH_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -10083,7 +10083,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA11_VDDL_VOLT_V,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA11_VDDL_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -10155,7 +10155,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA11_VDDL_PWR_W,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA11_VDDL_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -10227,7 +10227,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA11_VDDH_VOLT_V,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA11_VDDH_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -10299,7 +10299,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V75_ZORA11_VDDH_PWR_W,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS9,
 			.target_addr = ASIC_P0V75_ZORA11_VDDH_ADDR,
 			.offset = PMBUS_READ_POUT,
