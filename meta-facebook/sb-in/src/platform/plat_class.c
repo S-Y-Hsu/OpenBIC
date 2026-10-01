@@ -26,9 +26,10 @@
 #include "plat_cpld.h"
 #include "plat_mctp.h"
 #include "plat_user_setting.h"
+#include "plat_ioexp.h"
 
 #define BOARD_TYPE_MASK (BIT(0) | BIT(1))
-#define REV_ID_MASK (BIT(0) | BIT(1) | BIT(2))
+#define REV_ID_MASK GENMASK(6, 4) // PCA6416A_U753 P0 bit4~6
 
 #define I2C_BUS_TMP I2C_BUS3
 
@@ -122,10 +123,11 @@ void init_board_stage(void)
 {
 	uint8_t board_stage_data = REV_ID_UNKNOWN;
 	//get CPLD BOARD_STAGE
-	if (!plat_read_cpld(CPLD_OFFSET_BOARD_REV_ID, &board_stage_data, 1)) {
-		LOG_ERR("Failed to get CPLD BOARD_STAGE 0x%02X", CPLD_OFFSET_BOARD_REV_ID);
+	if (!pca6416a_i2c_read(PCA6416A_U753, PCA6416A_INPUT_PORT_0, &board_stage_data, 1)) {
+		LOG_ERR("Failed to get BOARD_STAGE from PCA6416A_U753_INPUT_PORT_0");
+	} else {
+		board_stage_data = FIELD_GET(REV_ID_MASK, board_stage_data);
 	}
-	board_stage_data = board_stage_data & REV_ID_MASK;
 
 	//print board stage word
 	switch (board_stage_data) {
@@ -185,8 +187,8 @@ void init_tmp_vendor_type(void)
 void init_vr_ubc_vendor_type(void)
 {
 	//get CPLD VR_VENDOR_TYPE
-	if (!plat_read_cpld(CPLD_OFFSET_VR_VENDER_TYPE, &vr_vendor_module, 1)) {
-		LOG_ERR("Failed to get CPLD VR_VENDOR_TYPE 0x%02X", CPLD_OFFSET_VR_VENDER_TYPE);
+	if (!pca6416a_i2c_read(PCA6416A_U753, PCA6416A_INPUT_PORT_0, &vr_vendor_module, 1)) {
+		LOG_ERR("Failed to get VR_VENDOR_TYPE from PCA6416A_U753_INPUT_PORT_0");
 	}
 
 	vr_vendor_module &= 0x0F;
@@ -220,7 +222,7 @@ void init_vr_ubc_vendor_type(void)
 		vr_module = VR_MODULE_UNKNOWN;
 		break;
 	}
-	
+
 	LOG_INF("VR_MODULE = %s", vr_module_name[vr_module]);
 	LOG_INF("UBC_MODULE = %s", ubc_module_name[ubc_module]);
 }

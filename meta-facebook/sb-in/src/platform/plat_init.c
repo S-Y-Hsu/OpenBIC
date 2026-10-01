@@ -29,6 +29,7 @@
 #include "plat_cpld.h"
 #include "plat_log.h"
 #include "plat_event.h"
+#include "plat_ioexp.h"
 
 LOG_MODULE_REGISTER(plat_init);
 
@@ -41,6 +42,7 @@ void pal_pre_init()
 				index, (struct _i2c_target_config *)&I2C_TARGET_CONFIG_TABLE[index],
 				1);
 	}
+	ioexp_init();
 	init_plat_config();
 	plat_led_init();
 	vr_mutex_init();
