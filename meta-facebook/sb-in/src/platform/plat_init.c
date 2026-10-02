@@ -31,6 +31,7 @@
 #include "plat_event.h"
 #include "plat_ioexp.h"
 #include "plat_kernel_obj.h"
+#include "plat_work.h"
 
 LOG_MODULE_REGISTER(plat_init);
 
