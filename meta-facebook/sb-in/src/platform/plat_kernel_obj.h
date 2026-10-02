@@ -29,6 +29,4 @@ void plat_trigger_cpld_polling(void);
 void plat_update_ubc_status(void);
 bool plat_get_ubc_status(void);
 
-/* platform work queue */
-void plat_init_platform_queue(void);
 #endif
