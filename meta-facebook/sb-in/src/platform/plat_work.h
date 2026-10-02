@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef PLAT_KERNEL_OBJ_H
-#define PLAT_KERNEL_OBJ_H
+#ifndef PLAT_WORK_H
+#define PLAT_WORK_H
 
 #include <zephyr.h>
 
-/* semaphore CPLD polling semaphore */
-void plat_ragular_cpld_polling_sem_handler(struct k_timer *timer);
-void plat_activate_cpld_polling_semaphore_timer(void);
-void plat_wait_for_cpld_polling_trigger(void);
-void plat_trigger_cpld_polling(void);
+/* platform work queue */
+struct plat_work {
+	const char *name;
+	int (*fn)(void); // 0 on success, negative errno on failure
+	uint32_t interval_ms;
+	uint8_t max_fail; // consecutive failures before the work is suspended
+	uint8_t fail_cnt;
+	bool suspended;
+	struct k_work_delayable work;
+};
 
-/* Timer for dc status checking */
-void plat_update_ubc_status(void);
-bool plat_get_ubc_status(void);
+void plat_init_platform_queue(void);
+const struct plat_work *plat_get_work_list(size_t *count);
 
 #endif
