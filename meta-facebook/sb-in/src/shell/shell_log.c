@@ -114,30 +114,6 @@ const cpld_bit_name_table_t cpld_bit_name_table[] = {
 		  "PWRGD_P1V5_W_RVDD",
 		  "PWRGD_P1V5_E_RVDD",
 	  } },
-	{ SMBUS_ALERT_1_REG,
-	  "SMBus Alert   (0:Alert, 1=Normal)",
-	  {
-		  "RSVD",
-		  "RSVD",
-		  "RSVD",
-		  "RSVD",
-		  "RSVD",
-		  "RSVD",
-		  "RSVD",
-		  "RSVD",
-	  } },
-	{ SMBUS_ALERT_2_REG,
-	  "SMBus Alert   (0:Alert, 1=Normal)",
-	  {
-		  "RSVD",
-		  "RSVD",
-		  "RSVD",
-		  "RSVD",
-		  "RSVD",
-		  "RSVD",
-		  "RSVD",
-		  "RSVD",
-	  } }
 };
 
 const char *get_cpld_reg_name(uint8_t cpld_offset)
@@ -194,73 +170,61 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 		plat_err_log_mapping log = { 0 };
 		plat_log_read((uint8_t *)&log, FRU_LOG_SIZE, i + 1);
 
-		uint8_t err_type = (log.err_code >> 13) & 0x07;
+		uint8_t err_type = ERR_CODE_GET_CAUSE(log.err_code);
 
 		shell_print(shell, "index %d:", log.index);
 		shell_print(shell, "error_code: 0x%x", log.err_code);
 
-		uint8_t cpld_offset = log.err_code & 0xFF;
-		uint8_t bit_position = (log.err_code >> 8) & 0x07;
-
-		const char *reg_name = get_cpld_reg_name(cpld_offset);
-		const char *bit_name = get_cpld_bit_name(cpld_offset, bit_position);
-
 		switch (err_type) {
-		case CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE:
-			if (cpld_offset == SMBUS_ALERT_1_REG || cpld_offset == SMBUS_ALERT_2_REG) {
-				shell_print(shell, "\t%s", reg_name);
-				shell_print(shell, "\t\t%s", bit_name);
+		case CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE: {
+			uint8_t cpld_offset = log.err_code & 0xFF;
+			uint8_t bit_position = (log.err_code >> 8) & 0x07;
 
-				uint8_t vr_index;
-				if (!get_smb_alert_vr_index(cpld_offset, bit_position, &vr_index)) {
-					shell_print(shell, "no VR index mapped for this bit yet");
-					break;
+			shell_print(shell, "\t%s", get_cpld_reg_name(cpld_offset));
+			shell_print(shell, "\t\t%s", get_cpld_bit_name(cpld_offset, bit_position));
+			shell_print(shell, "read vr sensor status word(0x79):");
+			shell_print(shell, "\tlow  byte: 0x%02x", log.error_data[0]);
+			shell_print(shell, "\thigh byte: 0x%02x", log.error_data[1]);
+			shell_print(shell, "read vr sensor status vout(0x20): 0x%02x",
+				    log.error_data[2]);
+			shell_print(shell, "read vr sensor status iout(0x21): 0x%02x",
+				    log.error_data[3]);
+			shell_print(shell, "read vr sensor status input(0x22): 0x%02x",
+				    log.error_data[4]);
+			shell_print(shell, "read vr sensor status temperature(0x24): 0x%02x",
+				    log.error_data[5]);
+			shell_print(shell, "read vr sensor status CML(0x7e): 0x%02x",
+				    log.error_data[6]);
+			break;
+		}
+		case VR_SMB_ALERT_TRIGGER_CAUSE: {
+			uint8_t vr_index = ERR_CODE_GET_PAYLOAD(log.err_code);
+			shell_print(shell, "\tVR_SMB_ALERT, VR index %d", vr_index);
+
+			const uint8_t *rails;
+			uint8_t rail_count;
+			if (!vr_index_get_rails(vr_index, &rails, &rail_count)) {
+				shell_print(shell, "invalid VR index %d", vr_index);
+				break;
+			}
+
+			for (int j = 0; j < rail_count; j++) {
+				uint8_t *rail_name;
+				uint8_t idx = j * 2;
+
+				if (!vr_rail_name_get(rails[j], &rail_name)) {
+					shell_print(shell, "Unknown VR rail(%u) status word(0x79):",
+						    rails[j]);
+				} else {
+					shell_print(shell,
+						    "[0x%02x] %s status word(0x79):", rails[j],
+						    rail_name);
 				}
-
-				const uint8_t *rails;
-				uint8_t rail_count;
-				if (!vr_index_get_rails(vr_index, &rails, &rail_count)) {
-					shell_print(shell, "invalid VR index %d", vr_index);
-					break;
-				}
-
-				for (int j = 0; j < rail_count; j++) {
-					uint8_t *rail_name;
-					uint8_t idx = j * 2;
-
-					if (!vr_rail_name_get(rails[j], &rail_name)) {
-						shell_print(
-							shell,
-							"Unknown VR rail(%u) status word(0x79):",
-							rails[j]);
-					} else {
-						shell_print(shell, "[0x%02x] %s status word(0x79):",
-							    rails[j], rail_name);
-					}
-					shell_print(shell, "\tlow  byte: 0x%02x",
-						    log.error_data[idx]);
-					shell_print(shell, "\thigh byte: 0x%02x",
-						    log.error_data[idx + 1]);
-				}
-			} else {
-				shell_print(shell, "\t%s", reg_name);
-				shell_print(shell, "\t\t%s", bit_name);
-				shell_print(shell, "read vr sensor status word(0x79):");
-				shell_print(shell, "\tlow  byte: 0x%02x", log.error_data[0]);
-				shell_print(shell, "\thigh byte: 0x%02x", log.error_data[1]);
-				shell_print(shell, "read vr sensor status vout(0x20): 0x%02x",
-					    log.error_data[2]);
-				shell_print(shell, "read vr sensor status iout(0x21): 0x%02x",
-					    log.error_data[3]);
-				shell_print(shell, "read vr sensor status input(0x22): 0x%02x",
-					    log.error_data[4]);
-				shell_print(shell,
-					    "read vr sensor status temperature(0x24): 0x%02x",
-					    log.error_data[5]);
-				shell_print(shell, "read vr sensor status CML(0x7e): 0x%02x",
-					    log.error_data[6]);
+				shell_print(shell, "\tlow  byte: 0x%02x", log.error_data[idx]);
+				shell_print(shell, "\thigh byte: 0x%02x", log.error_data[idx + 1]);
 			}
 			break;
+		}
 		case POWER_ON_SEQUENCE_TRIGGER_CAUSE:
 			shell_print(shell, "\tPOWER_ON_SEQUENCE_TRIGGER");
 			break;

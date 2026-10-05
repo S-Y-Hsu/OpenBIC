@@ -35,7 +35,6 @@ void error_log_event(uint16_t error_code, bool log_status);
 uint8_t plat_log_get_num(void);
 void plat_clear_log();
 void reset_error_log_event(uint8_t err_type);
-bool get_smb_alert_vr_index(uint8_t cpld_offset, uint8_t bit_position, uint8_t *vr_index);
 
 typedef struct __attribute__((packed)) _plat_err_log_mapping {
 	uint16_t index;
@@ -46,12 +45,26 @@ typedef struct __attribute__((packed)) _plat_err_log_mapping {
 	uint8_t reserved[24];
 } plat_err_log_mapping;
 
+/*
+ * error_code layout: [15:12] trigger cause, [11:0] cause-specific payload.
+ * Cause 0x0 is reserved: err_code_caches uses 0 to mark an empty slot.
+ */
+#define ERR_CODE_CAUSE_SHIFT 12
+#define ERR_CODE_CAUSE_MASK 0x0F
+#define ERR_CODE_PAYLOAD_MASK 0x0FFF
+#define MAKE_ERR_CODE(cause, payload)                                                              \
+	((uint16_t)((((cause)&ERR_CODE_CAUSE_MASK) << ERR_CODE_CAUSE_SHIFT) |                      \
+		    ((payload)&ERR_CODE_PAYLOAD_MASK)))
+#define ERR_CODE_GET_CAUSE(code) (((code) >> ERR_CODE_CAUSE_SHIFT) & ERR_CODE_CAUSE_MASK)
+#define ERR_CODE_GET_PAYLOAD(code) ((code)&ERR_CODE_PAYLOAD_MASK)
+
 enum LOG_ERROR_TRIGGER_CAUSE {
-	CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE = 0b100,
-	POWER_ON_SEQUENCE_TRIGGER_CAUSE = 0b001,
-	AC_ON_TRIGGER_CAUSE = 0b010,
-	DC_ON_TRIGGER_CAUSE = 0b011,
-	MAX_TRIGGER_CAUSE = 0b1000, //trigger cause maxium 3 bit
+	POWER_ON_SEQUENCE_TRIGGER_CAUSE = 0x1,
+	AC_ON_TRIGGER_CAUSE = 0x2,
+	DC_ON_TRIGGER_CAUSE = 0x3,
+	CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE = 0x4, // payload: (bit << 8) | cpld_offset
+	VR_SMB_ALERT_TRIGGER_CAUSE = 0x5, // payload: VR_INDEX_E
+	MAX_TRIGGER_CAUSE = 0x10, // trigger cause maximum 4 bits
 };
 
 #endif

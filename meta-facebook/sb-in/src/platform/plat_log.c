@@ -38,7 +38,6 @@ LOG_MODULE_REGISTER(plat_log);
 #define FRU_LOG_START 0x0000 // log offset: 0KB
 #define EEPROM_MAX_WRITE_TIME 5 // the BR24G512 eeprom max write time is 3.5 ms
 #define CPLD_VR_VENDOR_TYPE_REG 0x1C
-#define ERROR_CODE_TYPE_SHIFT 13
 
 static plat_err_log_mapping err_log_data[LOG_MAX_NUM];
 static uint16_t err_code_caches[200];
@@ -106,17 +105,6 @@ const vr_error_callback_info vr_error_callback_info_table[] = {
 	    NOT_VR_RAIL, NOT_VR_RAIL } },
 };
 
-// cpld_offset + which VR_INDEX_E (IC) each bit belongs to. TODO: placeholder VR_INDEX_MAX for
-// every bit until the CPLD team provides the real cpld bit -> IC mapping.
-const vr_error_callback_info smbus_alert_table[] = {
-	{ SMBUS_ALERT_1_REG,
-	  { VR_INDEX_E_1, VR_INDEX_MAX, VR_INDEX_MAX, VR_INDEX_MAX, VR_INDEX_MAX, VR_INDEX_MAX,
-	    VR_INDEX_MAX, VR_INDEX_MAX } },
-	{ SMBUS_ALERT_2_REG,
-	  { VR_INDEX_MAX, VR_INDEX_MAX, VR_INDEX_MAX, VR_INDEX_MAX, VR_INDEX_MAX, VR_INDEX_MAX,
-	    VR_INDEX_MAX, VR_INDEX_MAX } },
-};
-
 bool vr_fault_get_error_data(uint8_t sensor_id, uint8_t *data)
 {
 	CHECK_NULL_ARG_WITH_RETURN(data, false);
@@ -160,14 +148,7 @@ bool vr_fault_get_error_data(uint8_t sensor_id, uint8_t *data)
 	return ret;
 }
 
-// TODO: sb-in's actual VR_HOT write target (CPLD register/bit, or IO expander pin) is not yet
-// confirmed. Replace this body once it is.
-static void write_vr_hot(void)
-{
-	LOG_WRN("VR over-temperature detected, but VR_HOT write target is not implemented for sb-in yet");
-}
-
-// SMB alert only needs STATUS_WORD, and flags VR_HOT when the over-temperature bit is set.
+// SMB alert only needs STATUS_WORD. VR_HOT is handled by the SMB alert scan, not here.
 bool vr_smb_alert_get_error_data(uint8_t sensor_id, uint8_t *data)
 {
 	CHECK_NULL_ARG_WITH_RETURN(data, false);
@@ -175,10 +156,6 @@ bool vr_smb_alert_get_error_data(uint8_t sensor_id, uint8_t *data)
 	if (!get_raw_data_from_sensor_id(sensor_id, PMBUS_STATUS_WORD, data, 2)) {
 		LOG_ERR("Failed to read VR status word, sensor_id %d", sensor_id);
 		return false;
-	}
-
-	if (data[0] & BIT(2)) { // STATUS_WORD over-temperature bit
-		write_vr_hot();
 	}
 
 	return true;
@@ -218,8 +195,8 @@ bool get_smb_alert_error_data(uint8_t vr_index, uint8_t *data)
 	return ret;
 }
 
-// Look up the per-bit value (VR_RAIL_E or VR_INDEX_E, depending on which table is passed) for
-// a given cpld_offset, or not_found if the offset/bit has no entry.
+// Look up the per-bit VR_RAIL_E for a given cpld_offset, or not_found if the offset/bit has no
+// entry.
 static uint8_t lookup_bit_mapping(const vr_error_callback_info *table, size_t table_len,
 				  uint8_t cpld_offset, uint8_t bit_position, uint8_t not_found)
 {
@@ -231,27 +208,11 @@ static uint8_t lookup_bit_mapping(const vr_error_callback_info *table, size_t ta
 	return not_found;
 }
 
-// Resolve which VR_INDEX_E (IC) a given SMB alert bit belongs to, for callers (e.g. shell log
-// dump) that need to re-derive the rail list without reaching into smbus_alert_table directly.
-bool get_smb_alert_vr_index(uint8_t cpld_offset, uint8_t bit_position, uint8_t *vr_index)
-{
-	CHECK_NULL_ARG_WITH_RETURN(vr_index, false);
-
-	uint8_t index = lookup_bit_mapping(smbus_alert_table, ARRAY_SIZE(smbus_alert_table),
-					   cpld_offset, bit_position, VR_INDEX_MAX);
-	if (index == VR_INDEX_MAX) {
-		return false;
-	}
-
-	*vr_index = index;
-	return true;
-}
-
 bool get_error_data(uint16_t error_code, uint8_t *data)
 {
 	CHECK_NULL_ARG_WITH_RETURN(data, false);
 
-	uint8_t trigger_case = (error_code >> ERROR_CODE_TYPE_SHIFT) & 0x07;
+	uint8_t trigger_case = ERR_CODE_GET_CAUSE(error_code);
 
 	switch (trigger_case) {
 	case AC_ON_TRIGGER_CAUSE:
@@ -259,6 +220,8 @@ bool get_error_data(uint16_t error_code, uint8_t *data)
 		data[0] = gpio_get(RST_ASTRID_PWR_ON_PLD_R1_N);
 		return true;
 	}
+	case VR_SMB_ALERT_TRIGGER_CAUSE:
+		return get_smb_alert_error_data(ERR_CODE_GET_PAYLOAD(error_code), data);
 	}
 
 	// Below handles CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE, dispatched by which CPLD register
@@ -294,20 +257,6 @@ bool get_error_data(uint16_t error_code, uint8_t *data)
 			return false;
 		}
 		return true;
-	}
-	case SMBUS_ALERT_1_REG:
-	case SMBUS_ALERT_2_REG: {
-		uint8_t vr_index =
-			lookup_bit_mapping(smbus_alert_table, ARRAY_SIZE(smbus_alert_table),
-					   cpld_offset, bit_position, VR_INDEX_MAX);
-
-		if (vr_index == VR_INDEX_MAX) {
-			LOG_WRN("SMB alert on cpld_offset: 0x%x, bit: %d, but no VR index mapped yet",
-				cpld_offset, bit_position);
-			return false;
-		}
-
-		return get_smb_alert_error_data(vr_index, data);
 	}
 	default:
 		LOG_WRN("No decode handler for cpld_offset: 0x%x", cpld_offset);
@@ -411,7 +360,7 @@ void reset_error_log_event(uint8_t err_type)
 	// Remove and DEASSERT error logs starting with the err_type
 	for (uint8_t i = 0; i < ARRAY_SIZE(err_code_caches); i++) {
 		uint16_t error_code = err_code_caches[i];
-		uint8_t code_type = error_code >> ERROR_CODE_TYPE_SHIFT;
+		uint8_t code_type = ERR_CODE_GET_CAUSE(error_code);
 		if (code_type == err_type) {
 			LOG_DBG("DEASSERT");
 			error_log_event(error_code, LOG_DEASSERT);
