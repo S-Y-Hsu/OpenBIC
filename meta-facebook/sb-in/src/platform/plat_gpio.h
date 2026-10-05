@@ -370,7 +370,7 @@ extern char *gpio_name[];
 	gpio_name_to_num(wMMC_SGPIO_LV1_SW_EN) \
 	gpio_name_to_num(wMMC_SGPIO_LV2_SW_EN) \
 	gpio_name_to_num(wMMC_SGPIO_LV3_SW_EN) \
-	gpio_name_to_num(Reserve_SGPIO1_OUT13) \
+	gpio_name_to_num(wMMC_SGPIO_HAMSA_VRHOT) \
 	gpio_name_to_num(Reserve_SGPIO1_OUT14) \
 	gpio_name_to_num(Reserve_SGPIO1_OUT15) \
 	/* bit 16-23 */ \

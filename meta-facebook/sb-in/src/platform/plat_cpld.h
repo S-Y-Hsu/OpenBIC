@@ -20,11 +20,6 @@
 #define VR_POWER_FAULT_6_REG 0x12
 #define VR_POWER_FAULT_7_REG 0x13
 
-/* SMBus Alert Registers */
-// TODO: placeholder offsets, not confirmed by CPLD team yet - do not treat as real addresses
-#define SMBUS_ALERT_1_REG 0xF0
-#define SMBUS_ALERT_2_REG 0xF1
-
 typedef struct _cpld_info_ cpld_info;
 
 typedef struct _cpld_info_ {
