@@ -32,5 +32,6 @@ struct plat_work {
 
 void plat_init_platform_queue(void);
 const struct plat_work *plat_get_work_list(size_t *count);
+void plat_vr_smbalert_trigger_scan(void);
 
 #endif

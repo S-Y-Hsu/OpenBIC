@@ -17,6 +17,10 @@
 #include "plat_work.h"
 #include "plat_gpio.h"
 #include "plat_ioexp.h"
+#include "plat_hook.h"
+#include "plat_log.h"
+#include "plat_pldm_sensor.h"
+#include "pmbus.h"
 #include <errno.h>
 #include <logging/log.h>
 
@@ -55,8 +59,93 @@ static int sgpio_buff_losb_poll(void)
 	return 0;
 }
 
+/* VR SMBALERT# scan
+ * Every VR SMBALERT# SGPIO input shares ISR_SGPIO_VR_SMBALERT, which only submits this work; the
+ * work rescans all of them. That covers simultaneous edges (the SGPIO IRQ dispatches only the
+ * first changed pin per interrupt), and an edge arriving mid-scan just queues one more scan.
+ * Event driven, so it does not take a slot in plat_work_list.
+ */
+#define HAMSA_VRHOT_VR_INDEX VR_INDEX_E_13 // PU626: MAX_EW1_VDD + HAMSA_VDD
+#define PMBUS_STATUS_WORD_TEMPERATURE BIT(2)
+
+BUILD_ASSERT(VR_INDEX_MAX <= 16, "vr_smbalert_active_map is 16 bits");
+
+static void vr_smbalert_scan_handler(struct k_work *work);
+static K_WORK_DEFINE(vr_smbalert_scan_work, vr_smbalert_scan_handler);
+static uint16_t vr_smbalert_active_map; // bit n: VR_INDEX_E n is logged as asserted
+
+// HAMSA's VR_HOT has no direct pin to the CPLD, so raise it when either page of the IC reports
+// over-temperature. Assert only - nothing releases it yet.
+static void hamsa_vrhot_check(void)
+{
+	const uint8_t *rails;
+	uint8_t rail_count;
+	if (!vr_index_get_rails(HAMSA_VRHOT_VR_INDEX, &rails, &rail_count))
+		return;
+
+	for (uint8_t i = 0; i < rail_count; i++) {
+		uint8_t sensor_id = 0;
+		uint8_t status_word[2] = { 0 };
+
+		if (!vr_rail_sensor_id_get(rails[i], &sensor_id) ||
+		    !get_raw_data_from_sensor_id(sensor_id, PMBUS_STATUS_WORD, status_word, 2)) {
+			LOG_ERR("Failed to read STATUS_WORD of VR rail %d for HAMSA VRHOT",
+				rails[i]);
+			continue;
+		}
+
+		if (status_word[0] & PMBUS_STATUS_WORD_TEMPERATURE) {
+			LOG_WRN("VR rail %d over-temperature, assert HAMSA VRHOT", rails[i]);
+			sgpio_set(wMMC_SGPIO_HAMSA_VRHOT, GPIO_HIGH);
+			return;
+		}
+	}
+}
+
+// SMBALERT# is only meaningful once PWRGD_P3V3_R is up. That pin shares
+// ISR_SGPIO_VR_SMBALERT, so it rising/falling rescans and asserts/clears the alerts.
+static bool vr_smbalert_enabled(void)
+{
+	return sgpio_get(PWRGD_P3V3_R) == GPIO_HIGH;
+}
+
+static void vr_smbalert_scan_handler(struct k_work *work)
+{
+	ARG_UNUSED(work);
+
+	bool enabled = vr_smbalert_enabled();
+
+	for (uint8_t vr = 0; vr < VR_INDEX_MAX; vr++) {
+		uint8_t sgpio_num = 0;
+		if (!vr_index_get_smbalert_sgpio(vr, &sgpio_num))
+			continue;
+
+		bool active = enabled && (sgpio_get(sgpio_num) == GPIO_LOW);
+		if (active == !!(vr_smbalert_active_map & BIT(vr)))
+			continue;
+
+		WRITE_BIT(vr_smbalert_active_map, vr, active);
+
+		if (active && vr == HAMSA_VRHOT_VR_INDEX)
+			hamsa_vrhot_check();
+
+		LOG_INF("VR index %d SMBALERT %s", vr, active ? "asserted" : "deasserted");
+		error_log_event(MAKE_ERR_CODE(VR_SMB_ALERT_TRIGGER_CAUSE, vr),
+				active ? LOG_ASSERT : LOG_DEASSERT);
+	}
+}
+
+void plat_vr_smbalert_trigger_scan(void)
+{
+	// -ENODEV before plat_init_platform_queue() starts the queue; that call scans once itself
+	k_work_submit_to_queue(&plat_work_q_obj, &vr_smbalert_scan_work);
+}
+
 static struct plat_work plat_work_list[] = {
-	{ .name = "sgpio_buff_losb", .fn = sgpio_buff_losb_poll, .interval_ms = 100, .max_fail = 10 },
+	{ .name = "sgpio_buff_losb",
+	  .fn = sgpio_buff_losb_poll,
+	  .interval_ms = 100,
+	  .max_fail = 10 },
 };
 
 static void plat_work_handler(struct k_work *work)
@@ -95,4 +184,7 @@ void plat_init_platform_queue(void)
 		k_work_init_delayable(&plat_work_list[i].work, plat_work_handler);
 		k_work_schedule_for_queue(&plat_work_q_obj, &plat_work_list[i].work, K_NO_WAIT);
 	}
+
+	// SMBALERT# lines already low before SGPIO interrupts were enabled never produce an edge
+	plat_vr_smbalert_trigger_scan();
 }

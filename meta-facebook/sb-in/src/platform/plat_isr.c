@@ -24,6 +24,7 @@
 #include "plat_kernel_obj.h"
 #include "plat_event.h"
 #include "plat_log.h"
+#include "plat_work.h"
 
 LOG_MODULE_REGISTER(plat_isr);
 
@@ -45,4 +46,11 @@ void ISR_GPIO_FM_PLD_UBC_EN_R()
 	}
 
 	plat_update_ubc_status();
+}
+
+// Shared by every VR SMBALERT# SGPIO input and PWRGD_P3V3_R (the alert enable) - the scan work
+// finds which one(s) changed.
+void ISR_SGPIO_VR_SMBALERT()
+{
+	plat_vr_smbalert_trigger_scan();
 }
