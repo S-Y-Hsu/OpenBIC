@@ -17,10 +17,13 @@
 #include <zephyr.h>
 #include <stdio.h>
 #include <string.h>
+#include <logging/log.h>
 #include "cmsis_os.h"
 #include "hal_gpio.h"
 #include "plat_gpio.h"
 #include "plat_isr.h"
+
+LOG_MODULE_REGISTER(plat_gpio);
 
 #define gpio_name_to_num(x) #x,
 char *gpio_name[] = { name_gpio0 name_gpio1 name_gpio2 name_gpio3 name_gpio4 name_gpio5 name_gpio6
@@ -580,3 +583,21 @@ bool pal_load_sgpio_config(void)
 	memcpy(&sgpio_cfg[0], &plat_sgpio_cfg[0], sizeof(plat_sgpio_cfg));
 	return 1;
 };
+
+/* Tell the CPLD the MMC is up: MMC_SGPIOx_RDY is 0 at POR, 1 once MMC is ready */
+bool plat_sgpio_init(void)
+{
+	bool ret = true;
+
+	if (sgpio_set(wMMC_SGPIO0_RDY, GPIO_HIGH)) {
+		LOG_ERR("Failed to set MMC_SGPIO0_RDY");
+		ret = false;
+	}
+
+	if (sgpio_set(wMMC_SGPIO1_RDY, GPIO_HIGH)) {
+		LOG_ERR("Failed to set MMC_SGPIO1_RDY");
+		ret = false;
+	}
+
+	return ret;
+}
