@@ -246,46 +246,60 @@ bool vr_rail_sensor_id_get(uint8_t rail, uint8_t *sensor_id)
 /**************************************************************************************/
 /******************************* VR_INDEX_RAIL_TABLE ***********************************/
 /**************************************************************************************/
-// Which VR_RAIL_E pages belong to each VR_INDEX_E (IC). Mirrors the //PU groupings in
-// vr_rail_table above - each IC's rails are listed in the same order they appear there.
+// Which VR_RAIL_E pages belong to each VR_INDEX_E (IC), and which SGPIO input carries that IC's
+// SMBALERT# (one alert line per IC). Rails mirror the //PU groupings in vr_rail_table above -
+// each IC's rails are listed in the same order they appear there.
 typedef struct _vr_index_rail_map_ {
+	uint8_t smbalert_sgpio;
 	uint8_t rail_count;
 	uint8_t rails[MAX_RAILS_PER_IC];
 } vr_index_rail_map_t;
 
 static const vr_index_rail_map_t vr_index_rail_table[] = {
-	[VR_INDEX_E_1] = { 3,
+	[VR_INDEX_E_1] = { VDDC_HBM0145_SMBALERT_N,
+			   3,
 			   { VR_RAIL_E_ASIC_P1V05_VDDC_HBM0145, VR_RAIL_E_ASIC_P0V9_OWL_W_TRVDD,
 			     VR_RAIL_E_ASIC_P0V75_OWL_W_TRVDD } },
-	[VR_INDEX_E_2] = { 3,
+	[VR_INDEX_E_2] = { OWL_W_SMBALRT_N,
+			   3,
 			   { VR_RAIL_E_ASIC_P0V75_OWL_W_VDD, VR_RAIL_E_ASIC_P0V8_MAX_S_VDD,
 			     VR_RAIL_E_ASIC_P0V4_VDDQL_HBM0145 } },
-	[VR_INDEX_E_3] = { 3,
+	[VR_INDEX_E_3] = { VDDPHY_HBM0145_SMBALERT_N,
+			   3,
 			   { VR_RAIL_E_ASIC_P0V75_VDDPHY_HBM0145, VR_RAIL_E_ASIC_P0V9_VDDQ_HBM0145,
 			     VR_RAIL_E_ASIC_P0V75_MAX_N_VDD } },
-	[VR_INDEX_E_4] = { 3,
+	[VR_INDEX_E_4] = { VDDC_HBM2367_SMBALERT_N,
+			   3,
 			   { VR_RAIL_E_ASIC_P1V05_VDDC_HBM2367, VR_RAIL_E_ASIC_P0V9_OWL_E_TRVDD,
 			     VR_RAIL_E_ASIC_P0V75_OWL_E_TRVDD } },
-	[VR_INDEX_E_5] = { 3,
+	[VR_INDEX_E_5] = { OWL_E_SMBALRT_N,
+			   3,
 			   { VR_RAIL_E_ASIC_P0V75_OWL_E_VDD, VR_RAIL_E_ASIC_P0V4_VDDQL_HBM2367,
 			     VR_RAIL_E_ASIC_P0V8_MAX_M_VDD } },
-	[VR_INDEX_E_6] = { 3,
+	[VR_INDEX_E_6] = { VDDPHY_HBM2367_SMBALERT_N,
+			   3,
 			   { VR_RAIL_E_ASIC_P0V75_VDDPHY_HBM2367, VR_RAIL_E_ASIC_P0V9_VDDQ_HBM2367,
 			     VR_RAIL_E_ASIC_P0V83_HAMSA_AVDD_PCIE } },
-	[VR_INDEX_E_7] = { 2,
+	[VR_INDEX_E_7] = { ZORA11_VDD_SMBALERT_N,
+			   2,
 			   { VR_RAIL_E_ASIC_P0V75_ZORA11_VDDL, VR_RAIL_E_ASIC_P0V75_ZORA11_VDDH } },
-	[VR_INDEX_E_8] = { 2,
+	[VR_INDEX_E_8] = { ZORA10_VDD_SMBALERT_N,
+			   2,
 			   { VR_RAIL_E_ASIC_P0V75_ZORA10_VDDL, VR_RAIL_E_ASIC_P0V75_ZORA10_VDDH } },
-	[VR_INDEX_E_9] = { 2,
+	[VR_INDEX_E_9] = { ZORA01_VDD_SMBALERT_N,
+			   2,
 			   { VR_RAIL_E_ASIC_P0V75_ZORA01_VDDL, VR_RAIL_E_ASIC_P0V75_ZORA01_VDDH } },
-	[VR_INDEX_E_10] = { 2,
+	[VR_INDEX_E_10] = { ZORA00_VDD_SMBALERT_N,
+			    2,
 			    { VR_RAIL_E_ASIC_P0V75_ZORA00_VDDL,
 			      VR_RAIL_E_ASIC_P0V75_ZORA00_VDDH } },
-	[VR_INDEX_E_11] = { 3,
+	[VR_INDEX_E_11] = { VPP_HBM_P1V8_SMBALERT_N,
+			    3,
 			    { VR_RAIL_E_ASIC_P1V8_VPP_HBM0145, VR_RAIL_E_ASIC_P1V8_VPP_HBM2367,
 			      VR_RAIL_E_ASIC_P1V8 } },
-	[VR_INDEX_E_12] = { 1, { VR_RAIL_E_ASIC_P0V75_MAX_EW2_VDD } },
-	[VR_INDEX_E_13] = { 2,
+	[VR_INDEX_E_12] = { MAX_EW2_VDD_SMBALERT_N, 1, { VR_RAIL_E_ASIC_P0V75_MAX_EW2_VDD } },
+	[VR_INDEX_E_13] = { MAX_EW1_VDD_SMBALERT_N,
+			    2,
 			    { VR_RAIL_E_ASIC_P0V75_MAX_EW1_VDD, VR_RAIL_E_ASIC_P0V85_HAMSA_VDD } },
 };
 
@@ -300,6 +314,18 @@ bool vr_index_get_rails(uint8_t vr_index, const uint8_t **rails, uint8_t *count)
 
 	*rails = vr_index_rail_table[vr_index].rails;
 	*count = vr_index_rail_table[vr_index].rail_count;
+	return true;
+}
+
+bool vr_index_get_smbalert_sgpio(uint8_t vr_index, uint8_t *sgpio_num)
+{
+	CHECK_NULL_ARG_WITH_RETURN(sgpio_num, false);
+
+	if (vr_index >= VR_INDEX_MAX) {
+		return false;
+	}
+
+	*sgpio_num = vr_index_rail_table[vr_index].smbalert_sgpio;
 	return true;
 }
 

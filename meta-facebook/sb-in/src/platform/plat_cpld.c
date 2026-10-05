@@ -94,8 +94,8 @@ bool vr_error_callback(cpld_info *cpld_info, uint8_t *current_cpld_value, uint8_
 			continue;
 
 		// Dynamically generate the error code
-		uint16_t error_code = (CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE << 13) | (bit << 8) |
-				      cpld_info->cpld_offset;
+		uint16_t error_code = MAKE_ERR_CODE(CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE,
+						    (bit << 8) | cpld_info->cpld_offset);
 
 		uint8_t bit_val = (*current_cpld_value & BIT(bit)) >> bit;
 		uint8_t expected_bit_val = (expected_val & BIT(bit)) >> bit;
