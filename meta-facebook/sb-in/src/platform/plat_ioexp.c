@@ -24,15 +24,18 @@ LOG_MODULE_REGISTER(plat_ioexp);
 typedef struct {
 	uint8_t bus;
 	uint8_t addr;
+	uint8_t output[2]; // OUTPUT_0, OUTPUT_1
 	uint8_t config[2]; // CONFIG_0, CONFIG_1
 } ioexp_cfg_t;
 
 static const ioexp_cfg_t pca6416a_cfg[PCA6416A_MAX] = {
 	[PCA6416A_U641] = { PCA6416A_U641_BUS,
 			    PCA6416A_U641_ADDR,
+			    { PCA6416A_U641_OUTPUT_0, PCA6416A_U641_OUTPUT_1 },
 			    { PCA6416A_U641_CONFIG_0, PCA6416A_U641_CONFIG_1 } },
 	[PCA6416A_U753] = { PCA6416A_U753_BUS,
 			    PCA6416A_U753_ADDR,
+			    { PCA6416A_U753_OUTPUT_0, PCA6416A_U753_OUTPUT_1 },
 			    { PCA6416A_U753_CONFIG_0, PCA6416A_U753_CONFIG_1 } },
 };
 
@@ -57,8 +60,13 @@ bool pca6416a_init(uint8_t idx)
 	if (idx >= PCA6416A_MAX)
 		return false;
 
-	uint8_t data[2] = { pca6416a_cfg[idx].config[0], pca6416a_cfg[idx].config[1] };
-	if (!pca6416a_i2c_write(idx, PCA6416A_CONFIG_0, data, 2))
+	uint8_t out[2] = { pca6416a_cfg[idx].output[0], pca6416a_cfg[idx].output[1] };
+	uint8_t cfg[2] = { pca6416a_cfg[idx].config[0], pca6416a_cfg[idx].config[1] };
+
+	// write output first so pins switch to the right level when config changes
+	if (!pca6416a_i2c_write(idx, PCA6416A_OUTPUT_PORT_0, out, 2))
+		return false;
+	if (!pca6416a_i2c_write(idx, PCA6416A_CONFIG_0, cfg, 2))
 		return false;
 
 	return true;
