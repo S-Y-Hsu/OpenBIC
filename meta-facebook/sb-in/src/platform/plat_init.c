@@ -64,6 +64,7 @@ void pal_post_init()
 	init_cpld_polling();
 	plat_set_ac_on_log();
 	plat_init_platform_queue();
+	plat_sgpio_init();
 }
 
 #define DEF_PROJ_GPIO_PRIORITY 78

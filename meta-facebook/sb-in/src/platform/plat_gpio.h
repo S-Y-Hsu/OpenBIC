@@ -20,6 +20,7 @@
 #include "hal_gpio.h"
 
 void gpio_int_default();
+bool plat_sgpio_init(void);
 
 // clang-format off
 
@@ -502,9 +503,7 @@ extern char *gpio_name[];
 // clang-format on
 
 #define gpio_name_to_num(x) x,
-enum _SGPIO_NUMS_ {
-	name_sgpio0_out name_sgpio0_in name_sgpio1_out name_sgpio1_in
-};
+enum _SGPIO_NUMS_ { name_sgpio0_out name_sgpio0_in name_sgpio1_out name_sgpio1_in };
 
 extern enum _SGPIO_NUMS_ SGPIO_NUMS;
 #undef gpio_name_to_num
