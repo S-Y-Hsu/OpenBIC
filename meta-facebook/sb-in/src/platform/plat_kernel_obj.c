@@ -49,29 +49,22 @@ void plat_trigger_cpld_polling(void)
 	k_sem_give(&cpld_polling_sem);
 }
 
-/* Timer for dc status checking
-We expect UBC ON will trigger DC ON. */
-bool ubc_status = false; // "ubc_enabled_delayed_status" in rainbow
-void plat_check_ubc_delayed_timer_handler(struct k_timer *timer);
-K_TIMER_DEFINE(check_ubc_delayed_timer, plat_check_ubc_delayed_timer_handler, NULL);
+/* UBC status for CPLD polling
+We treat UBC as on DC_ON_DELAY_TIMMING after PWR_EN rises, whether the power sequence
+succeeds or not. */
+static uint32_t pwr_en_rise_ms = 0;
 
-void plat_check_ubc_delayed_timer_handler(struct k_timer *timer)
+void plat_record_pwr_en_rise_time(void)
 {
-	/* FM_PLD_UBC_EN_R
-	 * 1 -> UBC is enabled
-	 * 0 -> UBC is disabled
-	 */
-	bool is_ubc_enabled = (gpio_get(FM_PLD_UBC_EN_R) == GPIO_HIGH);
-	ubc_status = is_ubc_enabled;
-}
-
-void plat_update_ubc_status(void)
-{
-	// delay for power sequence
-	k_timer_start(&check_ubc_delayed_timer, K_MSEC(DC_ON_DELAY_TIMMING), K_NO_WAIT);
+	pwr_en_rise_ms = k_uptime_get_32();
 }
 
 bool plat_get_ubc_status(void)
 {
-	return ubc_status;
+	/* PWR_EN (SGPIO)
+	 * 1 -> UBC is enabled
+	 * 0 -> UBC is disabled
+	 */
+	return (sgpio_get(PWR_EN) == GPIO_HIGH) &&
+	       ((k_uptime_get_32() - pwr_en_rise_ms) >= DC_ON_DELAY_TIMMING);
 }

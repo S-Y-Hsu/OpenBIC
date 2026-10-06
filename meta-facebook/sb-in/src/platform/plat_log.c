@@ -217,7 +217,7 @@ bool get_error_data(uint16_t error_code, uint8_t *data)
 	switch (trigger_case) {
 	case AC_ON_TRIGGER_CAUSE:
 	case DC_ON_TRIGGER_CAUSE: {
-		data[0] = gpio_get(RST_ASTRID_PWR_ON_PLD_R1_N);
+		data[0] = sgpio_get(MODULE_PWRGD);
 		return true;
 	}
 	case VR_SMB_ALERT_TRIGGER_CAUSE:

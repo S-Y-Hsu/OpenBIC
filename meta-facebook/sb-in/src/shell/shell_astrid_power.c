@@ -20,7 +20,7 @@ void cmd_astrid_power_on(const struct shell *shell, size_t argc, char **argv)
 		shell_warn(shell, "astrid power on set cpld fail!");
 	// wait 1s
 	k_msleep(1500);
-	if (gpio_get(RST_ASTRID_PWR_ON_PLD_R1_N) == GPIO_HIGH) {
+	if (sgpio_get(MODULE_PWRGD) == GPIO_HIGH) {
 		shell_print(shell, "astrid power on success!");
 	} else {
 		shell_warn(shell, "astrid power on fail!");
@@ -32,7 +32,7 @@ void cmd_astrid_power_off(const struct shell *shell, size_t argc, char **argv)
 		shell_warn(shell, "astrid power off set cpld fail!");
 	// wait 1s
 	k_msleep(1500);
-	if (gpio_get(FM_PLD_UBC_EN_R) == GPIO_LOW) {
+	if (sgpio_get(MODULE_PWRGD) == GPIO_LOW) {
 		shell_print(shell, "astrid power off success!");
 	} else {
 		shell_warn(shell, "astrid power off fail!");
@@ -41,7 +41,7 @@ void cmd_astrid_power_off(const struct shell *shell, size_t argc, char **argv)
 
 SHELL_STATIC_SUBCMD_SET_CREATE(sub_astrid_power_cmd,
 			       SHELL_CMD(on, NULL, "astrid power on", cmd_astrid_power_on),
-				   SHELL_CMD(off, NULL, "astrid power off", cmd_astrid_power_off),
+			       SHELL_CMD(off, NULL, "astrid power off", cmd_astrid_power_off),
 			       SHELL_SUBCMD_SET_END);
 
 /* Root of command echo */
