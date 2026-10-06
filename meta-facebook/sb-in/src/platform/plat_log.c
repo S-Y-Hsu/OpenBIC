@@ -30,6 +30,7 @@
 #include "plat_pldm_sensor.h"
 #include "pldm_oem.h"
 #include "pmbus.h"
+#include "plat_power_seq.h"
 
 LOG_MODULE_REGISTER(plat_log);
 
@@ -222,6 +223,12 @@ bool get_error_data(uint16_t error_code, uint8_t *data)
 	}
 	case VR_SMB_ALERT_TRIGGER_CAUSE:
 		return get_smb_alert_error_data(ERR_CODE_GET_PAYLOAD(error_code), data);
+	case POWER_ON_SEQUENCE_TRIGGER_CAUSE: {
+		data[0] = plat_get_power_seq_fail_id();
+		// PWRGD event latch 0xBE ~ 0xC4
+		plat_get_power_seq_latch(&data[1]);
+		return true;
+	}
 	}
 
 	// Below handles CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE, dispatched by which CPLD register
