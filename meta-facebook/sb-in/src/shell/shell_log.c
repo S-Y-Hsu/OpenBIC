@@ -21,6 +21,7 @@
 #include "plat_fru.h"
 #include "plat_cpld.h"
 #include "plat_hook.h"
+#include "plat_power_seq.h"
 
 typedef struct {
 	uint8_t cpld_offset;
@@ -175,6 +176,8 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 		shell_print(shell, "index %d:", log.index);
 		shell_print(shell, "error_code: 0x%x", log.err_code);
 
+		uint8_t err_data_len = sizeof(log.error_data);
+
 		switch (err_type) {
 		case CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE: {
 			uint8_t cpld_offset = log.err_code & 0xFF;
@@ -195,6 +198,7 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 				    log.error_data[5]);
 			shell_print(shell, "read vr sensor status CML(0x7e): 0x%02x",
 				    log.error_data[6]);
+			err_data_len = 7;
 			break;
 		}
 		case VR_SMB_ALERT_TRIGGER_CAUSE: {
@@ -205,8 +209,11 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 			uint8_t rail_count;
 			if (!vr_index_get_rails(vr_index, &rails, &rail_count)) {
 				shell_print(shell, "invalid VR index %d", vr_index);
+				err_data_len = 0;
 				break;
 			}
+
+			err_data_len = rail_count * 2;
 
 			for (int j = 0; j < rail_count; j++) {
 				uint8_t *rail_name;
@@ -225,14 +232,26 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 			}
 			break;
 		}
-		case POWER_ON_SEQUENCE_TRIGGER_CAUSE:
+		case POWER_ON_SEQUENCE_TRIGGER_CAUSE: {
 			shell_print(shell, "\tPOWER_ON_SEQUENCE_TRIGGER");
+			shell_print(shell, "\tRAIL: [%d] %s", log.error_data[0],
+				    plat_get_power_seq_name(log.error_data[0]));
+			shell_print(
+				shell,
+				"\tPWRGD latch(0x%02x~0x%02x): %02x %02x %02x %02x %02x %02x %02x",
+				PWRGD_EVENT_LATCH_1_REG, PWRGD_EVENT_LATCH_7_REG, log.error_data[1],
+				log.error_data[2], log.error_data[3], log.error_data[4],
+				log.error_data[5], log.error_data[6], log.error_data[7]);
+			err_data_len = 1 + PWRGD_EVENT_LATCH_NUM;
 			break;
+		}
 		case AC_ON_TRIGGER_CAUSE:
 			shell_print(shell, "\tAC_ON");
+			err_data_len = 1;
 			break;
 		case DC_ON_TRIGGER_CAUSE:
 			shell_print(shell, "\tDC_ON_DETECTED");
+			err_data_len = 1;
 			break;
 		default:
 			shell_print(shell, "Unknown error type: %d", err_type);
@@ -241,7 +260,7 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 
 		shell_print(shell, "sys_time: %lld ms", log.sys_time);
 		shell_print(shell, "error_data:");
-		shell_hexdump(shell, log.error_data, sizeof(log.error_data));
+		shell_hexdump(shell, log.error_data, err_data_len);
 		shell_print(shell, "cpld register: start offset 0x%02x",
 			    CPLD_REGISTER_1ST_PART_START_OFFSET);
 		shell_hexdump(shell, log.cpld_dump, CPLD_REGISTER_1ST_PART_NUM);

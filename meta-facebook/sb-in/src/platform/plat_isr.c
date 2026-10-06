@@ -25,6 +25,7 @@
 #include "plat_event.h"
 #include "plat_log.h"
 #include "plat_work.h"
+#include "plat_power_seq.h"
 
 LOG_MODULE_REGISTER(plat_isr);
 
@@ -44,6 +45,7 @@ void ISR_SGPIO_PWR_EN()
 		plat_set_dc_on_log(LOG_ASSERT);
 	} else {
 		plat_set_dc_on_log(LOG_DEASSERT);
+		plat_clear_power_seq_fault();
 	}
 }
 
@@ -61,5 +63,14 @@ void ISR_SGPIO_MODULE_PWRGD()
 	if (sgpio_get(MODULE_PWRGD) == GPIO_HIGH) {
 		// when dc on clear cpld polling alert status
 		reset_error_log_states(CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE);
+	}
+}
+
+void ISR_SGPIO_PWRSEQ_TO_FAULT()
+{
+	LOG_INF("PWRSEQ_TO_FAULT = %d", sgpio_get(PWRSEQ_TO_FAULT));
+
+	if (sgpio_get(PWRSEQ_TO_FAULT) == GPIO_HIGH) {
+		plat_power_seq_fault_handler();
 	}
 }
