@@ -35,17 +35,16 @@ void ISR_GPIO_ALL_VR_PM_ALERT_R_N()
 	}
 }
 
-void ISR_GPIO_FM_PLD_UBC_EN_R()
+void ISR_SGPIO_PWR_EN()
 {
-	LOG_INF("FM_PLD_UBC_EN_R = %d\nDC ON", gpio_get(FM_PLD_UBC_EN_R));
+	LOG_INF("PWR_EN = %d", sgpio_get(PWR_EN));
 
-	if (gpio_get(FM_PLD_UBC_EN_R) == GPIO_HIGH) {
+	if (sgpio_get(PWR_EN) == GPIO_HIGH) {
+		plat_record_pwr_en_rise_time();
 		plat_set_dc_on_log(LOG_ASSERT);
 	} else {
 		plat_set_dc_on_log(LOG_DEASSERT);
 	}
-
-	plat_update_ubc_status();
 }
 
 // Shared by every VR SMBALERT# SGPIO input and PWRGD_P3V3_R (the alert enable) - the scan work
@@ -53,4 +52,14 @@ void ISR_GPIO_FM_PLD_UBC_EN_R()
 void ISR_SGPIO_VR_SMBALERT()
 {
 	plat_vr_smbalert_trigger_scan();
+}
+
+void ISR_SGPIO_MODULE_PWRGD()
+{
+	LOG_INF("MODULE_PWRGD = %d", sgpio_get(MODULE_PWRGD));
+
+	if (sgpio_get(MODULE_PWRGD) == GPIO_HIGH) {
+		// when dc on clear cpld polling alert status
+		reset_error_log_states(CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE);
+	}
 }
