@@ -20,6 +20,11 @@
 #define VR_POWER_FAULT_6_REG 0x12
 #define VR_POWER_FAULT_7_REG 0x13
 
+/* PWRGD Event Latch Registers */
+#define PWRGD_EVENT_LATCH_1_REG 0xBE
+#define PWRGD_EVENT_LATCH_7_REG 0xC4
+#define PWRGD_EVENT_LATCH_NUM (PWRGD_EVENT_LATCH_7_REG - PWRGD_EVENT_LATCH_1_REG + 1)
+
 typedef struct _cpld_info_ cpld_info;
 
 typedef struct _cpld_info_ {
