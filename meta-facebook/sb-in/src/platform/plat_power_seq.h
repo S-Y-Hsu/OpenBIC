@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef PLAT_ISR_H
-#define PLAT_ISR_H
+#ifndef PLAT_POWER_SEQ_H
+#define PLAT_POWER_SEQ_H
 
-void ISR_GPIO_RST_ASTRID_PWR_ON_PLD_R1_N();
-void ISR_GPIO_ALL_VR_PM_ALERT_R_N();
-void ISR_SGPIO_VR_SMBALERT();
-void ISR_SGPIO_PWR_EN();
-void ISR_SGPIO_MODULE_PWRGD();
-void ISR_SGPIO_PWRSEQ_TO_FAULT();
+#include <stdint.h>
+
+#define POWER_SEQ_FAIL_ID_NONE 0xFF
+
+void plat_power_seq_fault_handler(void);
+void plat_clear_power_seq_fault(void);
+uint8_t plat_get_power_seq_fail_id(void);
+const char *plat_get_power_seq_name(uint8_t index);
+void plat_get_power_seq_latch(uint8_t *data); // PWRGD_EVENT_LATCH_NUM bytes
 
 #endif
