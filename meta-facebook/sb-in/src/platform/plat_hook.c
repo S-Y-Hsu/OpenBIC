@@ -140,11 +140,11 @@ bool post_vr_read(sensor_cfg *cfg, void *args, int *const reading)
 
 bool is_mb_dc_on()
 {
-	/* RST_ASTRID_PWR_ON_PLD_R1_N is low active,
-   * 1 -> power on
-   * 0 -> power off
-   */
-	return gpio_get(RST_ASTRID_PWR_ON_PLD_R1_N);
+	/* MODULE_PWRGD (SGPIO)
+	 * 1 -> power on
+	 * 0 -> power off
+	 */
+	return sgpio_get(MODULE_PWRGD) == GPIO_HIGH;
 }
 
 /**************************************************************************************/
