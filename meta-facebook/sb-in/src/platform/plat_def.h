@@ -37,6 +37,7 @@
 #define ENABLE_MCTP_I3C
 #define ENABLE_BMR316
 #define ENABLE_MP29526
+#define ENABLE_xdpe1e3g6a
 
 #define DISABLE_AST_ADC
 #define DISABLE_NVME
