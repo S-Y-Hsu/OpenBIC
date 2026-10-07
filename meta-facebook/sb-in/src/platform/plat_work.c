@@ -32,12 +32,12 @@ LOG_MODULE_REGISTER(plat_work);
  * max_fail times in a row is suspended until reboot, so a broken board does not flood the log.
  */
 #define PLAT_WORK_Q_STACK_SIZE 2048
-#define SGPIO_BUFF_LOSB_MASK GENMASK(2, 0) // PCA6416A_U753 P1 bit0~2
+#define CLK_BUF_LOSB_MASK GENMASK(2, 0) // PCA6416A_U753 P1 bit0~2
 
 K_THREAD_STACK_DEFINE(plat_work_q_stack, PLAT_WORK_Q_STACK_SIZE);
 static struct k_work_q plat_work_q_obj;
 
-static int sgpio_buff_losb_poll(void)
+static int clk_buf_losb_sync(void)
 {
 	static bool synced = false;
 	static uint8_t last_val = 0;
@@ -46,13 +46,15 @@ static int sgpio_buff_losb_poll(void)
 	if (!pca6416a_i2c_read(PCA6416A_U753, PCA6416A_INPUT_PORT_1, &val, 1))
 		return -EIO;
 
-	val &= SGPIO_BUFF_LOSB_MASK;
+	val &= CLK_BUF_LOSB_MASK;
 	if (synced && val == last_val)
 		return 0;
 
 	sgpio_set(wMMC_SGPIO_BUFF0_100M_LOSB_N, (val & BIT(0)) ? GPIO_HIGH : GPIO_LOW);
 	sgpio_set(wMMC_SGPIO_BUFF1_100M_LOSB_N, (val & BIT(1)) ? GPIO_HIGH : GPIO_LOW);
 	sgpio_set(wMMC_SGPIO_BUFF2_100M_LOSB_N, (val & BIT(2)) ? GPIO_HIGH : GPIO_LOW);
+	sgpio_set(wMMC_SGPIO_BUFF3_100M_LOSB_N,
+		  gpio_get(BUFF3_100M_LOSB_MMC) == GPIO_HIGH ? GPIO_HIGH : GPIO_LOW);
 
 	last_val = val;
 	synced = true;
@@ -142,10 +144,7 @@ void plat_vr_smbalert_trigger_scan(void)
 }
 
 static struct plat_work plat_work_list[] = {
-	{ .name = "sgpio_buff_losb",
-	  .fn = sgpio_buff_losb_poll,
-	  .interval_ms = 100,
-	  .max_fail = 10 },
+	{ .name = "clk_buf_losb_sync", .fn = clk_buf_losb_sync, .interval_ms = 100, .max_fail = 10 },
 };
 
 static void plat_work_handler(struct k_work *work)
