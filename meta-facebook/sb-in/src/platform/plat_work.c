@@ -137,7 +137,7 @@ static void vr_smbalert_scan_handler(struct k_work *work)
 
 void plat_vr_smbalert_trigger_scan(void)
 {
-	// -ENODEV before plat_init_platform_queue() starts the queue; that call scans once itself
+	// -ENODEV before plat_init_platform_queue() starts the queue; plat_sgpio_init() scans once
 	k_work_submit_to_queue(&plat_work_q_obj, &vr_smbalert_scan_work);
 }
 
@@ -184,7 +184,4 @@ void plat_init_platform_queue(void)
 		k_work_init_delayable(&plat_work_list[i].work, plat_work_handler);
 		k_work_schedule_for_queue(&plat_work_q_obj, &plat_work_list[i].work, K_NO_WAIT);
 	}
-
-	// SMBALERT# lines already low before SGPIO interrupts were enabled never produce an edge
-	plat_vr_smbalert_trigger_scan();
 }

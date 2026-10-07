@@ -64,6 +64,7 @@ enum LOG_ERROR_TRIGGER_CAUSE {
 	DC_ON_TRIGGER_CAUSE = 0x3,
 	CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE = 0x4, // payload: (bit << 8) | cpld_offset
 	VR_SMB_ALERT_TRIGGER_CAUSE = 0x5, // payload: VR_INDEX_E
+	LEAK_DETECT_TRIGGER_CAUSE = 0x6, // payload: 0 (LEAK1_DETECT_ALERT_CPLD_N)
 	MAX_TRIGGER_CAUSE = 0x10, // trigger cause maximum 4 bits
 };
 
