@@ -66,6 +66,16 @@ void ISR_SGPIO_MODULE_PWRGD()
 	}
 }
 
+// LEAK1_DETECT_ALERT_CPLD_N is active-low. Also called once by plat_sgpio_init().
+void ISR_SGPIO_LEAK1_DETECT()
+{
+	LOG_INF("LEAK1_DETECT_ALERT_CPLD_N = %d", sgpio_get(LEAK1_DETECT_ALERT_CPLD_N));
+
+	error_log_event(MAKE_ERR_CODE(LEAK_DETECT_TRIGGER_CAUSE, 0),
+			(sgpio_get(LEAK1_DETECT_ALERT_CPLD_N) == GPIO_LOW) ? LOG_ASSERT :
+									     LOG_DEASSERT);
+}
+
 void ISR_SGPIO_PWRSEQ_TO_FAULT()
 {
 	LOG_INF("PWRSEQ_TO_FAULT = %d", sgpio_get(PWRSEQ_TO_FAULT));

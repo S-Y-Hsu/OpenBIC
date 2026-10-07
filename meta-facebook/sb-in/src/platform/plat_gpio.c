@@ -22,6 +22,7 @@
 #include "hal_gpio.h"
 #include "plat_gpio.h"
 #include "plat_isr.h"
+#include "plat_work.h"
 
 LOG_MODULE_REGISTER(plat_gpio);
 
@@ -395,7 +396,7 @@ GPIO_CFG plat_sgpio_cfg[] = {
 	{ CHIP_SGPIO, SGPIO0_IN(11), ENABLE, DISABLE, GPIO_INPUT, GPIO_LOW, PUSH_PULL, GPIO_INT_EDGE_BOTH, ISR_SGPIO_VR_SMBALERT }, // bit 11
 	{ CHIP_SGPIO, SGPIO0_IN(12), ENABLE, DISABLE, GPIO_INPUT, GPIO_LOW, PUSH_PULL, GPIO_INT_EDGE_BOTH, ISR_SGPIO_VR_SMBALERT }, // bit 12
 	{ CHIP_SGPIO, SGPIO0_IN(13), ENABLE, DISABLE, GPIO_INPUT, GPIO_LOW, PUSH_PULL, GPIO_INT_DISABLE, NULL }, // bit 13
-	{ CHIP_SGPIO, SGPIO0_IN(14), ENABLE, DISABLE, GPIO_INPUT, GPIO_LOW, PUSH_PULL, GPIO_INT_DISABLE, NULL }, // bit 14
+	{ CHIP_SGPIO, SGPIO0_IN(14), ENABLE, DISABLE, GPIO_INPUT, GPIO_LOW, PUSH_PULL, GPIO_INT_EDGE_BOTH, ISR_SGPIO_LEAK1_DETECT }, // bit 14
 	{ CHIP_SGPIO, SGPIO0_IN(15), ENABLE, DISABLE, GPIO_INPUT, GPIO_LOW, PUSH_PULL, GPIO_INT_DISABLE, NULL }, // bit 15
 	{ CHIP_SGPIO, SGPIO0_IN(16), ENABLE, DISABLE, GPIO_INPUT, GPIO_LOW, PUSH_PULL, GPIO_INT_DISABLE, NULL }, // bit 16
 	{ CHIP_SGPIO, SGPIO0_IN(17), ENABLE, DISABLE, GPIO_INPUT, GPIO_LOW, PUSH_PULL, GPIO_INT_DISABLE, NULL }, // bit 17
@@ -588,6 +589,11 @@ bool pal_load_sgpio_config(void)
 bool plat_sgpio_init(void)
 {
 	bool ret = true;
+
+	// CPLD is up before BIC, so inputs already asserted never produce an SGPIO edge - sync them
+	// once here. Needs plat_work_q, started by plat_init_platform_queue().
+	plat_vr_smbalert_trigger_scan();
+	ISR_SGPIO_LEAK1_DETECT();
 
 	if (sgpio_set(wMMC_SGPIO0_RDY, GPIO_HIGH)) {
 		LOG_ERR("Failed to set MMC_SGPIO0_RDY");
