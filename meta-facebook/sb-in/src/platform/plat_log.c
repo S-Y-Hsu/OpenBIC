@@ -226,6 +226,9 @@ bool get_error_data(uint16_t error_code, uint8_t *data)
 	case LEAK_DETECT_TRIGGER_CAUSE:
 		// no error data: the log entry itself means the leak alert was asserted
 		return false;
+	case ASIC_CATTRIP_TRIGGER_CAUSE:
+		// no error data: the payload already says which CATTRIP was asserted
+		return false;
 	case POWER_ON_SEQUENCE_TRIGGER_CAUSE: {
 		data[0] = plat_get_power_seq_fail_id();
 		// PWRGD event latch 0xBE ~ 0xC4
@@ -285,18 +288,19 @@ static int16_t find_active_fault(uint16_t error_code)
 	return -1;
 }
 
-// Update the active-fault cache and decide whether a new log entry is needed.
-// DEASSERT only clears the cache, it never produces a new log entry.
+// Update the active-fault cache. Returns true if the fault state changed: a new ASSERT was
+// added, or an active fault was cleared by DEASSERT.
 static bool update_active_fault_cache(uint16_t error_code, bool log_status)
 {
 	int16_t idx = find_active_fault(error_code);
 
 	if (log_status == LOG_DEASSERT) {
-		if (idx >= 0) {
-			err_code_caches[idx] = 0;
-			LOG_INF("Fault cleared, error_code: 0x%x", error_code);
+		if (idx < 0) {
+			return false;
 		}
-		return false;
+		err_code_caches[idx] = 0;
+		LOG_INF("Fault cleared, error_code: 0x%x", error_code);
+		return true;
 	}
 
 	// LOG_ASSERT
@@ -351,18 +355,24 @@ static void store_log_entry(const plat_err_log_mapping *entry)
 	}
 }
 
-// Handle error log events and record them if necessary
-void error_log_event(uint16_t error_code, bool log_status)
+// Handle error log events and record them if necessary.
+// Only a new ASSERT writes a log entry; DEASSERT just clears the active fault.
+bool error_log_event(uint16_t error_code, bool log_status)
 {
 	if (!update_active_fault_cache(error_code, log_status)) {
-		/* dessert or duplicate, nothing to do */
-		return;
+		/* duplicate assert or deassert of an inactive fault, nothing to do */
+		return false;
+	}
+
+	if (log_status == LOG_DEASSERT) {
+		return true;
 	}
 
 	plat_err_log_mapping *entry = &err_log_data[next_log_position];
 	fill_log_entry(entry, error_code);
 
 	store_log_entry(entry);
+	return true;
 }
 
 void reset_error_log_event(uint8_t err_type)

@@ -330,6 +330,44 @@ bool vr_index_get_smbalert_sgpio(uint8_t vr_index, uint8_t *sgpio_num)
 }
 
 /**************************************************************************************/
+/********************************* ASIC_CATTRIP_TABLE *********************************/
+/**************************************************************************************/
+// SGPIO input of each ASIC_CATTRIP_E, all sharing ISR_SGPIO_ASIC_CATTRIP
+static const uint8_t asic_cattrip_sgpio_table[] = {
+	[ASIC_CATTRIP_ZORA00_HBM] = ZORA00_HBM_CATTRIP_ALARM,
+	[ASIC_CATTRIP_ZORA01_HBM] = ZORA01_HBM_CATTRIP_ALARM,
+	[ASIC_CATTRIP_ZORA10_HBM] = ZORA10_HBM_CATTRIP_ALARM,
+	[ASIC_CATTRIP_ZORA11_HBM] = ZORA11_HBM_CATTRIP_ALARM,
+	[ASIC_CATTRIP_OWL_E_SOC] = OWL_E_SOC_CATTRIP_ALARM,
+	[ASIC_CATTRIP_OWL_W_SOC] = OWL_W_SOC_CATTRIP_ALARM,
+	[ASIC_CATTRIP_HAMSA] = HAMSA_CATTRIP_ALARM,
+};
+
+BUILD_ASSERT(ARRAY_SIZE(asic_cattrip_sgpio_table) == ASIC_CATTRIP_MAX,
+	     "asic_cattrip_sgpio_table must cover every ASIC_CATTRIP_E");
+
+bool asic_cattrip_get_sgpio(uint8_t idx, uint8_t *sgpio_num)
+{
+	CHECK_NULL_ARG_WITH_RETURN(sgpio_num, false);
+
+	if (idx >= ASIC_CATTRIP_MAX) {
+		return false;
+	}
+
+	*sgpio_num = asic_cattrip_sgpio_table[idx];
+	return true;
+}
+
+const char *asic_cattrip_get_name(uint8_t idx)
+{
+	if (idx >= ASIC_CATTRIP_MAX) {
+		return "UNKNOWN_CATTRIP";
+	}
+
+	return sgpio_name[asic_cattrip_sgpio_table[idx]];
+}
+
+/**************************************************************************************/
 /********************************** VR_STATUS_TABLE ***********************************/
 /**************************************************************************************/
 static vr_mapping_status vr_status_table[] = {

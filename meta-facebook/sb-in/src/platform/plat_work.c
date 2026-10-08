@@ -27,54 +27,31 @@
 LOG_MODULE_REGISTER(plat_work);
 
 /* platform work queue
- * Replaces the quick_sensor_poll_handler thread used in sb-el: each periodic job is a
- * delayable work on this queue instead of sharing one polling loop. A work that fails
- * max_fail times in a row is suspended until reboot, so a broken board does not flood the log.
+ * Replaces the quick_sensor_poll_handler thread used in sb-el. Two kinds of work run on it:
+ * - event-driven scan works, submitted by a shared SGPIO ISR
+ * - periodic works in plat_work_list, each rescheduling itself
  */
 #define PLAT_WORK_Q_STACK_SIZE 2048
-#define CLK_BUF_LOSB_MASK GENMASK(2, 0) // PCA6416A_U753 P1 bit0~2
 
 K_THREAD_STACK_DEFINE(plat_work_q_stack, PLAT_WORK_Q_STACK_SIZE);
 static struct k_work_q plat_work_q_obj;
 
-static int clk_buf_losb_sync(void)
-{
-	static bool synced = false;
-	static uint8_t last_val = 0;
-	uint8_t val = 0;
-
-	if (!pca6416a_i2c_read(PCA6416A_U753, PCA6416A_INPUT_PORT_1, &val, 1))
-		return -EIO;
-
-	val &= CLK_BUF_LOSB_MASK;
-	if (synced && val == last_val)
-		return 0;
-
-	sgpio_set(wMMC_SGPIO_BUFF0_100M_LOSB_N, (val & BIT(0)) ? GPIO_HIGH : GPIO_LOW);
-	sgpio_set(wMMC_SGPIO_BUFF1_100M_LOSB_N, (val & BIT(1)) ? GPIO_HIGH : GPIO_LOW);
-	sgpio_set(wMMC_SGPIO_BUFF2_100M_LOSB_N, (val & BIT(2)) ? GPIO_HIGH : GPIO_LOW);
-	sgpio_set(wMMC_SGPIO_BUFF3_100M_LOSB_N,
-		  gpio_get(BUFF3_100M_LOSB_MMC) == GPIO_HIGH ? GPIO_HIGH : GPIO_LOW);
-
-	last_val = val;
-	synced = true;
-	return 0;
-}
-
-/* VR SMBALERT# scan
- * Every VR SMBALERT# SGPIO input shares ISR_SGPIO_VR_SMBALERT, which only submits this work; the
- * work rescans all of them. That covers simultaneous edges (the SGPIO IRQ dispatches only the
- * first changed pin per interrupt), and an edge arriving mid-scan just queues one more scan.
- * Event driven, so it does not take a slot in plat_work_list.
+/* ===== Event-driven scan works =====
+ * Each group of SGPIO inputs shares one ISR, which only submits the group's scan work; the work
+ * rescans every pin of the group. That covers simultaneous edges (the SGPIO IRQ dispatches only
+ * the first changed pin per interrupt), and an edge arriving mid-scan just queues one more scan.
+ * Every pin is reported to error_log_event() as it is; its return value tells whether the
+ * state really changed, so the scans keep no state of their own.
+ * Not scheduled, so they do not take a slot in plat_work_list. Submitting before
+ * plat_init_platform_queue() starts the queue returns -ENODEV; plat_sgpio_init() scans once.
  */
+
+/* VR SMBALERT# scan */
 #define HAMSA_VRHOT_VR_INDEX VR_INDEX_E_13 // PU626: MAX_EW1_VDD + HAMSA_VDD
 #define PMBUS_STATUS_WORD_TEMPERATURE BIT(2)
 
-BUILD_ASSERT(VR_INDEX_MAX <= 16, "vr_smbalert_active_map is 16 bits");
-
 static void vr_smbalert_scan_handler(struct k_work *work);
 static K_WORK_DEFINE(vr_smbalert_scan_work, vr_smbalert_scan_handler);
-static uint16_t vr_smbalert_active_map; // bit n: VR_INDEX_E n is logged as asserted
 
 // HAMSA's VR_HOT has no direct pin to the CPLD, so raise it when either page of the IC reports
 // over-temperature. Assert only - nothing releases it yet.
@@ -123,24 +100,77 @@ static void vr_smbalert_scan_handler(struct k_work *work)
 			continue;
 
 		bool active = enabled && (sgpio_get(sgpio_num) == GPIO_LOW);
-		if (active == !!(vr_smbalert_active_map & BIT(vr)))
+		if (!error_log_event(MAKE_ERR_CODE(VR_SMB_ALERT_TRIGGER_CAUSE, vr),
+				     active ? LOG_ASSERT : LOG_DEASSERT))
 			continue;
 
-		WRITE_BIT(vr_smbalert_active_map, vr, active);
+		LOG_INF("VR index %d SMBALERT %s", vr, active ? "asserted" : "deasserted");
 
 		if (active && vr == HAMSA_VRHOT_VR_INDEX)
 			hamsa_vrhot_check();
-
-		LOG_INF("VR index %d SMBALERT %s", vr, active ? "asserted" : "deasserted");
-		error_log_event(MAKE_ERR_CODE(VR_SMB_ALERT_TRIGGER_CAUSE, vr),
-				active ? LOG_ASSERT : LOG_DEASSERT);
 	}
 }
 
 void plat_vr_smbalert_trigger_scan(void)
 {
-	// -ENODEV before plat_init_platform_queue() starts the queue; plat_sgpio_init() scans once
 	k_work_submit_to_queue(&plat_work_q_obj, &vr_smbalert_scan_work);
+}
+
+/* ASIC CATTRIP scan
+ * The CPLD latches each CATTRIP onto its SGPIO input (active low, same as CPLD reg 0x27).
+ * Logging is the only action, so the return value of error_log_event() is not needed.
+ */
+static void asic_cattrip_scan_handler(struct k_work *work);
+static K_WORK_DEFINE(asic_cattrip_scan_work, asic_cattrip_scan_handler);
+
+static void asic_cattrip_scan_handler(struct k_work *work)
+{
+	ARG_UNUSED(work);
+
+	for (uint8_t idx = 0; idx < ASIC_CATTRIP_MAX; idx++) {
+		uint8_t sgpio_num = 0;
+		if (!asic_cattrip_get_sgpio(idx, &sgpio_num))
+			continue;
+
+		bool active = (sgpio_get(sgpio_num) == GPIO_LOW);
+		error_log_event(MAKE_ERR_CODE(ASIC_CATTRIP_TRIGGER_CAUSE, idx),
+				active ? LOG_ASSERT : LOG_DEASSERT);
+	}
+}
+
+void plat_asic_cattrip_trigger_scan(void)
+{
+	k_work_submit_to_queue(&plat_work_q_obj, &asic_cattrip_scan_work);
+}
+
+/* ===== Periodic works =====
+ * Each job is a delayable work that reschedules itself every interval_ms. A work that fails
+ * max_fail times in a row is suspended until reboot, so a broken board does not flood the log.
+ */
+#define CLK_BUF_LOSB_MASK GENMASK(2, 0) // PCA6416A_U753 P1 bit0~2
+
+static int clk_buf_losb_sync(void)
+{
+	static bool synced = false;
+	static uint8_t last_val = 0;
+	uint8_t val = 0;
+
+	if (!pca6416a_i2c_read(PCA6416A_U753, PCA6416A_INPUT_PORT_1, &val, 1))
+		return -EIO;
+
+	val &= CLK_BUF_LOSB_MASK;
+	if (synced && val == last_val)
+		return 0;
+
+	sgpio_set(wMMC_SGPIO_BUFF0_100M_LOSB_N, (val & BIT(0)) ? GPIO_HIGH : GPIO_LOW);
+	sgpio_set(wMMC_SGPIO_BUFF1_100M_LOSB_N, (val & BIT(1)) ? GPIO_HIGH : GPIO_LOW);
+	sgpio_set(wMMC_SGPIO_BUFF2_100M_LOSB_N, (val & BIT(2)) ? GPIO_HIGH : GPIO_LOW);
+	sgpio_set(wMMC_SGPIO_BUFF3_100M_LOSB_N,
+		  gpio_get(BUFF3_100M_LOSB_MMC) == GPIO_HIGH ? GPIO_HIGH : GPIO_LOW);
+
+	last_val = val;
+	synced = true;
+	return 0;
 }
 
 static struct plat_work plat_work_list[] = {

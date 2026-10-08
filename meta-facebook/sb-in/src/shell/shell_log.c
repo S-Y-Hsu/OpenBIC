@@ -250,6 +250,12 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 			shell_print(shell, "\t\tLEAK1_DETECT_ALERT_CPLD_N");
 			err_data_len = 0;
 			break;
+		case ASIC_CATTRIP_TRIGGER_CAUSE:
+			shell_print(shell, "\tASIC_CATTRIP");
+			shell_print(shell, "\t\t%s",
+				    asic_cattrip_get_name(ERR_CODE_GET_PAYLOAD(log.err_code)));
+			err_data_len = 0;
+			break;
 		case AC_ON_TRIGGER_CAUSE:
 			shell_print(shell, "\tAC_ON");
 			err_data_len = 1;
