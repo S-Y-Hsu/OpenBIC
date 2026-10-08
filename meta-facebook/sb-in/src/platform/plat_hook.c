@@ -330,41 +330,59 @@ bool vr_index_get_smbalert_sgpio(uint8_t vr_index, uint8_t *sgpio_num)
 }
 
 /**************************************************************************************/
-/********************************* ASIC_CATTRIP_TABLE *********************************/
+/********************************* SGPIO_EVENT_TABLE **********************************/
 /**************************************************************************************/
-// SGPIO input of each ASIC_CATTRIP_E, all sharing ISR_SGPIO_ASIC_CATTRIP
-static const uint8_t asic_cattrip_sgpio_table[] = {
-	[ASIC_CATTRIP_ZORA00_HBM] = ZORA00_HBM_CATTRIP_ALARM,
-	[ASIC_CATTRIP_ZORA01_HBM] = ZORA01_HBM_CATTRIP_ALARM,
-	[ASIC_CATTRIP_ZORA10_HBM] = ZORA10_HBM_CATTRIP_ALARM,
-	[ASIC_CATTRIP_ZORA11_HBM] = ZORA11_HBM_CATTRIP_ALARM,
-	[ASIC_CATTRIP_OWL_E_SOC] = OWL_E_SOC_CATTRIP_ALARM,
-	[ASIC_CATTRIP_OWL_W_SOC] = OWL_W_SOC_CATTRIP_ALARM,
-	[ASIC_CATTRIP_HAMSA] = HAMSA_CATTRIP_ALARM,
+// SGPIO inputs that only need an assert/deassert blackbox log: no error data and no action on
+// change. They all share ISR_SGPIO_EVENT and log as SGPIO_EVENT_TRIGGER_CAUSE with the SGPIO
+// number as payload. An input that needs error data or an action gets its own cause instead.
+typedef struct _sgpio_event_map_ {
+	uint8_t sgpio_num;
+	uint8_t active_level; // GPIO_LOW / GPIO_HIGH
+} sgpio_event_map_t;
+
+static const sgpio_event_map_t sgpio_event_table[] = {
+	{ LEAK1_DETECT_ALERT_CPLD_N, GPIO_LOW },
+	// ASIC CATTRIP, latched by the CPLD (active low, same as CPLD reg 0x27)
+	{ ZORA00_HBM_CATTRIP_ALARM, GPIO_LOW },
+	{ ZORA01_HBM_CATTRIP_ALARM, GPIO_LOW },
+	{ ZORA10_HBM_CATTRIP_ALARM, GPIO_LOW },
+	{ ZORA11_HBM_CATTRIP_ALARM, GPIO_LOW },
+	{ OWL_E_SOC_CATTRIP_ALARM, GPIO_LOW },
+	{ OWL_W_SOC_CATTRIP_ALARM, GPIO_LOW },
+	{ HAMSA_CATTRIP_ALARM, GPIO_LOW },
 };
 
-BUILD_ASSERT(ARRAY_SIZE(asic_cattrip_sgpio_table) == ASIC_CATTRIP_MAX,
-	     "asic_cattrip_sgpio_table must cover every ASIC_CATTRIP_E");
+uint8_t sgpio_event_count(void)
+{
+	return ARRAY_SIZE(sgpio_event_table);
+}
 
-bool asic_cattrip_get_sgpio(uint8_t idx, uint8_t *sgpio_num)
+// SGPIO number of the idx-th event and whether it is currently at its active level
+bool sgpio_event_get_state(uint8_t idx, uint8_t *sgpio_num, bool *active)
 {
 	CHECK_NULL_ARG_WITH_RETURN(sgpio_num, false);
+	CHECK_NULL_ARG_WITH_RETURN(active, false);
 
-	if (idx >= ASIC_CATTRIP_MAX) {
+	if (idx >= ARRAY_SIZE(sgpio_event_table)) {
 		return false;
 	}
 
-	*sgpio_num = asic_cattrip_sgpio_table[idx];
+	*sgpio_num = sgpio_event_table[idx].sgpio_num;
+	*active = (sgpio_get(*sgpio_num) == sgpio_event_table[idx].active_level);
 	return true;
 }
 
-const char *asic_cattrip_get_name(uint8_t idx)
+// Name of an SGPIO_EVENT_TRIGGER_CAUSE payload. Only SGPIO numbers in the table are accepted, so
+// a corrupt log entry cannot index sgpio_name[] out of range.
+const char *sgpio_event_get_name(uint16_t sgpio_num)
 {
-	if (idx >= ASIC_CATTRIP_MAX) {
-		return "UNKNOWN_CATTRIP";
+	for (uint8_t i = 0; i < ARRAY_SIZE(sgpio_event_table); i++) {
+		if (sgpio_event_table[i].sgpio_num == sgpio_num) {
+			return sgpio_name[sgpio_num];
+		}
 	}
 
-	return sgpio_name[asic_cattrip_sgpio_table[idx]];
+	return "UNKNOWN_SGPIO_EVENT";
 }
 
 /**************************************************************************************/

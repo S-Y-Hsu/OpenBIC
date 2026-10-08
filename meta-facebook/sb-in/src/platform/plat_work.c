@@ -116,31 +116,35 @@ void plat_vr_smbalert_trigger_scan(void)
 	k_work_submit_to_queue(&plat_work_q_obj, &vr_smbalert_scan_work);
 }
 
-/* ASIC CATTRIP scan
- * The CPLD latches each CATTRIP onto its SGPIO input (active low, same as CPLD reg 0x27).
- * Logging is the only action, so the return value of error_log_event() is not needed.
+/* SGPIO event scan
+ * Every input in sgpio_event_table (plat_hook.c) shares ISR_SGPIO_EVENT. Logging is the only
+ * action, so error_log_event() return value is used just to log the transition.
  */
-static void asic_cattrip_scan_handler(struct k_work *work);
-static K_WORK_DEFINE(asic_cattrip_scan_work, asic_cattrip_scan_handler);
+static void sgpio_event_scan_handler(struct k_work *work);
+static K_WORK_DEFINE(sgpio_event_scan_work, sgpio_event_scan_handler);
 
-static void asic_cattrip_scan_handler(struct k_work *work)
+static void sgpio_event_scan_handler(struct k_work *work)
 {
 	ARG_UNUSED(work);
 
-	for (uint8_t idx = 0; idx < ASIC_CATTRIP_MAX; idx++) {
+	for (uint8_t i = 0; i < sgpio_event_count(); i++) {
 		uint8_t sgpio_num = 0;
-		if (!asic_cattrip_get_sgpio(idx, &sgpio_num))
+		bool active = false;
+		if (!sgpio_event_get_state(i, &sgpio_num, &active))
 			continue;
 
-		bool active = (sgpio_get(sgpio_num) == GPIO_LOW);
-		error_log_event(MAKE_ERR_CODE(ASIC_CATTRIP_TRIGGER_CAUSE, idx),
-				active ? LOG_ASSERT : LOG_DEASSERT);
+		if (!error_log_event(MAKE_ERR_CODE(SGPIO_EVENT_TRIGGER_CAUSE, sgpio_num),
+				     active ? LOG_ASSERT : LOG_DEASSERT))
+			continue;
+
+		LOG_INF("SGPIO event %s %s", sgpio_name[sgpio_num],
+			active ? "asserted" : "deasserted");
 	}
 }
 
-void plat_asic_cattrip_trigger_scan(void)
+void plat_sgpio_event_trigger_scan(void)
 {
-	k_work_submit_to_queue(&plat_work_q_obj, &asic_cattrip_scan_work);
+	k_work_submit_to_queue(&plat_work_q_obj, &sgpio_event_scan_work);
 }
 
 /* ===== Periodic works =====
