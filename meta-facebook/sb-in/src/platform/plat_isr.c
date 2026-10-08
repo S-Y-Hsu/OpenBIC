@@ -56,6 +56,12 @@ void ISR_SGPIO_VR_SMBALERT()
 	plat_vr_smbalert_trigger_scan();
 }
 
+// Shared by every ASIC CATTRIP SGPIO input - the scan work reports all of them.
+void ISR_SGPIO_ASIC_CATTRIP()
+{
+	plat_asic_cattrip_trigger_scan();
+}
+
 void ISR_SGPIO_MODULE_PWRGD()
 {
 	LOG_INF("MODULE_PWRGD = %d", sgpio_get(MODULE_PWRGD));
