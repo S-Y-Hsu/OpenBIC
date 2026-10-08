@@ -38,6 +38,11 @@
 #define PLAT_WAIT_SENSOR_POLLING_END_DELAY_MS 1000
 #define ARKE_BOOT0_IMG_SIZE 0x1FFFFB
 
+#define CPLD_OFFSET_ASIC_RST_0 0x41
+#define ASIC_RST_0_MASK GENMASK(5, 1)
+#define CPLD_OFFSET_ASIC_RST_1 0x42
+#define ASIC_RST_1_MASK GENMASK(7, 3)
+
 LOG_MODULE_REGISTER(plat_fwupdate);
 
 static uint8_t pldm_pre_vr_update(void *fw_update_param);
@@ -115,7 +120,7 @@ bool find_sensor_id_and_name_by_firmware_comp_id(uint8_t comp_identifier, uint8_
 static uint8_t pldm_pre_vr_update(void *fw_update_param)
 {
 	CHECK_NULL_ARG_WITH_RETURN(fw_update_param, 1);
-	
+
 	pldm_fw_update_param_t *p = (pldm_fw_update_param_t *)fw_update_param;
 	// if (get_asic_board_id() != ASIC_BOARD_ID_EVB && p->comp_id == COMPNT_VR_3V3) {
 	// 	LOG_ERR("only evb support 3V3 vr update");
@@ -280,14 +285,39 @@ err:
 	return ret;
 }
 
+static bool set_cpld_bits(uint8_t offset, uint8_t mask, bool high)
+{
+	uint8_t data = 0;
+	if (!plat_read_cpld(offset, &data, 1)) {
+		LOG_ERR("read cpld 0x%02x fail", offset);
+		return false;
+	}
+
+	data = high ? (data | mask) : (data & ~mask);
+	if (!plat_write_cpld(offset, &data)) {
+		LOG_ERR("write cpld 0x%02x fail", offset);
+		return false;
+	}
+
+	return true;
+}
+
+/* true: hold asic in reset (pull low), false: release reset (pull high) */
+bool plat_set_asic_reset(bool hold)
+{
+	return set_cpld_bits(CPLD_OFFSET_ASIC_RST_0, ASIC_RST_0_MASK, !hold) &&
+	       set_cpld_bits(CPLD_OFFSET_ASIC_RST_1, ASIC_RST_1_MASK, !hold);
+}
+
 /* ASIC FW update function */
 static uint8_t plat_pldm_pre_mtia_flash_update(void *fw_update_param)
 {
 	CHECK_NULL_ARG_WITH_RETURN(fw_update_param, 1);
 
-	// waiting for CPLD to confirm reset reg location
-	// plat_set_cpld_reset_reg(RESET_CPLD_OFF);
-
+	if (!plat_set_asic_reset(true)) {
+		LOG_ERR("hold asic reset fail");
+		return 1;
+	}
 
 	gpio_set(SPI_HAMSA_MUX_IN1, 1);
 	LOG_INF("switch hamsa spi to MMC");
@@ -299,8 +329,6 @@ static uint8_t plat_pldm_pre_mtia_flash_update(void *fw_update_param)
 	rc = spi_nor_re_init(flash_dev);
 	if (rc != 0) {
 		LOG_ERR("spi_nor_re_init fail");
-		// waiting for CPLD to confirm reset reg location
-		// plat_set_cpld_reset_reg(RESET_CPLD_ON);
 		return 1;
 	}
 
@@ -331,8 +359,8 @@ static uint8_t plat_pldm_post_mtia_flash_update(void *fw_update_param)
 	rxbuf = malloc(PLAT_CRC32_READ_SIZE);
 	if (rxbuf == NULL) {
 		LOG_ERR("Fail to allocate size %d", PLAT_CRC32_READ_SIZE);
-		// waiting for CPLD to confirm reset reg location
-		// plat_set_cpld_reset_reg(RESET_CPLD_ON);
+		gpio_set(SPI_HAMSA_MUX_IN1, 0);
+		plat_set_asic_reset(false);
 		return 1;
 	}
 
@@ -360,9 +388,9 @@ static uint8_t plat_pldm_post_mtia_flash_update(void *fw_update_param)
 	if (read_fw_image(PLAT_FLASH_BOOT0_VER_OFFSET, PLAT_FLASH_BOOT0_VER_SIZE, rxbuf,
 			  DEVSPI_SPI1_CS1)) {
 		LOG_ERR("read flash : read_fw_image fail");
-		// waiting for CPLD to confirm reset reg location
-		// plat_set_cpld_reset_reg(RESET_CPLD_ON);
 		SAFE_FREE(rxbuf);
+		gpio_set(SPI_HAMSA_MUX_IN1, 0);
+		plat_set_asic_reset(false);
 		return 1;
 	}
 	uint32_t ver_value = rxbuf[0] << 16 | rxbuf[1] << 8 | rxbuf[2];
@@ -374,8 +402,10 @@ static uint8_t plat_pldm_post_mtia_flash_update(void *fw_update_param)
 	// disable spi node
 	gpio_set(SPI_HAMSA_MUX_IN1, 0);
 	LOG_INF("Disable spi node");
-	// waiting for CPLD to confirm reset reg location
-	// plat_set_cpld_reset_reg(RESET_CPLD_ON);
+	if (!plat_set_asic_reset(false)) {
+		LOG_ERR("release asic reset fail");
+		return 1;
+	}
 	return 0;
 }
 
@@ -399,6 +429,12 @@ bool plat_get_image_crc_checksum_from_flash(uint32_t *data_ver, uint32_t *data_c
 	CHECK_NULL_ARG_WITH_RETURN(data_ver, false);
 	CHECK_NULL_ARG_WITH_RETURN(data_crc, false);
 
+	if (!plat_set_asic_reset(true)) {
+		LOG_ERR("hold asic reset fail");
+		plat_set_asic_reset(false);
+		return false;
+	}
+
 	gpio_set(SPI_HAMSA_MUX_IN1, 1);
 
 	// re-init flash
@@ -406,6 +442,7 @@ bool plat_get_image_crc_checksum_from_flash(uint32_t *data_ver, uint32_t *data_c
 	if (spi_nor_re_init(flash_dev) != 0) {
 		LOG_ERR("spi_nor_re_init fail");
 		gpio_set(SPI_HAMSA_MUX_IN1, 0);
+		plat_set_asic_reset(false);
 		return false;
 	}
 
@@ -425,6 +462,7 @@ bool plat_get_image_crc_checksum_from_flash(uint32_t *data_ver, uint32_t *data_c
 			  DEVSPI_SPI1_CS1)) {
 		LOG_ERR("read_fw_image fail");
 		gpio_set(SPI_HAMSA_MUX_IN1, 0);
+		plat_set_asic_reset(false);
 		return false;
 	}
 
@@ -434,6 +472,10 @@ bool plat_get_image_crc_checksum_from_flash(uint32_t *data_ver, uint32_t *data_c
 	hamsa_boot0_crc32 = *data_crc;
 
 	gpio_set(SPI_HAMSA_MUX_IN1, 0);
+	if (!plat_set_asic_reset(false)) {
+		LOG_ERR("release asic reset fail");
+		return false;
+	}
 	return true;
 }
 
