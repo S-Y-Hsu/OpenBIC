@@ -136,29 +136,21 @@ void cmd_get_fw_version_asic_from_flash(const struct shell *shell, size_t argc, 
 	uint32_t version = 0;
 	uint32_t crc32 = 0;
 
-	// waiting for CPLD to confirm reset reg location
-	// plat_set_cpld_reset_reg(RESET_CPLD_OFF);
-
 	if (plat_get_image_crc_checksum_from_flash(&version, &crc32)) {
 		shell_print(shell, "HAMSA boot0 VER : %08x | CRC32 : %08x", version, crc32);
 	} else {
 		shell_warn(shell, "HAMSA boot0 VER and CRC reading failed");
 	}
 
-	// waiting for CPLD to confirm reset reg location
-	// plat_set_cpld_reset_reg(RESET_CPLD_ON);
-
 	return;
 }
 
-SHELL_STATIC_SUBCMD_SET_CREATE(sub_get_fw_version_cmd,
-			       SHELL_CMD(vr, NULL, "get fw version vr", cmd_get_fw_version_vr),
-			       SHELL_CMD(cpld, NULL, "get fw version cpld",
-					 cmd_get_fw_version_cpld),
-			       SHELL_CMD(asic, NULL, "get fw version asic",
-					 cmd_get_fw_version_asic),
-			       SHELL_CMD(force_read_asic, NULL, "get fw version asic from flash",
-					 cmd_get_fw_version_asic_from_flash),
-			       SHELL_SUBCMD_SET_END);
+SHELL_STATIC_SUBCMD_SET_CREATE(
+	sub_get_fw_version_cmd, SHELL_CMD(vr, NULL, "get fw version vr", cmd_get_fw_version_vr),
+	SHELL_CMD(cpld, NULL, "get fw version cpld", cmd_get_fw_version_cpld),
+	SHELL_CMD(asic, NULL, "get fw version asic", cmd_get_fw_version_asic),
+	SHELL_CMD(force_read_asic, NULL, "get fw version asic from flash",
+		  cmd_get_fw_version_asic_from_flash),
+	SHELL_SUBCMD_SET_END);
 
 SHELL_CMD_REGISTER(get_fw_version, &sub_get_fw_version_cmd, "get fw version command", NULL);

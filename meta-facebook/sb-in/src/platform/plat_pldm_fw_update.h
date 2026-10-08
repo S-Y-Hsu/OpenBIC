@@ -22,9 +22,6 @@
 #define PLAT_FLASH_BOOT0_VER_SIZE 3
 #define PLAT_FLASH_BOOT0_VER_CRC_SIZE 8
 
-#define RESET_CPLD_ON 0x3F
-#define RESET_CPLD_OFF 0x00
-
 enum FLASH_VER_CRC {
 	VERSION,
 	CRC32,
@@ -50,7 +47,7 @@ enum FIRMWARE_COMPONENT {
 	COMPNT_VR_3V3,
 };
 
-void plat_set_cpld_reset_reg(uint8_t value);
+bool plat_set_asic_reset(bool hold);
 bool find_sensor_id_and_name_by_firmware_comp_id(uint8_t comp_identifier, uint8_t *sensor_id,
 						 char *sensor_name);
 uint32_t plat_get_image_crc_checksum(void);
