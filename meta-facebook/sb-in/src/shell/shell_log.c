@@ -245,15 +245,10 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 			err_data_len = 1 + PWRGD_EVENT_LATCH_NUM;
 			break;
 		}
-		case LEAK_DETECT_TRIGGER_CAUSE:
-			shell_print(shell, "\tLEAK_DETECT");
-			shell_print(shell, "\t\tLEAK1_DETECT_ALERT_CPLD_N");
-			err_data_len = 0;
-			break;
-		case ASIC_CATTRIP_TRIGGER_CAUSE:
-			shell_print(shell, "\tASIC_CATTRIP");
+		case SGPIO_EVENT_TRIGGER_CAUSE:
+			shell_print(shell, "\tSGPIO_EVENT");
 			shell_print(shell, "\t\t%s",
-				    asic_cattrip_get_name(ERR_CODE_GET_PAYLOAD(log.err_code)));
+				    sgpio_event_get_name(ERR_CODE_GET_PAYLOAD(log.err_code)));
 			err_data_len = 0;
 			break;
 		case AC_ON_TRIGGER_CAUSE:
