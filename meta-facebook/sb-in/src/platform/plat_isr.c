@@ -56,10 +56,10 @@ void ISR_SGPIO_VR_SMBALERT()
 	plat_vr_smbalert_trigger_scan();
 }
 
-// Shared by every ASIC CATTRIP SGPIO input - the scan work reports all of them.
-void ISR_SGPIO_ASIC_CATTRIP()
+// Shared by every input in sgpio_event_table - the scan work reports all of them.
+void ISR_SGPIO_EVENT()
 {
-	plat_asic_cattrip_trigger_scan();
+	plat_sgpio_event_trigger_scan();
 }
 
 void ISR_SGPIO_MODULE_PWRGD()
@@ -70,16 +70,6 @@ void ISR_SGPIO_MODULE_PWRGD()
 		// when dc on clear cpld polling alert status
 		reset_error_log_states(CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE);
 	}
-}
-
-// LEAK1_DETECT_ALERT_CPLD_N is active-low. Also called once by plat_sgpio_init().
-void ISR_SGPIO_LEAK1_DETECT()
-{
-	LOG_INF("LEAK1_DETECT_ALERT_CPLD_N = %d", sgpio_get(LEAK1_DETECT_ALERT_CPLD_N));
-
-	error_log_event(MAKE_ERR_CODE(LEAK_DETECT_TRIGGER_CAUSE, 0),
-			(sgpio_get(LEAK1_DETECT_ALERT_CPLD_N) == GPIO_LOW) ? LOG_ASSERT :
-									     LOG_DEASSERT);
 }
 
 void ISR_SGPIO_PWRSEQ_TO_FAULT()
