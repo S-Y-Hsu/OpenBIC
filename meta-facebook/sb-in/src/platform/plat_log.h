@@ -31,7 +31,7 @@
 void init_load_eeprom_log(void);
 
 void plat_log_read(uint8_t *log_data, uint8_t cmd_size, uint16_t order);
-void error_log_event(uint16_t error_code, bool log_status);
+bool error_log_event(uint16_t error_code, bool log_status);
 uint8_t plat_log_get_num(void);
 void plat_clear_log();
 void reset_error_log_event(uint8_t err_type);
@@ -65,6 +65,7 @@ enum LOG_ERROR_TRIGGER_CAUSE {
 	CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE = 0x4, // payload: (bit << 8) | cpld_offset
 	VR_SMB_ALERT_TRIGGER_CAUSE = 0x5, // payload: VR_INDEX_E
 	LEAK_DETECT_TRIGGER_CAUSE = 0x6, // payload: 0 (LEAK1_DETECT_ALERT_CPLD_N)
+	ASIC_CATTRIP_TRIGGER_CAUSE = 0x7, // payload: ASIC_CATTRIP_E
 	MAX_TRIGGER_CAUSE = 0x10, // trigger cause maximum 4 bits
 };
 
