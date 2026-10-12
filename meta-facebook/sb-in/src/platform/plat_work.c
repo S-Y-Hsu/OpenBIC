@@ -19,6 +19,8 @@
 #include "plat_ioexp.h"
 #include "plat_hook.h"
 #include "plat_log.h"
+#include "plat_event.h"
+#include "pldm_oem.h"
 #include "plat_pldm_sensor.h"
 #include "pmbus.h"
 #include <errno.h>
@@ -117,8 +119,8 @@ void plat_vr_smbalert_trigger_scan(void)
 }
 
 /* SGPIO event scan
- * Every input in sgpio_event_table (plat_hook.c) shares ISR_SGPIO_EVENT. Logging is the only
- * action, so error_log_event() return value is used just to log the transition.
+ * Every input in sgpio_event_table (plat_hook.c) shares ISR_SGPIO_EVENT. On a real transition
+ * (error_log_event() returns true) an input with an event source also sends a BMC event.
  */
 static void sgpio_event_scan_handler(struct k_work *work);
 static K_WORK_DEFINE(sgpio_event_scan_work, sgpio_event_scan_handler);
@@ -129,8 +131,9 @@ static void sgpio_event_scan_handler(struct k_work *work)
 
 	for (uint8_t i = 0; i < sgpio_event_count(); i++) {
 		uint8_t sgpio_num = 0;
+		uint8_t event_source = ASTRID_EVENT_SOURCE_NONE;
 		bool active = false;
-		if (!sgpio_event_get_state(i, &sgpio_num, &active))
+		if (!sgpio_event_get_state(i, &sgpio_num, &event_source, &active))
 			continue;
 
 		if (!error_log_event(MAKE_ERR_CODE(SGPIO_EVENT_TRIGGER_CAUSE, sgpio_num),
@@ -139,6 +142,9 @@ static void sgpio_event_scan_handler(struct k_work *work)
 
 		LOG_INF("SGPIO event %s %s", sgpio_name[sgpio_num],
 			active ? "asserted" : "deasserted");
+
+		if (event_source != ASTRID_EVENT_SOURCE_NONE)
+			plat_send_bmc_event(event_source, active, 0, 0);
 	}
 }
 
