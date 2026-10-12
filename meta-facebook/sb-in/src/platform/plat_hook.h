@@ -128,7 +128,7 @@ bool vr_rail_sensor_id_get(uint8_t rail, uint8_t *sensor_id);
 bool vr_index_get_rails(uint8_t vr_index, const uint8_t **rails, uint8_t *count);
 bool vr_index_get_smbalert_sgpio(uint8_t vr_index, uint8_t *sgpio_num);
 uint8_t sgpio_event_count(void);
-bool sgpio_event_get_state(uint8_t idx, uint8_t *sgpio_num, bool *active);
+bool sgpio_event_get_state(uint8_t idx, uint8_t *sgpio_num, uint8_t *event_source, bool *active);
 const char *sgpio_event_get_name(uint16_t sgpio_num);
 bool vr_status_name_get(uint8_t rail, uint8_t **name);
 bool vr_rail_enum_get(uint8_t *name, uint8_t *num);

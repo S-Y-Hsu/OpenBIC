@@ -21,6 +21,7 @@
 #include "plat_hook.h"
 #include "pmbus.h"
 #include "plat_gpio.h"
+#include "pldm_oem.h"
 #include "plat_pldm_sensor.h"
 #include "mp2971.h"
 #include "mp29816a.h"
@@ -338,27 +339,27 @@ bool vr_index_get_smbalert_sgpio(uint8_t vr_index, uint8_t *sgpio_num)
 typedef struct _sgpio_event_map_ {
 	uint8_t sgpio_num;
 	uint8_t active_level; // GPIO_LOW / GPIO_HIGH
-	uint8_t event_source; // BMC event source, 0: no BMC event (not sent yet)
+	uint8_t event_source; // astrid_event_source, ASTRID_EVENT_SOURCE_NONE (0): no BMC event
 } sgpio_event_map_t;
 
 static const sgpio_event_map_t sgpio_event_table[] = {
-	{ LEAK1_DETECT_ALERT_CPLD_N, GPIO_LOW, 0 },
+	{ LEAK1_DETECT_ALERT_CPLD_N, GPIO_LOW, ASTRID_EVENT_SOURCE_NONE },
 	// ASIC CATTRIP, latched by the CPLD (active low, same as CPLD reg 0x27)
-	{ ZORA00_HBM_CATTRIP_ALARM, GPIO_LOW, 0 },
-	{ ZORA01_HBM_CATTRIP_ALARM, GPIO_LOW, 0 },
-	{ ZORA10_HBM_CATTRIP_ALARM, GPIO_LOW, 0 },
-	{ ZORA11_HBM_CATTRIP_ALARM, GPIO_LOW, 0 },
-	{ OWL_E_SOC_CATTRIP_ALARM, GPIO_LOW, 0 },
-	{ OWL_W_SOC_CATTRIP_ALARM, GPIO_LOW, 0 },
-	{ HAMSA_CATTRIP_ALARM, GPIO_LOW, 0 },
+	{ ZORA00_HBM_CATTRIP_ALARM, GPIO_LOW, ASTRID_ZORA00_HBM_CATTRIP },
+	{ ZORA01_HBM_CATTRIP_ALARM, GPIO_LOW, ASTRID_ZORA01_HBM_CATTRIP },
+	{ ZORA10_HBM_CATTRIP_ALARM, GPIO_LOW, ASTRID_ZORA10_HBM_CATTRIP },
+	{ ZORA11_HBM_CATTRIP_ALARM, GPIO_LOW, ASTRID_ZORA11_HBM_CATTRIP },
+	{ OWL_E_SOC_CATTRIP_ALARM, GPIO_LOW, ASTRID_OWL_E_SOC_CATTRIP },
+	{ OWL_W_SOC_CATTRIP_ALARM, GPIO_LOW, ASTRID_OWL_W_SOC_CATTRIP },
+	{ HAMSA_CATTRIP_ALARM, GPIO_LOW, ASTRID_HAMSA_CATTRIP },
 	// System alert fault (same as CPLD reg 0x28 bit7)
-	{ FM_MODULE_PWRBRK_R_N, GPIO_LOW, 0 },
+	{ FM_MODULE_PWRBRK_R_N, GPIO_LOW, ASTRID_EVENT_SOURCE_NONE },
 	// ASIC temp over (same as CPLD reg 0x29 bit7)
-	{ FM_ASIC_0_THERMTRIP_N_LATCH, GPIO_LOW, 0 },
+	{ FM_ASIC_0_THERMTRIP_N_LATCH, GPIO_LOW, ASTRID_ASIC_THERMTRIP },
 	// Temperature IC OVERT fault (same as CPLD reg 0x2A bit7~5)
-	{ IRQ_TMP75_1_ALERT_R_N, GPIO_LOW, 0 },
-	{ IRQ_TMP75_2_ALERT_R_N, GPIO_LOW, 0 },
-	{ IRQ_TMP75_3_ALERT_R_N, GPIO_LOW, 0 },
+	{ IRQ_TMP75_1_ALERT_R_N, GPIO_LOW, ASTRID_EVENT_SOURCE_NONE },
+	{ IRQ_TMP75_2_ALERT_R_N, GPIO_LOW, ASTRID_EVENT_SOURCE_NONE },
+	{ IRQ_TMP75_3_ALERT_R_N, GPIO_LOW, ASTRID_EVENT_SOURCE_NONE },
 };
 
 uint8_t sgpio_event_count(void)
@@ -366,10 +367,11 @@ uint8_t sgpio_event_count(void)
 	return ARRAY_SIZE(sgpio_event_table);
 }
 
-// SGPIO number of the idx-th event and whether it is currently at its active level
-bool sgpio_event_get_state(uint8_t idx, uint8_t *sgpio_num, bool *active)
+// SGPIO number, BMC event source and current active state of the idx-th event
+bool sgpio_event_get_state(uint8_t idx, uint8_t *sgpio_num, uint8_t *event_source, bool *active)
 {
 	CHECK_NULL_ARG_WITH_RETURN(sgpio_num, false);
+	CHECK_NULL_ARG_WITH_RETURN(event_source, false);
 	CHECK_NULL_ARG_WITH_RETURN(active, false);
 
 	if (idx >= ARRAY_SIZE(sgpio_event_table)) {
@@ -377,6 +379,7 @@ bool sgpio_event_get_state(uint8_t idx, uint8_t *sgpio_num, bool *active)
 	}
 
 	*sgpio_num = sgpio_event_table[idx].sgpio_num;
+	*event_source = sgpio_event_table[idx].event_source;
 	*active = (sgpio_get(*sgpio_num) == sgpio_event_table[idx].active_level);
 	return true;
 }
