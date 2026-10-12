@@ -338,18 +338,27 @@ bool vr_index_get_smbalert_sgpio(uint8_t vr_index, uint8_t *sgpio_num)
 typedef struct _sgpio_event_map_ {
 	uint8_t sgpio_num;
 	uint8_t active_level; // GPIO_LOW / GPIO_HIGH
+	uint8_t event_source; // BMC event source, 0: no BMC event (not sent yet)
 } sgpio_event_map_t;
 
 static const sgpio_event_map_t sgpio_event_table[] = {
-	{ LEAK1_DETECT_ALERT_CPLD_N, GPIO_LOW },
+	{ LEAK1_DETECT_ALERT_CPLD_N, GPIO_LOW, 0 },
 	// ASIC CATTRIP, latched by the CPLD (active low, same as CPLD reg 0x27)
-	{ ZORA00_HBM_CATTRIP_ALARM, GPIO_LOW },
-	{ ZORA01_HBM_CATTRIP_ALARM, GPIO_LOW },
-	{ ZORA10_HBM_CATTRIP_ALARM, GPIO_LOW },
-	{ ZORA11_HBM_CATTRIP_ALARM, GPIO_LOW },
-	{ OWL_E_SOC_CATTRIP_ALARM, GPIO_LOW },
-	{ OWL_W_SOC_CATTRIP_ALARM, GPIO_LOW },
-	{ HAMSA_CATTRIP_ALARM, GPIO_LOW },
+	{ ZORA00_HBM_CATTRIP_ALARM, GPIO_LOW, 0 },
+	{ ZORA01_HBM_CATTRIP_ALARM, GPIO_LOW, 0 },
+	{ ZORA10_HBM_CATTRIP_ALARM, GPIO_LOW, 0 },
+	{ ZORA11_HBM_CATTRIP_ALARM, GPIO_LOW, 0 },
+	{ OWL_E_SOC_CATTRIP_ALARM, GPIO_LOW, 0 },
+	{ OWL_W_SOC_CATTRIP_ALARM, GPIO_LOW, 0 },
+	{ HAMSA_CATTRIP_ALARM, GPIO_LOW, 0 },
+	// System alert fault (same as CPLD reg 0x28 bit7)
+	{ FM_MODULE_PWRBRK_R_N, GPIO_LOW, 0 },
+	// ASIC temp over (same as CPLD reg 0x29 bit7)
+	{ FM_ASIC_0_THERMTRIP_N_LATCH, GPIO_LOW, 0 },
+	// Temperature IC OVERT fault (same as CPLD reg 0x2A bit7~5)
+	{ IRQ_TMP75_1_ALERT_R_N, GPIO_LOW, 0 },
+	{ IRQ_TMP75_2_ALERT_R_N, GPIO_LOW, 0 },
+	{ IRQ_TMP75_3_ALERT_R_N, GPIO_LOW, 0 },
 };
 
 uint8_t sgpio_event_count(void)
