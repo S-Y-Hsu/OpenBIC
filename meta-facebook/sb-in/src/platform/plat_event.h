@@ -14,5 +14,14 @@
  * limitations under the License.
  */
 
+#ifndef PLAT_EVENT_H
+#define PLAT_EVENT_H
+
+#include <stdbool.h>
+#include <stdint.h>
+
 void plat_set_ac_on_log(void);
 void plat_set_dc_on_log(bool is_assert);
+void plat_send_bmc_event(uint8_t event_source, bool is_assert, uint8_t data2, uint8_t data3);
+
+#endif
