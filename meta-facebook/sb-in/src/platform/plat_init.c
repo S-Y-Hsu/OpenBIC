@@ -28,7 +28,6 @@
 #include "plat_class.h"
 #include "plat_cpld.h"
 #include "plat_log.h"
-#include "plat_event.h"
 #include "plat_ioexp.h"
 #include "plat_kernel_obj.h"
 #include "plat_work.h"
@@ -62,9 +61,11 @@ void pal_post_init()
 	init_fru_info();
 	init_load_eeprom_log();
 	init_cpld_polling();
-	plat_set_ac_on_log();
 	plat_init_platform_queue();
 	plat_sgpio_init();
+
+	/* AC on assert */
+	error_log_event(MAKE_ERR_CODE(AC_ON_TRIGGER_CAUSE, 0), LOG_ASSERT);
 }
 
 #define DEF_PROJ_GPIO_PRIORITY 78

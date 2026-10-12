@@ -22,7 +22,6 @@
 #include "plat_gpio.h"
 #include "plat_cpld.h"
 #include "plat_kernel_obj.h"
-#include "plat_event.h"
 #include "plat_log.h"
 #include "plat_work.h"
 #include "plat_power_seq.h"
@@ -42,9 +41,9 @@ void ISR_SGPIO_PWR_EN()
 
 	if (sgpio_get(PWR_EN) == GPIO_HIGH) {
 		plat_record_pwr_en_rise_time();
-		plat_set_dc_on_log(LOG_ASSERT);
+		error_log_event(MAKE_ERR_CODE(DC_ON_TRIGGER_CAUSE, 0), LOG_ASSERT);
 	} else {
-		plat_set_dc_on_log(LOG_DEASSERT);
+		error_log_event(MAKE_ERR_CODE(DC_ON_TRIGGER_CAUSE, 0), LOG_DEASSERT);
 		plat_clear_power_seq_fault();
 	}
 }

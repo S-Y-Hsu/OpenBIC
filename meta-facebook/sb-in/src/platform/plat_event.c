@@ -24,27 +24,6 @@
 
 LOG_MODULE_REGISTER(plat_event);
 
-/* ac log event*/
-void plat_set_ac_on_log(void)
-{
-	uint16_t error_code = MAKE_ERR_CODE(AC_ON_TRIGGER_CAUSE, 0);
-	error_log_event(error_code, LOG_ASSERT);
-	LOG_INF("Generated AC on error code: 0x%x", error_code);
-}
-
-/* dc log event*/
-void plat_set_dc_on_log(bool is_assert)
-{
-	uint16_t error_code = MAKE_ERR_CODE(DC_ON_TRIGGER_CAUSE, 0);
-	error_log_event(error_code, (is_assert ? LOG_ASSERT : LOG_DEASSERT));
-
-	if (is_assert == LOG_ASSERT) {
-		LOG_INF("DC on error code asserted: 0x%x", error_code);
-	} else if (is_assert == LOG_DEASSERT) {
-		LOG_INF("DC on error code deasserted");
-	}
-}
-
 /* BMC event
  * send_event_log_to_bmc() waits for the BMC response (up to ~18s when the BMC does not answer),
  * so callers only queue the SEL here and the system work queue sends it. One SEL per run, then
