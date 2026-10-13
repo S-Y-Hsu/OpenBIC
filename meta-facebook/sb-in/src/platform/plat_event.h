@@ -21,5 +21,6 @@
 #include <stdint.h>
 
 void plat_send_bmc_event(uint8_t event_source, bool is_assert, uint8_t data2, uint8_t data3);
+void plat_send_power_fault_bmc_event(uint8_t event_source, uint8_t rail);
 
 #endif

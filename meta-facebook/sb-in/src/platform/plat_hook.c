@@ -559,6 +559,18 @@ bool vr_status_name_get(uint8_t rail, uint8_t **name)
 	return true;
 }
 
+bool vr_status_pmbus_reg_get(uint8_t vr_status_rail, uint8_t *pmbus_reg)
+{
+	CHECK_NULL_ARG_WITH_RETURN(pmbus_reg, false);
+
+	if (vr_status_rail >= VR_STAUS_E_MAX) {
+		return false;
+	}
+
+	*pmbus_reg = (uint8_t)vr_status_table[vr_status_rail].pmbus_reg;
+	return true;
+}
+
 bool vr_status_enum_get(uint8_t *name, uint8_t *num)
 {
 	CHECK_NULL_ARG_WITH_RETURN(name, false);

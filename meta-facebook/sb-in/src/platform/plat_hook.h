@@ -142,6 +142,7 @@ const char *sgpio_event_get_name(uint16_t sgpio_num);
 bool power_fault_get_bit(uint8_t cpld_offset, uint8_t bit, uint8_t *rail, uint8_t *event_source);
 const char *power_fault_get_bit_name(uint8_t cpld_offset, uint8_t bit);
 bool vr_status_name_get(uint8_t rail, uint8_t **name);
+bool vr_status_pmbus_reg_get(uint8_t vr_status_rail, uint8_t *pmbus_reg);
 bool vr_rail_enum_get(uint8_t *name, uint8_t *num);
 bool vr_status_enum_get(uint8_t *name, uint8_t *num);
 bool plat_get_vr_status(uint8_t rail, uint8_t vr_status_rail, uint16_t *vr_status);
