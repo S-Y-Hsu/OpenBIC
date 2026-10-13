@@ -22,6 +22,7 @@
 #define VR_MUTEX_LOCK_TIMEOUT_MS 1000
 #define VR_PAGE_NUM 3 // PMBus pages reserved per VR chip in vr_pre_read_args
 #define MAX_RAILS_PER_IC 3
+#define NOT_VR_RAIL 0xFF
 
 #include "plat_pldm_sensor.h"
 
@@ -138,6 +139,8 @@ bool vr_index_get_smbalert_sgpio(uint8_t vr_index, uint8_t *sgpio_num);
 uint8_t sgpio_event_count(void);
 bool sgpio_event_get_state(uint8_t idx, uint8_t *sgpio_num, uint8_t *event_source, bool *active);
 const char *sgpio_event_get_name(uint16_t sgpio_num);
+bool power_fault_get_bit(uint8_t cpld_offset, uint8_t bit, uint8_t *rail, uint8_t *event_source);
+const char *power_fault_get_bit_name(uint8_t cpld_offset, uint8_t bit);
 bool vr_status_name_get(uint8_t rail, uint8_t **name);
 bool vr_rail_enum_get(uint8_t *name, uint8_t *num);
 bool vr_status_enum_get(uint8_t *name, uint8_t *num);
