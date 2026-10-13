@@ -21,26 +21,17 @@
 
 #include "plat_gpio.h"
 #include "plat_cpld.h"
-#include "plat_kernel_obj.h"
 #include "plat_log.h"
 #include "plat_work.h"
 #include "plat_power_seq.h"
 
 LOG_MODULE_REGISTER(plat_isr);
 
-void ISR_GPIO_ALL_VR_PM_ALERT_R_N()
-{
-	if (gpio_get(ALL_VR_PM_ALERT_R_N) == GPIO_LOW) {
-		plat_trigger_cpld_polling();
-	}
-}
-
 void ISR_SGPIO_PWR_EN()
 {
 	LOG_INF("PWR_EN = %d", sgpio_get(PWR_EN));
 
 	if (sgpio_get(PWR_EN) == GPIO_HIGH) {
-		plat_record_pwr_en_rise_time();
 		error_log_event(MAKE_ERR_CODE(DC_ON_TRIGGER_CAUSE, 0), LOG_ASSERT);
 	} else {
 		error_log_event(MAKE_ERR_CODE(DC_ON_TRIGGER_CAUSE, 0), LOG_DEASSERT);
@@ -61,13 +52,19 @@ void ISR_SGPIO_EVENT()
 	plat_sgpio_event_trigger_scan();
 }
 
+// PWER_FAULT is latched high by the CPLD on any VR power fault (rising edge only)
+void ISR_SGPIO_PWR_FAULT()
+{
+	plat_power_fault_trigger_scan();
+}
+
 void ISR_SGPIO_MODULE_PWRGD()
 {
 	LOG_INF("MODULE_PWRGD = %d", sgpio_get(MODULE_PWRGD));
 
 	if (sgpio_get(MODULE_PWRGD) == GPIO_HIGH) {
-		// when dc on clear cpld polling alert status
-		reset_error_log_states(CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE);
+		// power faults are latched until DC on, clear them so the next fault is logged
+		reset_error_log_event(POWER_FAULT_TRIGGER_CAUSE);
 	}
 }
 

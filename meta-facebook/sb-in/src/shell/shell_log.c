@@ -63,7 +63,7 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 		uint8_t err_data_len = sizeof(log.error_data);
 
 		switch (err_type) {
-		case CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE: {
+		case POWER_FAULT_TRIGGER_CAUSE: {
 			uint8_t cpld_offset = log.err_code & 0xFF;
 			uint8_t bit_position = (log.err_code >> 8) & 0x07;
 

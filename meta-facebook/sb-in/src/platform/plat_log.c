@@ -137,6 +137,38 @@ bool get_smb_alert_error_data(uint8_t vr_index, uint8_t *data)
 	return ret;
 }
 
+// A power fault bit that is a PMBus VR rail gets that rail's VR status, other bits have no data
+static bool get_power_fault_error_data(uint8_t cpld_offset, uint8_t bit, uint8_t *data)
+{
+	uint8_t rail = NOT_VR_RAIL;
+	uint8_t event_source = 0;
+	if (!power_fault_get_bit(cpld_offset, bit, &rail, &event_source)) {
+		LOG_WRN("Pwr fault on cpld_offset: 0x%x, bit: %d is not a fault bit", cpld_offset,
+			bit);
+		return false;
+	}
+
+	if (rail == NOT_VR_RAIL) {
+		LOG_WRN("Pwr fault on cpld_offset: 0x%x, bit: %d, but this device is not a VR rail",
+			cpld_offset, bit);
+		return false;
+	}
+
+	uint8_t sensor_id = 0x00;
+	if (!vr_rail_sensor_id_get(rail, &sensor_id)) {
+		LOG_ERR("Invalid rail in power_fault_table for cpld_offset: 0x%x, bit: %d",
+			cpld_offset, bit);
+		return false;
+	}
+
+	if (!vr_fault_get_error_data(sensor_id, data)) {
+		LOG_ERR("Failed to retrieve VR fault data for sensor_num: 0x%x", sensor_id);
+		return false;
+	}
+
+	return true;
+}
+
 bool get_error_data(uint16_t error_code, uint8_t *data)
 {
 	CHECK_NULL_ARG_WITH_RETURN(data, false);
@@ -148,6 +180,11 @@ bool get_error_data(uint16_t error_code, uint8_t *data)
 	case DC_ON_TRIGGER_CAUSE: {
 		data[0] = sgpio_get(MODULE_PWRGD);
 		return true;
+	}
+	case POWER_FAULT_TRIGGER_CAUSE: {
+		uint8_t cpld_offset = error_code & 0xFF;
+		uint8_t bit_position = (error_code >> 8) & 0x07;
+		return get_power_fault_error_data(cpld_offset, bit_position, data);
 	}
 	case VR_SMB_ALERT_TRIGGER_CAUSE:
 		return get_smb_alert_error_data(ERR_CODE_GET_PAYLOAD(error_code), data);
@@ -162,48 +199,8 @@ bool get_error_data(uint16_t error_code, uint8_t *data)
 	}
 	}
 
-	// Below handles CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE, dispatched by which CPLD register
-	// (cpld_offset) triggered the fault.
-	uint8_t cpld_offset = error_code & 0xFF;
-	uint8_t bit_position = (error_code >> 8) & 0x07;
-
-	switch (cpld_offset) {
-	case VR_POWER_FAULT_1_REG:
-	case VR_POWER_FAULT_2_REG:
-	case VR_POWER_FAULT_3_REG:
-	case VR_POWER_FAULT_4_REG:
-	case VR_POWER_FAULT_5_REG:
-	case VR_POWER_FAULT_6_REG:
-	case VR_POWER_FAULT_7_REG: {
-		uint8_t rail = NOT_VR_RAIL;
-		uint8_t event_source = 0;
-		if (!power_fault_get_bit(cpld_offset, bit_position, &rail, &event_source)) {
-			LOG_WRN("Pwr fault on cpld_offset: 0x%x, bit: %d is not a fault bit", cpld_offset,
-				bit_position);
-			return false;
-		}
-
-		uint8_t sensor_id = 0x00;
-		if (rail == NOT_VR_RAIL) {
-			LOG_WRN("Pwr fault on cpld_offset: 0x%x, bit: %d, but this device is not a VR rail",
-				cpld_offset, bit_position);
-			return false;
-		}
-		if (!vr_rail_sensor_id_get(rail, &sensor_id)) {
-			LOG_ERR("Invalid rail in power_fault_table for cpld_offset: 0x%x, bit: %d",
-				cpld_offset, bit_position);
-			return false;
-		}
-		if (!vr_fault_get_error_data(sensor_id, data)) {
-			LOG_ERR("Failed to retrieve VR fault data for sensor_num: 0x%x", sensor_id);
-			return false;
-		}
-		return true;
-	}
-	default:
-		LOG_WRN("No decode handler for cpld_offset: 0x%x", cpld_offset);
-		return false;
-	}
+	LOG_WRN("No error data handler for error_code: 0x%x", error_code);
+	return false;
 }
 
 // Find error_code in the active-fault cache. Returns the slot index, or -1 if not present.

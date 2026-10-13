@@ -33,6 +33,7 @@
 #include "plat_gpio.h"
 #include "plat_cpld.h"
 #include "plat_util.h"
+#include "plat_work.h"
 #include "plat_i2c.h"
 
 #define PLAT_WAIT_SENSOR_POLLING_END_DELAY_MS 1000
@@ -699,7 +700,7 @@ void load_pldmupdate_comp_config(void)
 void plat_reset_prepare()
 {
 	set_plat_sensor_polling_enable_flag(false);
-	set_cpld_polling_enable_flag(false);
+	set_sgpio_fault_scan_enable_flag(false);
 	k_msleep(PLAT_WAIT_SENSOR_POLLING_END_DELAY_MS);
 
 	const char *i2c_labels[] = { "I2C_0", "I2C_1", "I2C_2", "I2C_3", "I2C_4",  "I2C_5",
