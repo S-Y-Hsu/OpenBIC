@@ -203,6 +203,9 @@ static void power_fault_scan_handler(struct k_work *work)
 
 			LOG_ERR("Power fault: %s (CPLD 0x%02x bit %d)",
 				power_fault_get_bit_name(cpld_offset, bit), cpld_offset, bit);
+
+			if (event_source != ASTRID_EVENT_SOURCE_NONE)
+				plat_send_power_fault_bmc_event(event_source, rail);
 		}
 	}
 }
