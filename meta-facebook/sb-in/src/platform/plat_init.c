@@ -19,7 +19,6 @@
 
 #include "expansion_board.h"
 #include "hal_gpio.h"
-#include "plat_led.h"
 #include "plat_i2c_target.h"
 #include "plat_mctp.h"
 #include "plat_hook.h"
@@ -44,7 +43,6 @@ void pal_pre_init()
 	}
 	ioexp_init();
 	init_plat_config();
-	plat_led_init();
 	vr_mutex_init();
 	plat_i3c_set_pid();
 }
