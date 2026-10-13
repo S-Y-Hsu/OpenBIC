@@ -25,6 +25,7 @@
 #include "pldm_oem.h"
 #include "plat_pldm_sensor.h"
 #include "pmbus.h"
+#include "pldm_sensor.h"
 #include <errno.h>
 #include <logging/log.h>
 
@@ -204,6 +205,8 @@ static void power_fault_scan_handler(struct k_work *work)
 			LOG_ERR("Power fault: %s (CPLD 0x%02x bit %d)",
 				power_fault_get_bit_name(cpld_offset, bit), cpld_offset, bit);
 
+			set_heartbeat_led_event_flag(true);
+
 			if (event_source != ASTRID_EVENT_SOURCE_NONE)
 				plat_send_power_fault_bmc_event(event_source, rail);
 		}
@@ -216,13 +219,16 @@ void plat_power_fault_trigger_scan(void)
 }
 
 /* ===== Periodic works =====
- * Each job is a delayable work that reschedules itself every interval_ms. A work that fails
- * max_fail times in a row is suspended until reboot, so a broken board does not flood the log.
+ * Each job is a delayable work that reschedules itself every interval_ms; a job may change its
+ * own interval_ms to pace the next run. A work that fails max_fail times in a row is suspended
+ * until reboot, so a broken board does not flood the log.
  */
 #define CLK_BUF_LOSB_MASK GENMASK(2, 0) // PCA6416A_U753 P1 bit0~2
 
-static int clk_buf_losb_sync(void)
+static int clk_buf_losb_sync(struct plat_work *pw)
 {
+	ARG_UNUSED(pw);
+
 	static bool synced = false;
 	static uint8_t last_val = 0;
 	uint8_t val = 0;
@@ -245,8 +251,65 @@ static int clk_buf_losb_sync(void)
 	return 0;
 }
 
+/* Heartbeat LED, same as sb-el: toggle every interval_ms, paced by the hottest ASIC sensor
+ *   all <= 70 C: 500 ms, any <= 100 C: 250 ms, any > 100 C or unreadable: 50 ms
+ *   all <= 70 C but a power fault happened (heartbeat_led_event): 1000 ms
+ */
+#define HEARTBEAT_LED_NORMAL_MS 500
+#define HEARTBEAT_LED_WARM_MS 250
+#define HEARTBEAT_LED_CRITICAL_MS 50
+#define HEARTBEAT_LED_EVENT_MS 1000
+
+// Same as sb-el led_set_flag: set when a fault event happens (power fault now), never cleared
+static bool heartbeat_led_event;
+
+void set_heartbeat_led_event_flag(bool flag)
+{
+	heartbeat_led_event = flag;
+}
+
+static const uint16_t heartbeat_led_sensors[] = {
+	SENSOR_NUM_ASIC_ZORA00_TEMP_C,	      SENSOR_NUM_ASIC_ZORA01_TEMP_C,
+	SENSOR_NUM_ASIC_OWL_W_TEMP_C,	      SENSOR_NUM_ASIC_OWL_E_TEMP_C,
+	SENSOR_NUM_ASIC_ZORA10_SENSOR_TEMP_C, SENSOR_NUM_ASIC_ZORA11_SENSOR_TEMP_C,
+	SENSOR_NUM_ASIC_HAMSA_CRM_TEMP_C,     SENSOR_NUM_ASIC_HAMSA_LS_TEMP_C,
+};
+
+static int heartbeat_led(struct plat_work *pw)
+{
+	static bool led_status = true;
+	led_status = !led_status;
+	gpio_set(LED_MMC_HEARTBEAT_R, led_status);
+
+	uint32_t interval = HEARTBEAT_LED_NORMAL_MS;
+
+	for (size_t i = 0; i < ARRAY_SIZE(heartbeat_led_sensors); i++) {
+		int reading = 0; // millidegree C
+		uint8_t op_state = PLDM_SENSOR_STATUSUNKOWN;
+
+		if (pldm_sensor_get_reading_from_cache(heartbeat_led_sensors[i], &reading,
+						       &op_state) != PLDM_SUCCESS) {
+			interval = HEARTBEAT_LED_CRITICAL_MS;
+			continue;
+		}
+
+		uint32_t candidate = (reading <= 70000)	 ? HEARTBEAT_LED_NORMAL_MS :
+				     (reading <= 100000) ? HEARTBEAT_LED_WARM_MS :
+							   HEARTBEAT_LED_CRITICAL_MS;
+		if (candidate < interval)
+			interval = candidate;
+	}
+
+	if (interval == HEARTBEAT_LED_NORMAL_MS && heartbeat_led_event)
+		interval = HEARTBEAT_LED_EVENT_MS;
+
+	pw->interval_ms = interval;
+	return 0;
+}
+
 static struct plat_work plat_work_list[] = {
 	{ .name = "clk_buf_losb_sync", .fn = clk_buf_losb_sync, .interval_ms = 100, .max_fail = 10 },
+	{ .name = "heartbeat_led", .fn = heartbeat_led, .interval_ms = 250, .max_fail = 10 },
 };
 
 static void plat_work_handler(struct k_work *work)
@@ -254,7 +317,7 @@ static void plat_work_handler(struct k_work *work)
 	struct k_work_delayable *dwork = k_work_delayable_from_work(work);
 	struct plat_work *pw = CONTAINER_OF(dwork, struct plat_work, work);
 
-	if (pw->fn() < 0) {
+	if (pw->fn(pw) < 0) {
 		if (++pw->fail_cnt >= pw->max_fail) {
 			pw->suspended = true;
 			LOG_ERR("plat work %s suspended after %u consecutive failures", pw->name,

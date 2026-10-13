@@ -22,7 +22,8 @@
 /* platform work queue */
 struct plat_work {
 	const char *name;
-	int (*fn)(void); // 0 on success, negative errno on failure
+	// 0 on success, negative errno on failure; may update pw->interval_ms for the next run
+	int (*fn)(struct plat_work *pw);
 	uint32_t interval_ms;
 	uint8_t max_fail; // consecutive failures before the work is suspended
 	uint8_t fail_cnt;
@@ -36,5 +37,6 @@ void plat_vr_smbalert_trigger_scan(void);
 void plat_sgpio_event_trigger_scan(void);
 void plat_power_fault_trigger_scan(void);
 void set_sgpio_fault_scan_enable_flag(bool enable);
+void set_heartbeat_led_event_flag(bool flag);
 
 #endif
