@@ -47,65 +47,6 @@ static uint16_t next_log_position; // next RAM/EEPROM slot to write, 0-based
 static uint16_t next_index; // next value for err_log_data[].index, 0-based, wraps at LOG_MAX_INDEX
 static uint8_t log_num; // Number of logs in EEPROM
 
-#define NOT_VR_RAIL 0xFF
-
-typedef struct _vr_error_callback_info_ {
-	uint8_t cpld_offset;
-	uint8_t bit_mapping_vr_sensor_num[8];
-} vr_error_callback_info;
-
-// bit_mapping_vr_sensor_num[n] holds the mapping for bit n (bit0 first, bit7 last).
-const vr_error_callback_info vr_error_callback_info_table[] = {
-	// bit7: P12V_UBC_PWRGD, bit6: PWRGD_P3V3_R, bit5: PWRGD_P1V8_RC38108,
-	// bit4: PWRGD_P4V2_R, bit3: PWRGD_P3V3_CLK_R, bit2: PWRGD_P3V3_CLK_1_R,
-	// bit1: PWRGD_LDO_IN_1V2_R, bit0: PWRGD_P5V_R - none are VR rails
-	{ VR_POWER_FAULT_1_REG,
-	  { NOT_VR_RAIL, NOT_VR_RAIL, NOT_VR_RAIL, NOT_VR_RAIL, NOT_VR_RAIL, NOT_VR_RAIL,
-	    NOT_VR_RAIL, NOT_VR_RAIL } },
-	// bit7: PWRGD_P1V8_R, bit6: PWRGD_P0V75_AVDD_HCSL_R (not a VR rail),
-	// bit5..bit0: ZORA00/01/10/11 VDDH, ZORA00/01 VDDL
-	{ VR_POWER_FAULT_2_REG,
-	  { VR_RAIL_E_ASIC_P0V75_ZORA01_VDDL, VR_RAIL_E_ASIC_P0V75_ZORA00_VDDL,
-	    VR_RAIL_E_ASIC_P0V75_ZORA11_VDDH, VR_RAIL_E_ASIC_P0V75_ZORA10_VDDH,
-	    VR_RAIL_E_ASIC_P0V75_ZORA01_VDDH, VR_RAIL_E_ASIC_P0V75_ZORA00_VDDH, NOT_VR_RAIL,
-	    VR_RAIL_E_ASIC_P1V8 } },
-	// bit7: ZORA10_VDDL, bit6: ZORA11_VDDL, bit5: HAMSA_VDD, bit4: OWL_E_VDD,
-	// bit3: OWL_W_VDD, bit2: MAX_N_VDD, bit1: MAX_EW2_VDD, bit0: MAX_M_VDD
-	{ VR_POWER_FAULT_3_REG,
-	  { VR_RAIL_E_ASIC_P0V8_MAX_M_VDD, VR_RAIL_E_ASIC_P0V75_MAX_EW2_VDD,
-	    VR_RAIL_E_ASIC_P0V75_MAX_N_VDD, VR_RAIL_E_ASIC_P0V75_OWL_W_VDD,
-	    VR_RAIL_E_ASIC_P0V75_OWL_E_VDD, VR_RAIL_E_ASIC_P0V85_HAMSA_VDD,
-	    VR_RAIL_E_ASIC_P0V75_ZORA11_VDDL, VR_RAIL_E_ASIC_P0V75_ZORA10_VDDL } },
-	// bit7: MAX_EW1_VDD, bit6: MAX_S_VDD, bit5: OWL_E_TRVDD0P75, bit4: OWL_W_TRVDD0P75,
-	// bit3: VDDPHY_HBM0145, bit2: VDDPHY_HBM2367,
-	// bit1: P1V5_PLL_VDDA_OWL, bit0: P1V5_PLL_VDDA_SOC (not VR rails)
-	{ VR_POWER_FAULT_4_REG,
-	  { NOT_VR_RAIL, NOT_VR_RAIL, VR_RAIL_E_ASIC_P0V75_VDDPHY_HBM2367,
-	    VR_RAIL_E_ASIC_P0V75_VDDPHY_HBM0145, VR_RAIL_E_ASIC_P0V75_OWL_W_TRVDD,
-	    VR_RAIL_E_ASIC_P0V75_OWL_E_TRVDD, VR_RAIL_E_ASIC_P0V8_MAX_S_VDD,
-	    VR_RAIL_E_ASIC_P0V75_MAX_EW1_VDD } },
-	// bit7: P1V2_PLL_VDDA_SOC, bit6: P1V2_PLL_VDDA_OWL_W (not VR rails),
-	// bit5: VPP_HBM0145, bit4: VPP_HBM2367, bit3: VDDC_HBM2367, bit2: VDDC_HBM0145,
-	// bit1: VDDQ_HBM2367, bit0: VDDQ_HBM0145
-	{ VR_POWER_FAULT_5_REG,
-	  { VR_RAIL_E_ASIC_P0V9_VDDQ_HBM0145, VR_RAIL_E_ASIC_P0V9_VDDQ_HBM2367,
-	    VR_RAIL_E_ASIC_P1V05_VDDC_HBM0145, VR_RAIL_E_ASIC_P1V05_VDDC_HBM2367,
-	    VR_RAIL_E_ASIC_P1V8_VPP_HBM2367, VR_RAIL_E_ASIC_P1V8_VPP_HBM0145, NOT_VR_RAIL,
-	    NOT_VR_RAIL } },
-	// bit7: VDDQL_HBM2367, bit6: VDDQL_HBM0145, bit5: HAMSA_AVDD_PCIE,
-	// bit4: OWL_E_TRVDD0P9, bit3: OWL_W_TRVDD0P9,
-	// bit2: P0V9_OWL_E_PVDD, bit1: P0V9_OWL_W_PVDD, bit0: PVDD1P5 (not VR rails)
-	{ VR_POWER_FAULT_6_REG,
-	  { NOT_VR_RAIL, NOT_VR_RAIL, NOT_VR_RAIL, VR_RAIL_E_ASIC_P0V9_OWL_W_TRVDD,
-	    VR_RAIL_E_ASIC_P0V9_OWL_E_TRVDD, VR_RAIL_E_ASIC_P0V83_HAMSA_AVDD_PCIE,
-	    VR_RAIL_E_ASIC_P0V4_VDDQL_HBM0145, VR_RAIL_E_ASIC_P0V4_VDDQL_HBM2367 } },
-	// bit7: P1V5_E_RVDD, bit6: P1V5_W_RVDD, bit5..bit2: HAMSA_VDDHRXTX_PCIE0-3,
-	// bit1: 1'b0, bit0: 1'b1 - none are VR rails
-	{ VR_POWER_FAULT_7_REG,
-	  { NOT_VR_RAIL, NOT_VR_RAIL, NOT_VR_RAIL, NOT_VR_RAIL, NOT_VR_RAIL, NOT_VR_RAIL,
-	    NOT_VR_RAIL, NOT_VR_RAIL } },
-};
-
 bool vr_fault_get_error_data(uint8_t sensor_id, uint8_t *data)
 {
 	CHECK_NULL_ARG_WITH_RETURN(data, false);
@@ -196,19 +137,6 @@ bool get_smb_alert_error_data(uint8_t vr_index, uint8_t *data)
 	return ret;
 }
 
-// Look up the per-bit VR_RAIL_E for a given cpld_offset, or not_found if the offset/bit has no
-// entry.
-static uint8_t lookup_bit_mapping(const vr_error_callback_info *table, size_t table_len,
-				  uint8_t cpld_offset, uint8_t bit_position, uint8_t not_found)
-{
-	for (size_t i = 0; i < table_len; i++) {
-		if (table[i].cpld_offset == cpld_offset) {
-			return table[i].bit_mapping_vr_sensor_num[bit_position];
-		}
-	}
-	return not_found;
-}
-
 bool get_error_data(uint16_t error_code, uint8_t *data)
 {
 	CHECK_NULL_ARG_WITH_RETURN(data, false);
@@ -247,9 +175,13 @@ bool get_error_data(uint16_t error_code, uint8_t *data)
 	case VR_POWER_FAULT_5_REG:
 	case VR_POWER_FAULT_6_REG:
 	case VR_POWER_FAULT_7_REG: {
-		uint8_t rail = lookup_bit_mapping(vr_error_callback_info_table,
-						  ARRAY_SIZE(vr_error_callback_info_table),
-						  cpld_offset, bit_position, NOT_VR_RAIL);
+		uint8_t rail = NOT_VR_RAIL;
+		uint8_t event_source = 0;
+		if (!power_fault_get_bit(cpld_offset, bit_position, &rail, &event_source)) {
+			LOG_WRN("Pwr fault on cpld_offset: 0x%x, bit: %d is not a fault bit", cpld_offset,
+				bit_position);
+			return false;
+		}
 
 		uint8_t sensor_id = 0x00;
 		if (rail == NOT_VR_RAIL) {
@@ -258,7 +190,7 @@ bool get_error_data(uint16_t error_code, uint8_t *data)
 			return false;
 		}
 		if (!vr_rail_sensor_id_get(rail, &sensor_id)) {
-			LOG_ERR("Invalid value in vr_error_callback_info_table for cpld_offset: 0x%x, bit: %d",
+			LOG_ERR("Invalid rail in power_fault_table for cpld_offset: 0x%x, bit: %d",
 				cpld_offset, bit_position);
 			return false;
 		}
