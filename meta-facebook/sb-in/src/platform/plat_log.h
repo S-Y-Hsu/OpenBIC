@@ -62,7 +62,7 @@ enum LOG_ERROR_TRIGGER_CAUSE {
 	POWER_ON_SEQUENCE_TRIGGER_CAUSE = 0x1,
 	AC_ON_TRIGGER_CAUSE = 0x2,
 	DC_ON_TRIGGER_CAUSE = 0x3,
-	CPLD_UNEXPECTED_VAL_TRIGGER_CAUSE = 0x4, // payload: (bit << 8) | cpld_offset
+	POWER_FAULT_TRIGGER_CAUSE = 0x4, // payload: (bit << 8) | VR_POWER_FAULT_n_REG
 	VR_SMB_ALERT_TRIGGER_CAUSE = 0x5, // payload: VR_INDEX_E
 	SGPIO_EVENT_TRIGGER_CAUSE = 0x6,
 	// payload: SGPIO number in sgpio_event_table, no error data

@@ -29,7 +29,6 @@
 #include "plat_cpld.h"
 #include "plat_log.h"
 #include "plat_ioexp.h"
-#include "plat_kernel_obj.h"
 #include "plat_work.h"
 
 LOG_MODULE_REGISTER(plat_init);
@@ -60,7 +59,6 @@ void pal_post_init()
 	plat_mctp_init();
 	init_fru_info();
 	init_load_eeprom_log();
-	init_cpld_polling();
 	plat_init_platform_queue();
 	plat_sgpio_init();
 

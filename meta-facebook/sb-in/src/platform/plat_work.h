@@ -34,5 +34,7 @@ void plat_init_platform_queue(void);
 const struct plat_work *plat_get_work_list(size_t *count);
 void plat_vr_smbalert_trigger_scan(void);
 void plat_sgpio_event_trigger_scan(void);
+void plat_power_fault_trigger_scan(void);
+void set_sgpio_fault_scan_enable_flag(bool enable);
 
 #endif

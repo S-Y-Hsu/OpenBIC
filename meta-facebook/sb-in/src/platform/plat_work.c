@@ -19,6 +19,8 @@
 #include "plat_ioexp.h"
 #include "plat_hook.h"
 #include "plat_log.h"
+#include "plat_cpld.h"
+#include "pldm_firmware_update.h"
 #include "plat_event.h"
 #include "pldm_oem.h"
 #include "plat_pldm_sensor.h"
@@ -38,15 +40,18 @@ LOG_MODULE_REGISTER(plat_work);
 K_THREAD_STACK_DEFINE(plat_work_q_stack, PLAT_WORK_Q_STACK_SIZE);
 static struct k_work_q plat_work_q_obj;
 
-/* ===== Event-driven scan works =====
- * Each group of SGPIO inputs shares one ISR, which only submits the group's scan work; the work
- * rescans every pin of the group. That covers simultaneous edges (the SGPIO IRQ dispatches only
- * the first changed pin per interrupt), and an edge arriving mid-scan just queues one more scan.
- * Every pin is reported to error_log_event() as it is; its return value tells whether the
- * state really changed, so the scans keep no state of their own.
- * Not scheduled, so they do not take a slot in plat_work_list. Submitting before
- * plat_init_platform_queue() starts the queue returns -ENODEV; plat_sgpio_init() scans once.
- */
+/* ===== Event-driven scan works ===== */
+static bool sgpio_fault_scan_enabled = true;
+
+void set_sgpio_fault_scan_enable_flag(bool enable)
+{
+	sgpio_fault_scan_enabled = enable;
+}
+
+static bool sgpio_fault_scan_allowed(void)
+{
+	return sgpio_fault_scan_enabled && is_update_state_idle();
+}
 
 /* VR SMBALERT# scan */
 #define HAMSA_VRHOT_VR_INDEX VR_INDEX_E_13 // PU626: MAX_EW1_VDD + HAMSA_VDD
@@ -94,6 +99,9 @@ static void vr_smbalert_scan_handler(struct k_work *work)
 {
 	ARG_UNUSED(work);
 
+	if (!sgpio_fault_scan_allowed())
+		return;
+
 	bool enabled = vr_smbalert_enabled();
 
 	for (uint8_t vr = 0; vr < VR_INDEX_MAX; vr++) {
@@ -129,6 +137,9 @@ static void sgpio_event_scan_handler(struct k_work *work)
 {
 	ARG_UNUSED(work);
 
+	if (!sgpio_fault_scan_allowed())
+		return;
+
 	for (uint8_t i = 0; i < sgpio_event_count(); i++) {
 		uint8_t sgpio_num = 0;
 		uint8_t event_source = ASTRID_EVENT_SOURCE_NONE;
@@ -151,6 +162,54 @@ static void sgpio_event_scan_handler(struct k_work *work)
 void plat_sgpio_event_trigger_scan(void)
 {
 	k_work_submit_to_queue(&plat_work_q_obj, &sgpio_event_scan_work);
+}
+
+/* VR power fault scan
+ * The CPLD latches PWER_FAULT high and turns every VR off when a power fault happens, so one
+ * scan of the VR_POWER_FAULT_n_REG registers on the rising edge finds all the faults. Faults are
+ * never deasserted here: DC on (MODULE_PWRGD) clears them with reset_error_log_event().
+ */
+static void power_fault_scan_handler(struct k_work *work);
+static K_WORK_DEFINE(power_fault_scan_work, power_fault_scan_handler);
+
+static void power_fault_scan_handler(struct k_work *work)
+{
+	ARG_UNUSED(work);
+
+	if (!sgpio_fault_scan_allowed() || sgpio_get(PWER_FAULT) != GPIO_HIGH)
+		return;
+
+	uint8_t data[POWER_FAULT_REG_NUM];
+	if (!plat_read_cpld(VR_POWER_FAULT_1_REG, data, POWER_FAULT_REG_NUM)) {
+		LOG_ERR("Failed to read VR power fault registers");
+		return;
+	}
+
+	for (uint8_t i = 0; i < POWER_FAULT_REG_NUM; i++) {
+		uint8_t cpld_offset = VR_POWER_FAULT_1_REG + i;
+
+		for (uint8_t bit = 0; bit < 8; bit++) {
+			uint8_t rail = NOT_VR_RAIL;
+			uint8_t event_source = ASTRID_EVENT_SOURCE_NONE;
+
+			if (!(data[i] & BIT(bit)) ||
+			    !power_fault_get_bit(cpld_offset, bit, &rail, &event_source))
+				continue;
+
+			if (!error_log_event(MAKE_ERR_CODE(POWER_FAULT_TRIGGER_CAUSE,
+							   (bit << 8) | cpld_offset),
+					     LOG_ASSERT))
+				continue;
+
+			LOG_ERR("Power fault: %s (CPLD 0x%02x bit %d)",
+				power_fault_get_bit_name(cpld_offset, bit), cpld_offset, bit);
+		}
+	}
+}
+
+void plat_power_fault_trigger_scan(void)
+{
+	k_work_submit_to_queue(&plat_work_q_obj, &power_fault_scan_work);
 }
 
 /* ===== Periodic works =====
