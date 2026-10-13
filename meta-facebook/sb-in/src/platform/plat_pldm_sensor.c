@@ -6840,7 +6840,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		{
 			.num = SENSOR_NUM_ASIC_P1V05_VDDC_HBM0145_PWR_W,
 			.type = sensor_dev_mp29526,
-			.port = I2C_BUS3,
+			.port = I2C_BUS2,
 			.target_addr = ASIC_P1V05_VDDC_HBM0145_ADDR,
 			.offset = PMBUS_READ_POUT,
 			.access_checker = is_vr_access,

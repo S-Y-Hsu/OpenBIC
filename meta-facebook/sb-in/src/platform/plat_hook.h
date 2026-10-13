@@ -112,10 +112,18 @@ typedef struct _vr_pre_proc_arg {
 	uint8_t vr_page;
 } vr_pre_proc_arg;
 
+// Each VR rail owns four consecutive sensors in this order. vr_rail_table stores the base
+// (TEMP) sensor id; add one of these offsets to reach the other readings of the same rail.
+enum VR_RAIL_SENSOR_E {
+	VR_RAIL_SENSOR_TEMP = 0,
+	VR_RAIL_SENSOR_VOLT,
+	VR_RAIL_SENSOR_CURR,
+	VR_RAIL_SENSOR_PWR,
+};
+
 typedef struct vr_mapping_sensor {
-	uint8_t sensor_id;
+	uint8_t sensor_id; // base sensor of the rail, see VR_RAIL_SENSOR_E
 	uint8_t *sensor_name;
-	int peak_value;
 } vr_mapping_sensor;
 
 bool pre_vr_read(sensor_cfg *cfg, void *args);
