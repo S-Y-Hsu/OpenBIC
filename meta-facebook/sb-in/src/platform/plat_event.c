@@ -21,6 +21,8 @@
 #include "plat_event.h"
 #include "plat_log.h"
 #include "pldm_oem.h"
+#include "plat_hook.h"
+#include "pmbus.h"
 
 LOG_MODULE_REGISTER(plat_event);
 
@@ -29,7 +31,7 @@ LOG_MODULE_REGISTER(plat_event);
  * so callers only queue the SEL here and the system work queue sends it. One SEL per run, then
  * the work resubmits itself, so other system work items can run between SELs.
  */
-#define BMC_EVENT_QUEUE_DEPTH 8
+#define BMC_EVENT_QUEUE_DEPTH 64 // one PMBus VR power fault alone takes VR_STAUS_E_MAX SELs
 
 K_MSGQ_DEFINE(bmc_event_msgq, sizeof(struct pldm_addsel_data), BMC_EVENT_QUEUE_DEPTH, 1);
 
@@ -75,4 +77,35 @@ void plat_send_bmc_event(uint8_t event_source, bool is_assert, uint8_t data2, ui
 	}
 
 	k_work_submit(&bmc_event_send_work);
+}
+
+/* Power fault BMC event, assert only (power faults are cleared by DC on, not deasserted).
+ * Not a PMBus VR: one SEL. PMBus VR: one SEL per VR status, same format as sb-el:
+ * event_data_2 is the PMBus status register (STATUS_WORD: its high byte), event_data_3 is the
+ * status low byte; a status that cannot be read is sent as 0xFFFF.
+ */
+void plat_send_power_fault_bmc_event(uint8_t event_source, uint8_t rail)
+{
+	if (rail == NOT_VR_RAIL) {
+		plat_send_bmc_event(event_source, true, 0, 0);
+		return;
+	}
+
+	for (uint8_t i = 0; i < VR_STAUS_E_MAX; i++) {
+		uint8_t pmbus_reg = 0;
+		uint16_t vr_status = 0xFFFF;
+
+		if (!vr_status_pmbus_reg_get(i, &pmbus_reg))
+			continue;
+
+		if (!plat_get_vr_status(rail, i, &vr_status)) {
+			LOG_ERR("Failed to get VR rail %d status 0x%02x for BMC event", rail,
+				pmbus_reg);
+			vr_status = 0xFFFF;
+		}
+
+		uint8_t data2 =
+			(pmbus_reg == PMBUS_STATUS_WORD) ? (uint8_t)(vr_status >> 8) : pmbus_reg;
+		plat_send_bmc_event(event_source, true, data2, (uint8_t)(vr_status & 0xFF));
+	}
 }
