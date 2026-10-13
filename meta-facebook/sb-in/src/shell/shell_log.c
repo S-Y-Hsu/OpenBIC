@@ -23,122 +23,6 @@
 #include "plat_hook.h"
 #include "plat_power_seq.h"
 
-typedef struct {
-	uint8_t cpld_offset;
-	const char *reg_name;
-	const char *bit_name[8];
-} cpld_bit_name_table_t;
-
-const cpld_bit_name_table_t cpld_bit_name_table[] = {
-	// bit_name[n] is bit n (bit0 first, bit7 last)
-	{ VR_POWER_FAULT_1_REG,
-	  "VR Power Fault   (1:Power Fault, 0=Normal)",
-	  {
-		  "PWRGD_P5V_R",
-		  "PWRGD_LDO_IN_1V2_R",
-		  "PWRGD_P3V3_CLK_1_R",
-		  "PWRGD_P3V3_CLK_R",
-		  "PWRGD_P4V2_R",
-		  "PWRGD_P1V8_RC38108",
-		  "PWRGD_P3V3_R",
-		  "P12V_UBC_PWRGD",
-	  } },
-	{ VR_POWER_FAULT_2_REG,
-	  "VR Power Fault   (1:Power Fault, 0=Normal)",
-	  {
-		  "PWRGD_ZORA01_VDDL",
-		  "PWRGD_ZORA00_VDDL",
-		  "PWRGD_ZORA11_VDDH",
-		  "PWRGD_ZORA10_VDDH",
-		  "PWRGD_ZORA01_VDDH",
-		  "PWRGD_ZORA00_VDDH",
-		  "PWRGD_P0V75_AVDD_HCSL_R",
-		  "PWRGD_P1V8_R",
-	  } },
-	{ VR_POWER_FAULT_3_REG,
-	  "VR Power Fault   (1:Power Fault, 0=Normal)",
-	  {
-		  "PWRGD_MAX_M_VDD_R",
-		  "PWRGD_MAX_EW2_VDD_R",
-		  "PWRGD_MAX_N_VDD_R",
-		  "PWRGD_OWL_W_VDD_R",
-		  "PWRGD_OWL_E_VDD_R",
-		  "PWRGD_HAMSA_VDD_R",
-		  "PWRGD_ZORA11_VDDL",
-		  "PWRGD_ZORA10_VDDL",
-	  } },
-	{ VR_POWER_FAULT_4_REG,
-	  "VR Power Fault   (1:Power Fault, 0=Normal)",
-	  {
-		  "PWRGD_P1V5_PLL_VDDA_SOC",
-		  "PWRGD_P1V5_PLL_VDDA_OWL",
-		  "PWRGD_VDDPHY_HBM2367_R",
-		  "PWRGD_VDDPHY_HBM0145_R",
-		  "PWRGD_OWL_W_TRVDD0P75_R",
-		  "PWRGD_OWL_E_TRVDD0P75_R",
-		  "PWRGD_MAX_S_VDD_R",
-		  "PWRGD_MAX_EW1_VDD_R",
-	  } },
-	{ VR_POWER_FAULT_5_REG,
-	  "VR Power Fault   (1:Power Fault, 0=Normal)",
-	  {
-		  "PWRGD_VDDQ_HBM0145_R",
-		  "PWRGD_VDDQ_HBM2367_R",
-		  "PWRGD_VDDC_HBM0145_R",
-		  "PWRGD_VDDC_HBM2367_R",
-		  "PWRGD_VPP_HBM2367_R",
-		  "PWRGD_VPP_HBM0145_R",
-		  "PWRGD_P1V2_PLL_VDDA_OWL_W",
-		  "PWRGD_P1V2_PLL_VDDA_SOC",
-	  } },
-	{ VR_POWER_FAULT_6_REG,
-	  "VR Power Fault   (1:Power Fault, 0=Normal)",
-	  {
-		  "PWRGD_PVDD1P5",
-		  "PWRGD_P0V9_OWL_W_PVDD",
-		  "PWRGD_P0V9_OWL_E_PVDD",
-		  "PWRGD_OWL_W_TRVDD0P9_R",
-		  "PWRGD_OWL_E_TRVDD0P9_R",
-		  "PWRGD_HAMSA_AVDD_PCIE_R",
-		  "PWRGD_VDDQL_HBM0145_R",
-		  "PWRGD_VDDQL_HBM2367_R",
-	  } },
-	{ VR_POWER_FAULT_7_REG,
-	  "VR Power Fault   (1:Power Fault, 0=Normal)",
-	  {
-		  "1'b1",
-		  "1'b0",
-		  "PWRGD_HAMSA_VDDHRXTX_PCIE3_R",
-		  "PWRGD_HAMSA_VDDHRXTX_PCIE2_R",
-		  "PWRGD_HAMSA_VDDHRXTX_PCIE1_R",
-		  "PWRGD_HAMSA_VDDHRXTX_PCIE0_R",
-		  "PWRGD_P1V5_W_RVDD",
-		  "PWRGD_P1V5_E_RVDD",
-	  } },
-};
-
-const char *get_cpld_reg_name(uint8_t cpld_offset)
-{
-	for (int i = 0; i < ARRAY_SIZE(cpld_bit_name_table); i++) {
-		if (cpld_bit_name_table[i].cpld_offset == cpld_offset) {
-			return cpld_bit_name_table[i].reg_name;
-		}
-	}
-	return "NA";
-}
-
-const char *get_cpld_bit_name(uint8_t cpld_offset, uint8_t bit_pos)
-{
-	for (int i = 0; i < ARRAY_SIZE(cpld_bit_name_table); i++) {
-		if (cpld_bit_name_table[i].cpld_offset == cpld_offset) {
-			if (bit_pos < 8 && cpld_bit_name_table[i].bit_name[bit_pos]) {
-				return cpld_bit_name_table[i].bit_name[bit_pos];
-			}
-		}
-	}
-	return "NA";
-}
-
 void cmd_set_event(const struct shell *shell, size_t argc, char **argv)
 {
 	if (argc != 3) {
@@ -183,18 +67,28 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 			uint8_t cpld_offset = log.err_code & 0xFF;
 			uint8_t bit_position = (log.err_code >> 8) & 0x07;
 
-			shell_print(shell, "\t%s", get_cpld_reg_name(cpld_offset));
-			shell_print(shell, "\t\t%s", get_cpld_bit_name(cpld_offset, bit_position));
+			shell_print(shell, "\tVR Power Fault   (1:Power Fault, 0=Normal)");
+			shell_print(shell, "\t\t%s", power_fault_get_bit_name(cpld_offset, bit_position));
+
+			uint8_t rail = NOT_VR_RAIL;
+			uint8_t event_source = 0;
+			if (!power_fault_get_bit(cpld_offset, bit_position, &rail, &event_source) ||
+			    rail == NOT_VR_RAIL) {
+				shell_print(shell, "not a VR rail, no VR status");
+				err_data_len = 0;
+				break;
+			}
+
 			shell_print(shell, "read vr sensor status word(0x79):");
 			shell_print(shell, "\tlow  byte: 0x%02x", log.error_data[0]);
 			shell_print(shell, "\thigh byte: 0x%02x", log.error_data[1]);
-			shell_print(shell, "read vr sensor status vout(0x20): 0x%02x",
+			shell_print(shell, "read vr sensor status vout(0x7a): 0x%02x",
 				    log.error_data[2]);
-			shell_print(shell, "read vr sensor status iout(0x21): 0x%02x",
+			shell_print(shell, "read vr sensor status iout(0x7b): 0x%02x",
 				    log.error_data[3]);
-			shell_print(shell, "read vr sensor status input(0x22): 0x%02x",
+			shell_print(shell, "read vr sensor status input(0x7c): 0x%02x",
 				    log.error_data[4]);
-			shell_print(shell, "read vr sensor status temperature(0x24): 0x%02x",
+			shell_print(shell, "read vr sensor status temperature(0x7d): 0x%02x",
 				    log.error_data[5]);
 			shell_print(shell, "read vr sensor status CML(0x7e): 0x%02x",
 				    log.error_data[6]);

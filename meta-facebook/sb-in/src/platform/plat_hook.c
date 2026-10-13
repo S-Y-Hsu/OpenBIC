@@ -21,6 +21,7 @@
 #include "plat_hook.h"
 #include "pmbus.h"
 #include "plat_gpio.h"
+#include "plat_cpld.h"
 #include "pldm_oem.h"
 #include "plat_pldm_sensor.h"
 #include "mp2971.h"
@@ -394,6 +395,142 @@ const char *sgpio_event_get_name(uint16_t sgpio_num)
 	}
 
 	return "UNKNOWN_SGPIO_EVENT";
+}
+
+/**************************************************************************************/
+/********************************* POWER_FAULT_TABLE **********************************/
+/**************************************************************************************/
+// CPLD VR power fault registers. For each bit: the VR_RAIL_E whose PMBus status is read for the
+// blackbox / BMC event (NOT_VR_RAIL if it is not a PMBus VR), the BMC event source, and the name.
+// A bit with a NULL name is not a fault bit and must be ignored.
+typedef struct _power_fault_bit_ {
+	uint8_t rail;
+	uint8_t event_source; // astrid_event_source
+	const char *name;
+} power_fault_bit_t;
+
+typedef struct _power_fault_reg_ {
+	uint8_t cpld_offset;
+	power_fault_bit_t bits[8]; // bits[n] is bit n
+} power_fault_reg_t;
+
+// clang-format off
+static const power_fault_reg_t power_fault_table[] = {
+	{ VR_POWER_FAULT_1_REG,
+	  {
+		  { NOT_VR_RAIL, ASTRID_P5V, "PWRGD_P5V_R" }, // bit0
+		  { NOT_VR_RAIL, ASTRID_LDO_IN_1V2, "PWRGD_LDO_IN_1V2_R" }, // bit1
+		  { NOT_VR_RAIL, ASTRID_P3V3_CLK_1, "PWRGD_P3V3_CLK_1_R" }, // bit2
+		  { NOT_VR_RAIL, ASTRID_P3V3_CLK, "PWRGD_P3V3_CLK_R" }, // bit3
+		  { NOT_VR_RAIL, ASTRID_P4V2, "PWRGD_P4V2_R" }, // bit4
+		  { NOT_VR_RAIL, ASTRID_P1V8_RC38108, "PWRGD_P1V8_RC38108" }, // bit5
+		  { NOT_VR_RAIL, ASTRID_P3V3, "PWRGD_P3V3_R" }, // bit6
+		  { NOT_VR_RAIL, ASTRID_P12V_UBC_PWRGD, "P12V_UBC_PWRGD" }, // bit7
+	  } },
+	{ VR_POWER_FAULT_2_REG,
+	  {
+		  { VR_RAIL_E_ASIC_P0V75_ZORA01_VDDL, ASTRID_ZORA01_VDDL, "PWRGD_ZORA01_VDDL" }, // bit0
+		  { VR_RAIL_E_ASIC_P0V75_ZORA00_VDDL, ASTRID_ZORA00_VDDL, "PWRGD_ZORA00_VDDL" }, // bit1
+		  { VR_RAIL_E_ASIC_P0V75_ZORA11_VDDH, ASTRID_ZORA11_VDDH, "PWRGD_ZORA11_VDDH" }, // bit2
+		  { VR_RAIL_E_ASIC_P0V75_ZORA10_VDDH, ASTRID_ZORA10_VDDH, "PWRGD_ZORA10_VDDH" }, // bit3
+		  { VR_RAIL_E_ASIC_P0V75_ZORA01_VDDH, ASTRID_ZORA01_VDDH, "PWRGD_ZORA01_VDDH" }, // bit4
+		  { VR_RAIL_E_ASIC_P0V75_ZORA00_VDDH, ASTRID_ZORA00_VDDH, "PWRGD_ZORA00_VDDH" }, // bit5
+		  { NOT_VR_RAIL, ASTRID_P0V75_AVDD_HCSL, "PWRGD_P0V75_AVDD_HCSL_R" }, // bit6
+		  { VR_RAIL_E_ASIC_P1V8, ASTRID_P1V8, "PWRGD_P1V8_R" }, // bit7
+	  } },
+	{ VR_POWER_FAULT_3_REG,
+	  {
+		  { VR_RAIL_E_ASIC_P0V8_MAX_M_VDD, ASTRID_MAX_M_VDD, "PWRGD_MAX_M_VDD_R" }, // bit0
+		  { VR_RAIL_E_ASIC_P0V75_MAX_EW2_VDD, ASTRID_MAX_EW2_VDD, "PWRGD_MAX_EW2_VDD_R" }, // bit1
+		  { VR_RAIL_E_ASIC_P0V75_MAX_N_VDD, ASTRID_MAX_N_VDD, "PWRGD_MAX_N_VDD_R" }, // bit2
+		  { VR_RAIL_E_ASIC_P0V75_OWL_W_VDD, ASTRID_OWL_W_VDD, "PWRGD_OWL_W_VDD_R" }, // bit3
+		  { VR_RAIL_E_ASIC_P0V75_OWL_E_VDD, ASTRID_OWL_E_VDD, "PWRGD_OWL_E_VDD_R" }, // bit4
+		  { VR_RAIL_E_ASIC_P0V85_HAMSA_VDD, ASTRID_HAMSA_VDD, "PWRGD_HAMSA_VDD_R" }, // bit5
+		  { VR_RAIL_E_ASIC_P0V75_ZORA11_VDDL, ASTRID_ZORA11_VDDL, "PWRGD_ZORA11_VDDL" }, // bit6
+		  { VR_RAIL_E_ASIC_P0V75_ZORA10_VDDL, ASTRID_ZORA10_VDDL, "PWRGD_ZORA10_VDDL" }, // bit7
+	  } },
+	{ VR_POWER_FAULT_4_REG,
+	  {
+		  { NOT_VR_RAIL, ASTRID_P1V5_PLL_VDDA_SOC, "PWRGD_P1V5_PLL_VDDA_SOC" }, // bit0
+		  { NOT_VR_RAIL, ASTRID_P1V5_PLL_VDDA_OWL, "PWRGD_P1V5_PLL_VDDA_OWL" }, // bit1
+		  { VR_RAIL_E_ASIC_P0V75_VDDPHY_HBM2367, ASTRID_VDDPHY_HBM2367, "PWRGD_VDDPHY_HBM2367_R" }, // bit2
+		  { VR_RAIL_E_ASIC_P0V75_VDDPHY_HBM0145, ASTRID_VDDPHY_HBM0145, "PWRGD_VDDPHY_HBM0145_R" }, // bit3
+		  { VR_RAIL_E_ASIC_P0V75_OWL_W_TRVDD, ASTRID_OWL_W_TRVDD0P75, "PWRGD_OWL_W_TRVDD0P75_R" }, // bit4
+		  { VR_RAIL_E_ASIC_P0V75_OWL_E_TRVDD, ASTRID_OWL_E_TRVDD0P75, "PWRGD_OWL_E_TRVDD0P75_R" }, // bit5
+		  { VR_RAIL_E_ASIC_P0V8_MAX_S_VDD, ASTRID_MAX_S_VDD, "PWRGD_MAX_S_VDD_R" }, // bit6
+		  { VR_RAIL_E_ASIC_P0V75_MAX_EW1_VDD, ASTRID_MAX_EW1_VDD, "PWRGD_MAX_EW1_VDD_R" }, // bit7
+	  } },
+	{ VR_POWER_FAULT_5_REG,
+	  {
+		  { VR_RAIL_E_ASIC_P0V9_VDDQ_HBM0145, ASTRID_VDDQ_HBM0145, "PWRGD_VDDQ_HBM0145_R" }, // bit0
+		  { VR_RAIL_E_ASIC_P0V9_VDDQ_HBM2367, ASTRID_VDDQ_HBM2367, "PWRGD_VDDQ_HBM2367_R" }, // bit1
+		  { VR_RAIL_E_ASIC_P1V05_VDDC_HBM0145, ASTRID_VDDC_HBM0145, "PWRGD_VDDC_HBM0145_R" }, // bit2
+		  { VR_RAIL_E_ASIC_P1V05_VDDC_HBM2367, ASTRID_VDDC_HBM2367, "PWRGD_VDDC_HBM2367_R" }, // bit3
+		  { VR_RAIL_E_ASIC_P1V8_VPP_HBM2367, ASTRID_VPP_HBM2367, "PWRGD_VPP_HBM2367_R" }, // bit4
+		  { VR_RAIL_E_ASIC_P1V8_VPP_HBM0145, ASTRID_VPP_HBM0145, "PWRGD_VPP_HBM0145_R" }, // bit5
+		  { NOT_VR_RAIL, ASTRID_P1V2_PLL_VDDA_OWL_W, "PWRGD_P1V2_PLL_VDDA_OWL_W" }, // bit6
+		  { NOT_VR_RAIL, ASTRID_P1V2_PLL_VDDA_SOC, "PWRGD_P1V2_PLL_VDDA_SOC" }, // bit7
+	  } },
+	{ VR_POWER_FAULT_6_REG,
+	  {
+		  { NOT_VR_RAIL, ASTRID_PVDD1P5, "PWRGD_PVDD1P5" }, // bit0
+		  { NOT_VR_RAIL, ASTRID_P0V9_OWL_W_PVDD, "PWRGD_P0V9_OWL_W_PVDD" }, // bit1
+		  { NOT_VR_RAIL, ASTRID_P0V9_OWL_E_PVDD, "PWRGD_P0V9_OWL_E_PVDD" }, // bit2
+		  { VR_RAIL_E_ASIC_P0V9_OWL_W_TRVDD, ASTRID_OWL_W_TRVDD0P9, "PWRGD_OWL_W_TRVDD0P9_R" }, // bit3
+		  { VR_RAIL_E_ASIC_P0V9_OWL_E_TRVDD, ASTRID_OWL_E_TRVDD0P9, "PWRGD_OWL_E_TRVDD0P9_R" }, // bit4
+		  { VR_RAIL_E_ASIC_P0V83_HAMSA_AVDD_PCIE, ASTRID_HAMSA_AVDD_PCIE, "PWRGD_HAMSA_AVDD_PCIE_R" }, // bit5
+		  { VR_RAIL_E_ASIC_P0V4_VDDQL_HBM0145, ASTRID_VDDQL_HBM0145, "PWRGD_VDDQL_HBM0145_R" }, // bit6
+		  { VR_RAIL_E_ASIC_P0V4_VDDQL_HBM2367, ASTRID_VDDQL_HBM2367, "PWRGD_VDDQL_HBM2367_R" }, // bit7
+	  } },
+	{ VR_POWER_FAULT_7_REG,
+	  {
+		  { NOT_VR_RAIL, ASTRID_EVENT_SOURCE_NONE, NULL }, // bit0: tied to 1'b1
+		  { NOT_VR_RAIL, ASTRID_EVENT_SOURCE_NONE, NULL }, // bit1: tied to 1'b0
+		  { NOT_VR_RAIL, ASTRID_HAMSA_VDDHRXTX_PCIE3, "PWRGD_HAMSA_VDDHRXTX_PCIE3_R" }, // bit2
+		  { NOT_VR_RAIL, ASTRID_HAMSA_VDDHRXTX_PCIE2, "PWRGD_HAMSA_VDDHRXTX_PCIE2_R" }, // bit3
+		  { NOT_VR_RAIL, ASTRID_HAMSA_VDDHRXTX_PCIE1, "PWRGD_HAMSA_VDDHRXTX_PCIE1_R" }, // bit4
+		  { NOT_VR_RAIL, ASTRID_HAMSA_VDDHRXTX_PCIE0, "PWRGD_HAMSA_VDDHRXTX_PCIE0_R" }, // bit5
+		  { NOT_VR_RAIL, ASTRID_P1V5_W_RVDD, "PWRGD_P1V5_W_RVDD" }, // bit6
+		  { NOT_VR_RAIL, ASTRID_P1V5_E_RVDD, "PWRGD_P1V5_E_RVDD" }, // bit7
+	  } },
+};
+// clang-format on
+
+static const power_fault_reg_t *power_fault_find_reg(uint8_t cpld_offset)
+{
+	for (uint8_t i = 0; i < ARRAY_SIZE(power_fault_table); i++) {
+		if (power_fault_table[i].cpld_offset == cpld_offset) {
+			return &power_fault_table[i];
+		}
+	}
+
+	return NULL;
+}
+
+// Rail and BMC event source of one power fault bit. Returns false if it is not a fault bit.
+bool power_fault_get_bit(uint8_t cpld_offset, uint8_t bit, uint8_t *rail, uint8_t *event_source)
+{
+	CHECK_NULL_ARG_WITH_RETURN(rail, false);
+	CHECK_NULL_ARG_WITH_RETURN(event_source, false);
+
+	const power_fault_reg_t *reg = power_fault_find_reg(cpld_offset);
+	if (!reg || bit >= 8 || !reg->bits[bit].name) {
+		return false;
+	}
+
+	*rail = reg->bits[bit].rail;
+	*event_source = reg->bits[bit].event_source;
+	return true;
+}
+
+const char *power_fault_get_bit_name(uint8_t cpld_offset, uint8_t bit)
+{
+	const power_fault_reg_t *reg = power_fault_find_reg(cpld_offset);
+	if (!reg || bit >= 8 || !reg->bits[bit].name) {
+		return "UNKNOWN_POWER_FAULT_BIT";
+	}
+
+	return reg->bits[bit].name;
 }
 
 /**************************************************************************************/
