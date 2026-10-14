@@ -148,4 +148,5 @@ bool vr_status_enum_get(uint8_t *name, uint8_t *num);
 bool plat_get_vr_status(uint8_t rail, uint8_t vr_status_rail, uint16_t *vr_status);
 bool plat_clear_vr_status(uint8_t rail);
 bool post_common_sensor_read(sensor_cfg *cfg, void *args, int *const reading);
+bool post_tmp_read(sensor_cfg *cfg, void *args, int *const reading);
 #endif
