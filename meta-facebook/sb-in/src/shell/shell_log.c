@@ -22,6 +22,7 @@
 #include "plat_cpld.h"
 #include "plat_hook.h"
 #include "plat_power_seq.h"
+#include "plat_thermal.h"
 
 void cmd_set_event(const struct shell *shell, size_t argc, char **argv)
 {
@@ -145,6 +146,27 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 				    sgpio_event_get_name(ERR_CODE_GET_PAYLOAD(log.err_code)));
 			err_data_len = 0;
 			break;
+		case TEMPERATURE_TRIGGER_CAUSE: {
+			uint16_t payload = ERR_CODE_GET_PAYLOAD(log.err_code);
+			uint8_t kind = THERMAL_ALERT_GET_KIND(payload);
+			uint8_t sensor_num = THERMAL_ALERT_GET_SENSOR(payload);
+			uint8_t detail_reg =
+				(kind == THERMAL_ALERT_OPEN)	   ? TEMP_OPEN_STATUS_REG :
+				(kind == THERMAL_ALERT_HIGH_LIMIT) ? TEMP_HIGH_LIMIT_STATUS_REG :
+								     TEMP_LOW_LIMIT_STATUS_REG;
+
+			shell_print(shell, "\tTEMPERATURE_TRIGGER, %s",
+				    plat_thermal_get_kind_name(kind));
+			shell_print(shell, "\t\t[0x%02x] %s", sensor_num,
+				    plat_thermal_get_sensor_name(sensor_num));
+			shell_print(shell, "status(0x%02x): 0x%02x", TEMP_STATUS_REG,
+				    log.error_data[0]);
+			shell_print(shell, "%s status(0x%02x): 0x%02x",
+				    plat_thermal_get_kind_name(kind), detail_reg,
+				    log.error_data[1]);
+			err_data_len = 3;
+			break;
+		}
 		case AC_ON_TRIGGER_CAUSE:
 			shell_print(shell, "\tAC_ON");
 			err_data_len = 1;

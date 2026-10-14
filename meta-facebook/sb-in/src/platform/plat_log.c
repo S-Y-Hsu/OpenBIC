@@ -31,6 +31,7 @@
 #include "pldm_oem.h"
 #include "pmbus.h"
 #include "plat_power_seq.h"
+#include "plat_thermal.h"
 
 LOG_MODULE_REGISTER(plat_log);
 
@@ -191,6 +192,8 @@ bool get_error_data(uint16_t error_code, uint8_t *data)
 	case SGPIO_EVENT_TRIGGER_CAUSE:
 		// no error data: the payload already says which SGPIO input was asserted
 		return false;
+	case TEMPERATURE_TRIGGER_CAUSE:
+		return plat_thermal_get_error_data(ERR_CODE_GET_PAYLOAD(error_code), data);
 	case POWER_ON_SEQUENCE_TRIGGER_CAUSE: {
 		data[0] = plat_get_power_seq_fail_id();
 		// PWRGD event latch 0xBE ~ 0xC4
@@ -231,7 +234,7 @@ static bool update_active_fault_cache(uint16_t error_code, bool log_status)
 
 	// LOG_ASSERT
 	if (idx >= 0) {
-		LOG_INF("Duplicate error_code: 0x%x, already asserting", error_code);
+		// already asserting: scans report the current state on every run, so this is normal
 		return false;
 	}
 

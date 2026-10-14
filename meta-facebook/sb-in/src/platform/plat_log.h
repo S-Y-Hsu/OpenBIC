@@ -66,6 +66,8 @@ enum LOG_ERROR_TRIGGER_CAUSE {
 	VR_SMB_ALERT_TRIGGER_CAUSE = 0x5, // payload: VR_INDEX_E
 	SGPIO_EVENT_TRIGGER_CAUSE = 0x6,
 	// payload: SGPIO number in sgpio_event_table, no error data
+	TEMPERATURE_TRIGGER_CAUSE = 0x7,
+	// payload: THERMAL_ALERT_PAYLOAD(kind, sensor num), see plat_thermal.h
 	MAX_TRIGGER_CAUSE = 0x10, // trigger cause maximum 4 bits
 };
 
