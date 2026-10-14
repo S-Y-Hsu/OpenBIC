@@ -28,6 +28,7 @@
 #include "mp29816a.h"
 #include "raa228249.h"
 #include "plat_i2c_target.h"
+#include "plat_thermal.h"
 
 LOG_MODULE_REGISTER(plat_hook);
 
@@ -719,5 +720,21 @@ bool post_common_sensor_read(sensor_cfg *cfg, void *args, int *const reading)
 	uint8_t sensor_number = cfg->num;
 	if (!post_sensor_reading_hook_func(sensor_number))
 		return false;
+	return true;
+}
+
+// ASIC TEMP: report open circuit found by the thermal alert scan. The open status register
+// clears on read, so only the scan reads it; this hook just checks its flag.
+bool post_tmp_read(sensor_cfg *cfg, void *args, int *const reading)
+{
+	CHECK_NULL_ARG_WITH_RETURN(cfg, false);
+
+	if (!post_common_sensor_read(cfg, args, reading))
+		return false;
+
+	if (reading && plat_thermal_is_open(cfg->num)) {
+		cfg->cache_status = SENSOR_OPEN_CIRCUIT;
+		return false;
+	}
 	return true;
 }

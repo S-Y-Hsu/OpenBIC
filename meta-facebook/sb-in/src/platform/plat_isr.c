@@ -43,18 +43,21 @@ void ISR_SGPIO_PWR_EN()
 // finds which one(s) changed.
 void ISR_SGPIO_VR_SMBALERT()
 {
+	LOG_INF("VR SMBALERT ISR triggered");
 	plat_vr_smbalert_trigger_scan();
 }
 
 // Shared by every input in sgpio_event_table - the scan work reports all of them.
 void ISR_SGPIO_EVENT()
 {
+	LOG_INF("SGPIO event ISR triggered");
 	plat_sgpio_event_trigger_scan();
 }
 
 // PWER_FAULT is latched high by the CPLD on any VR power fault (rising edge only)
 void ISR_SGPIO_PWR_FAULT()
 {
+	LOG_INF("PWER_FAULT = %d", sgpio_get(PWER_FAULT));
 	plat_power_fault_trigger_scan();
 }
 
