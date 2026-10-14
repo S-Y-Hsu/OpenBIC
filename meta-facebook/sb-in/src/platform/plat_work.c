@@ -26,6 +26,7 @@
 #include "plat_pldm_sensor.h"
 #include "pmbus.h"
 #include "pldm_sensor.h"
+#include "plat_thermal.h"
 #include <errno.h>
 #include <logging/log.h>
 
@@ -307,9 +308,18 @@ static int heartbeat_led(struct plat_work *pw)
 	return 0;
 }
 
+// ASIC temperature open circuit / limit alert, see plat_thermal.c
+static int thermal_alert(struct plat_work *pw)
+{
+	ARG_UNUSED(pw);
+
+	return plat_thermal_alert_scan();
+}
+
 static struct plat_work plat_work_list[] = {
 	{ .name = "clk_buf_losb_sync", .fn = clk_buf_losb_sync, .interval_ms = 100, .max_fail = 10 },
 	{ .name = "heartbeat_led", .fn = heartbeat_led, .interval_ms = 250, .max_fail = 10 },
+	{ .name = "thermal_alert", .fn = thermal_alert, .interval_ms = 1000, .max_fail = 10 },
 };
 
 static void plat_work_handler(struct k_work *work)
