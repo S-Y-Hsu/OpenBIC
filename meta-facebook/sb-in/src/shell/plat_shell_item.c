@@ -48,14 +48,7 @@ static bool item_read(const plat_shell_item_t *item, uint8_t *val)
 
 static bool item_write(const plat_shell_item_t *item, uint8_t val)
 {
-	uint8_t reg = 0;
-
-	if (!plat_read_cpld(item->offset, &reg, 1))
-		return false;
-
-	reg &= ~(item_mask(item) << item->bit);
-	reg |= (val & item_mask(item)) << item->bit;
-	return plat_write_cpld(item->offset, &reg);
+	return plat_update_cpld(item->offset, item_mask(item) << item->bit, val << item->bit);
 }
 
 static int item_print(const struct shell *shell, const plat_shell_item_t *item)
