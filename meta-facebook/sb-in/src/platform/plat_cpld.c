@@ -19,3 +19,15 @@ bool plat_write_cpld(uint8_t offset, uint8_t *data)
 {
 	return plat_i2c_write(I2C_BUS_CPLD, CPLD_ADDR, offset, data, 1);
 }
+
+/* read-modify-write: only bits set in mask are replaced by val */
+bool plat_update_cpld(uint8_t offset, uint8_t mask, uint8_t val)
+{
+	uint8_t reg = 0;
+
+	if (!plat_read_cpld(offset, &reg, 1))
+		return false;
+
+	reg = (reg & ~mask) | (val & mask);
+	return plat_write_cpld(offset, &reg);
+}
