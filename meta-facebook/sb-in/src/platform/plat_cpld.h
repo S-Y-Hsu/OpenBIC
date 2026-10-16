@@ -11,6 +11,8 @@
 #define CPLD_OFFSET_POWER_CLAMP 0x25
 #define CPLD_OFFSET_USERCODE 0x32
 #define CPLD_OFFSET_ASIC_BOARD_ID 0x3C
+#define CPLD_OFFSET_ASIC_POWER_ON_RESET 0x41
+#define CPLD_OFFSET_ASIC_SYS_RESET 0x42
 #define CPLD_OFFSET_PCIE_PERST 0xA3
 
 /* VR Power Fault Registers */
@@ -30,5 +32,6 @@
 
 bool plat_read_cpld(uint8_t offset, uint8_t *data, uint8_t len);
 bool plat_write_cpld(uint8_t offset, uint8_t *data);
+bool plat_update_cpld(uint8_t offset, uint8_t mask, uint8_t val);
 
 #endif
