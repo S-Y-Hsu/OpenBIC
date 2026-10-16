@@ -16,8 +16,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <logging/log.h>
 #include "plat_cpld.h"
+#include "plat_user_setting.h"
 #include "plat_shell_item.h"
+
+LOG_MODULE_REGISTER(plat_shell_item);
 
 static uint8_t item_mask(const plat_shell_item_t *item)
 {
@@ -64,14 +68,20 @@ static int item_print(const struct shell *shell, const plat_shell_item_t *item)
 	return 0;
 }
 
-static int item_set(const struct shell *shell, const plat_shell_item_t *item, uint8_t val)
+static int item_set(const struct shell *shell, const plat_shell_item_t *item, uint8_t val,
+		    bool is_perm)
 {
 	if (!item_write(item, val)) {
 		shell_error(shell, "%s : write CPLD 0x%02X failed", item->name, item->offset);
 		return -EIO;
 	}
 
-	shell_print(shell, "%s : set to %d", item->name, val);
+	if (is_perm && !plat_perm_set(item->perm_id, &val, sizeof(val))) {
+		shell_error(shell, "%s : write perm to eeprom failed", item->name);
+		return -EIO;
+	}
+
+	shell_print(shell, "%s : set to %d%s", item->name, val, is_perm ? " (perm)" : "");
 	return 0;
 }
 
@@ -97,8 +107,17 @@ int plat_shell_item_get(const struct shell *shell, const plat_shell_item_t *item
 }
 
 int plat_shell_item_set(const struct shell *shell, const plat_shell_item_t *items, size_t count,
-			const char *name, const char *value)
+			const char *name, const char *value, const char *opt)
 {
+	bool is_perm = false;
+	if (opt) {
+		if (strcmp(opt, "perm")) {
+			shell_error(shell, "The last argument must be <perm>");
+			return -EINVAL;
+		}
+		is_perm = true;
+	}
+
 	char *end = NULL;
 	unsigned long val = strtoul(value, &end, 0);
 
@@ -109,11 +128,15 @@ int plat_shell_item_set(const struct shell *shell, const plat_shell_item_t *item
 				shell_error(shell, "Invalid value %s for %s", value, items[i].name);
 				return -EINVAL;
 			}
+			if (is_perm && items[i].perm_id == PERM_ID_NONE) {
+				shell_error(shell, "%s does not support perm", items[i].name);
+				return -EINVAL;
+			}
 		}
 
 		int ret = 0;
 		for (size_t i = 0; i < count; i++) {
-			if (item_set(shell, &items[i], (uint8_t)val))
+			if (item_set(shell, &items[i], (uint8_t)val, is_perm))
 				ret = -EIO;
 		}
 		return ret;
@@ -130,7 +153,40 @@ int plat_shell_item_set(const struct shell *shell, const plat_shell_item_t *item
 		return -EINVAL;
 	}
 
-	return item_set(shell, item, (uint8_t)val);
+	if (is_perm && item->perm_id == PERM_ID_NONE) {
+		shell_error(shell, "%s does not support perm", item->name);
+		return -EINVAL;
+	}
+
+	return item_set(shell, item, (uint8_t)val, is_perm);
+}
+
+/* Write perm values stored in user setting back to CPLD, called at boot */
+void plat_shell_item_restore(const plat_shell_item_t *items, size_t count)
+{
+	for (size_t i = 0; i < count; i++) {
+		const plat_shell_item_t *item = &items[i];
+		uint8_t val = 0;
+
+		if (item->perm_id == PERM_ID_NONE)
+			continue;
+
+		int ret = plat_perm_get(item->perm_id, &val, sizeof(val));
+		if (ret == -ENODATA)
+			continue;
+		if (ret) {
+			LOG_ERR("read %s perm failed", item->name);
+			continue;
+		}
+
+		if (val > item_mask(item)) {
+			LOG_WRN("%s perm value 0x%02x out of range, skip", item->name, val);
+			continue;
+		}
+
+		if (!item_write(item, val))
+			LOG_ERR("restore %s = %d failed", item->name, val);
+	}
 }
 
 void plat_shell_item_dynamic_get(const plat_shell_item_t *items, size_t count, size_t idx,
