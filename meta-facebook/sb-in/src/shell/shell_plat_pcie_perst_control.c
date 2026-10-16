@@ -34,7 +34,7 @@ static int cmd_pcie_perst_get(const struct shell *shell, size_t argc, char **arg
 static int cmd_pcie_perst_set(const struct shell *shell, size_t argc, char **argv)
 {
 	return plat_shell_item_set(shell, pcie_perst_items, ARRAY_SIZE(pcie_perst_items), argv[1],
-				   argv[2]);
+				   argv[2], NULL);
 }
 
 PLAT_SHELL_ITEM_DYNAMIC_CMD_CREATE(pcie_perst_names, pcie_perst_items);

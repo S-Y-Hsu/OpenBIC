@@ -25,7 +25,10 @@
  *
  * Every command built on this helper follows the same syntax:
  *   <cmd> get all|<name>
- *   <cmd> set all|<name> <value>
+ *   <cmd> set all|<name> <value> [perm]
+ *
+ * [perm] is only accepted by items with a perm id, the value is stored by
+ * plat_user_setting and written back by plat_shell_item_restore() at boot.
  */
 
 typedef struct {
@@ -33,6 +36,7 @@ typedef struct {
 	uint8_t offset; /* CPLD register offset */
 	uint8_t bit; /* lowest bit of the field */
 	uint8_t width; /* field width in bits, 1 = single bit */
+	uint8_t perm_id; /* PERM_ID_NONE = no [perm] support */
 } plat_shell_item_t;
 
 #define PLAT_SHELL_CPLD_BIT(_name, _offset, _bit)                                                  \
@@ -40,10 +44,16 @@ typedef struct {
 		.name = _name, .offset = _offset, .bit = _bit, .width = 1                          \
 	}
 
+#define PLAT_SHELL_CPLD_BIT_PERM(_name, _offset, _bit, _perm_id)                                   \
+	{                                                                                          \
+		.name = _name, .offset = _offset, .bit = _bit, .width = 1, .perm_id = _perm_id     \
+	}
+
 int plat_shell_item_get(const struct shell *shell, const plat_shell_item_t *items, size_t count,
 			const char *name);
 int plat_shell_item_set(const struct shell *shell, const plat_shell_item_t *items, size_t count,
-			const char *name, const char *value);
+			const char *name, const char *value, const char *opt);
+void plat_shell_item_restore(const plat_shell_item_t *items, size_t count);
 void plat_shell_item_dynamic_get(const plat_shell_item_t *items, size_t count, size_t idx,
 				 struct shell_static_entry *entry);
 
