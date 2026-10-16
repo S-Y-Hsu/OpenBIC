@@ -46,7 +46,7 @@ static int cmd_soc_pwron_reset_get(const struct shell *shell, size_t argc, char 
 static int cmd_soc_pwron_reset_set(const struct shell *shell, size_t argc, char **argv)
 {
 	return plat_shell_item_set(shell, soc_pwron_reset_items, ARRAY_SIZE(soc_pwron_reset_items),
-				   argv[1], argv[2]);
+				   argv[1], argv[2], NULL);
 }
 
 /*
