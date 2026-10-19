@@ -30,6 +30,7 @@
 #include "plat_i2c_target.h"
 #include "plat_thermal.h"
 #include "plat_class.h"
+#include "plat_util.h"
 
 LOG_MODULE_REGISTER(plat_hook);
 
@@ -163,6 +164,20 @@ bool is_mb_dc_on()
 	 * 0 -> power off
 	 */
 	return sgpio_get(MODULE_PWRGD) == GPIO_HIGH;
+}
+
+bool is_p3v3_pwrgd(void)
+{
+	/* PWRGD_P3V3_R (SGPIO), VR PMBus is accessible once P3V3 is up
+	 * 1 -> power good
+	 * 0 -> power off
+	 */
+	if (sgpio_get(PWRGD_P3V3_R) != GPIO_HIGH) {
+		LOG_ERR("No p3v3_pwrgd");
+		return false;
+	}
+
+	return true;
 }
 
 /**************************************************************************************/
@@ -783,6 +798,42 @@ err:
 	}
 	return ret;
 }
+
+bool plat_set_vr_reg(uint8_t rail, uint8_t reg, uint8_t *data, uint8_t len)
+{
+	CHECK_NULL_ARG_WITH_RETURN(data, false);
+
+	bool ret = false;
+	uint8_t sensor_id;
+	if (!vr_rail_sensor_id_get(rail, &sensor_id)) {
+		LOG_ERR("invalid vr rail %d", rail);
+		return false;
+	}
+	sensor_cfg *cfg = get_sensor_cfg_by_sensor_id(sensor_id);
+	CHECK_NULL_ARG_WITH_RETURN(cfg, false);
+
+	if (cfg->pre_sensor_read_hook) {
+		if (!cfg->pre_sensor_read_hook(cfg, cfg->pre_sensor_read_args)) {
+			LOG_ERR("%d write vr reg pre hook fail!", sensor_id);
+			return false;
+		}
+	}
+
+	if (!plat_i2c_write(cfg->port, cfg->target_addr, reg, data, len)) {
+		LOG_ERR("0x%02x write vr reg 0x%02x fail!", sensor_id, reg);
+		goto err;
+	}
+
+	ret = true;
+err:
+	if (cfg->post_sensor_read_hook) {
+		if (cfg->post_sensor_read_hook(cfg, cfg->post_sensor_read_args, NULL) == false) {
+			LOG_ERR("%d write vr reg post hook fail!", sensor_id);
+		}
+	}
+	return ret;
+}
+
 /**************************************************************************************/
 
 bool post_sensor_reading_hook_func(uint8_t sensor_number)
