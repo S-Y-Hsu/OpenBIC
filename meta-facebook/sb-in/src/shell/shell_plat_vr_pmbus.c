@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-#include <shell/shell.h>
 #include <stdlib.h>
-#include <string.h>
 #include "plat_hook.h"
 #include "plat_pldm_sensor.h"
+#include "shell_plat_vr.h"
 
 #define VR_PMBUS_DATA_LEN 2
 
-static int cmd_voltage_pmbus_read(const struct shell *shell, size_t argc, char **argv)
+int cmd_vr_pmbus_read(const struct shell *shell, size_t argc, char **argv)
 {
 	if (!is_p3v3_pwrgd())
 		return -1;
 
 	uint8_t rail;
-	if (vr_rail_enum_get(argv[1], &rail) == false) {
-		shell_error(shell, "Invalid rail name: %s", argv[1]);
+	if (!vr_rail_arg_get(shell, argv[1], &rail))
 		return -1;
-	}
 
 	uint8_t reg = strtoul(argv[2], NULL, 16);
 
@@ -52,16 +49,14 @@ static int cmd_voltage_pmbus_read(const struct shell *shell, size_t argc, char *
 	return 0;
 }
 
-static int cmd_voltage_pmbus_write(const struct shell *shell, size_t argc, char **argv)
+int cmd_vr_pmbus_write(const struct shell *shell, size_t argc, char **argv)
 {
 	if (!is_p3v3_pwrgd())
 		return -1;
 
 	uint8_t rail;
-	if (vr_rail_enum_get(argv[1], &rail) == false) {
-		shell_error(shell, "Invalid rail name: %s", argv[1]);
+	if (!vr_rail_arg_get(shell, argv[1], &rail))
 		return -1;
-	}
 
 	uint8_t reg = strtoul(argv[2], NULL, 16);
 
@@ -78,35 +73,3 @@ static int cmd_voltage_pmbus_write(const struct shell *shell, size_t argc, char 
 		    data[1]);
 	return 0;
 }
-
-static void voltage_rname_get(size_t idx, struct shell_static_entry *entry)
-{
-	uint8_t *name = NULL;
-	vr_rail_name_get((uint8_t)idx, &name);
-
-	entry->syntax = (name) ? (const char *)name : NULL;
-	entry->handler = NULL;
-	entry->help = NULL;
-	entry->subcmd = NULL;
-}
-
-SHELL_DYNAMIC_CMD_CREATE(vr_rname_for_voltage, voltage_rname_get);
-
-/* level 2 */
-SHELL_STATIC_SUBCMD_SET_CREATE(sub_voltage_pmbus_cmds,
-			       SHELL_CMD_ARG(read, &vr_rname_for_voltage,
-					     "pmbus read <voltage-rail> <reg>",
-					     cmd_voltage_pmbus_read, 3, 0),
-			       SHELL_CMD_ARG(write, &vr_rname_for_voltage,
-					     "pmbus write <voltage-rail> <reg> <data0> <data1>",
-					     cmd_voltage_pmbus_write, 5, 0),
-			       SHELL_SUBCMD_SET_END);
-
-/* level 1 */
-SHELL_STATIC_SUBCMD_SET_CREATE(sub_voltage_cmds,
-			       SHELL_CMD(pmbus, &sub_voltage_pmbus_cmds,
-					 "VR rail pmbus read/write commands", NULL),
-			       SHELL_SUBCMD_SET_END);
-
-/* Root of command voltage */
-SHELL_CMD_REGISTER(voltage, &sub_voltage_cmds, "voltage commands", NULL);
