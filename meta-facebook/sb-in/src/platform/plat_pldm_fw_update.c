@@ -99,6 +99,7 @@ compnt_mapping_sensor vr_compnt_mapping_sensor_table[] = {
 	{ COMPNT_VR_11, SENSOR_NUM_ASIC_P1V8_VPP_HBM0145_TEMP_C, "ASIC_P1V8_VPP_HBM0145" },
 	{ COMPNT_VR_12, SENSOR_NUM_ASIC_P0V75_MAX_EW2_VDD_TEMP_C, "ASIC_P0V75_MAX_EW2_VDD" },
 	{ COMPNT_VR_13, SENSOR_NUM_ASIC_P0V75_MAX_EW1_VDD_TEMP_C, "ASIC_P0V75_MAX_EW1_VDD" },
+	{ COMPNT_VR_3V3, SENSOR_NUM_P3V3_OSFP_TEMP_C, "P3V3_OSFP" },
 };
 
 bool find_sensor_id_and_name_by_firmware_comp_id(uint8_t comp_identifier, uint8_t *sensor_id,
@@ -123,10 +124,10 @@ static uint8_t pldm_pre_vr_update(void *fw_update_param)
 	CHECK_NULL_ARG_WITH_RETURN(fw_update_param, 1);
 
 	pldm_fw_update_param_t *p = (pldm_fw_update_param_t *)fw_update_param;
-	// if (get_asic_board_id() != ASIC_BOARD_ID_EVB && p->comp_id == COMPNT_VR_3V3) {
-	// 	LOG_ERR("only evb support 3V3 vr update");
-	// 	return 1;
-	// }
+	if (get_asic_board_id() != ASIC_BOARD_ID_EVB && p->comp_id == COMPNT_VR_3V3) {
+		LOG_ERR("only evb support 3V3 vr update");
+		return 1;
+	}
 
 	/* Stop sensor polling */
 	set_plat_sensor_polling_enable_flag(false);
@@ -175,6 +176,11 @@ static bool get_vr_fw_version(void *info_p, uint8_t *buf, uint8_t *len)
 
 	if (is_mb_dc_on() == false)
 		return ret;
+
+	if (get_asic_board_id() != ASIC_BOARD_ID_EVB && p->comp_identifier == COMPNT_VR_3V3) {
+		LOG_INF("only evb support 3V3 vr version get");
+		return ret;
+	}
 
 	if (!find_sensor_id_and_name_by_firmware_comp_id(p->comp_identifier, &sensor_id,
 							 sensor_name)) {
@@ -565,6 +571,7 @@ pldm_fw_update_info_t PLDMUPDATE_FW_CONFIG_TABLE[] = {
 	VR_COMPONENT_DEF(COMPNT_VR_11),
 	VR_COMPONENT_DEF(COMPNT_VR_12),
 	VR_COMPONENT_DEF(COMPNT_VR_13),
+	VR_COMPONENT_DEF(COMPNT_VR_3V3),
 	{
 		.enable = true,
 		.comp_classification = COMP_CLASS_TYPE_DOWNSTREAM,
@@ -694,7 +701,17 @@ void load_pldmupdate_comp_config(void)
 		return;
 	}
 
-	memcpy(comp_config, PLDMUPDATE_FW_CONFIG_TABLE, sizeof(PLDMUPDATE_FW_CONFIG_TABLE));
+	size_t filtered_count = 0;
+	for (size_t i = 0; i < comp_config_count; i++) {
+		// P3V3_OSFP VR only exists on EVB
+		if ((get_asic_board_id() != ASIC_BOARD_ID_EVB) &&
+		    PLDMUPDATE_FW_CONFIG_TABLE[i].comp_identifier == COMPNT_VR_3V3)
+			continue;
+
+		comp_config[filtered_count++] = PLDMUPDATE_FW_CONFIG_TABLE[i];
+	}
+
+	comp_config_count = filtered_count;
 }
 
 void plat_reset_prepare()
