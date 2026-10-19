@@ -27,7 +27,7 @@ static int cmd_vr_status_get(const struct shell *shell, size_t argc, char **argv
 	}
 
 	if (!strcmp(argv[1], "all")) {
-		for (int i = 0; i < VR_RAIL_E_MAX; i++) {
+		for (int i = 0; i < vr_rail_count(); i++) {
 			uint8_t *rail_name = NULL;
 			if (!vr_rail_name_get((uint8_t)i, &rail_name)) {
 				shell_error(shell, "Can't find vr_rail_name by rail index: %x", i);
@@ -140,7 +140,7 @@ static int cmd_vr_status_clear(const struct shell *shell, size_t argc, char **ar
 	}
 
 	if (!strcmp(argv[1], "all")) {
-		for (int i = 0; i < VR_RAIL_E_MAX; i++) {
+		for (int i = 0; i < vr_rail_count(); i++) {
 			uint8_t *rail_name = NULL;
 			if (!vr_rail_name_get((uint8_t)i, &rail_name)) {
 				shell_error(shell, "Can't find vr_rail_name by rail index: %x", i);
@@ -190,7 +190,7 @@ static void voltage_rname_get(size_t idx, struct shell_static_entry *entry)
 	uint8_t *name = NULL;
 	vr_rail_name_get((uint8_t)idx, &name);
 
-	if (idx == VR_RAIL_E_MAX)
+	if (idx == vr_rail_count())
 		name = (uint8_t *)"all";
 
 	entry->syntax = (name) ? (const char *)name : NULL;
@@ -204,7 +204,7 @@ static void voltage_rname_clear(size_t idx, struct shell_static_entry *entry)
 	uint8_t *name = NULL;
 	vr_rail_name_get((uint8_t)idx, &name);
 
-	if (idx == VR_RAIL_E_MAX)
+	if (idx == vr_rail_count())
 		name = (uint8_t *)"all";
 
 	entry->syntax = (name) ? (const char *)name : NULL;

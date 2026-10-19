@@ -29,6 +29,7 @@
 #include "raa228249.h"
 #include "plat_i2c_target.h"
 #include "plat_thermal.h"
+#include "plat_class.h"
 
 LOG_MODULE_REGISTER(plat_hook);
 
@@ -49,13 +50,17 @@ vr_pre_proc_arg vr_pre_read_args[] = {
 	VR_PRE_PROC_ARG_ENTRY(3)  VR_PRE_PROC_ARG_ENTRY(4)  VR_PRE_PROC_ARG_ENTRY(5)
 	VR_PRE_PROC_ARG_ENTRY(6)  VR_PRE_PROC_ARG_ENTRY(7)  VR_PRE_PROC_ARG_ENTRY(8)
 	VR_PRE_PROC_ARG_ENTRY(9)  VR_PRE_PROC_ARG_ENTRY(10) VR_PRE_PROC_ARG_ENTRY(11)
-	VR_PRE_PROC_ARG_ENTRY(12)
+	VR_PRE_PROC_ARG_ENTRY(12) VR_PRE_PROC_ARG_ENTRY(13)
 };
 // clang-format on
 #undef VR_PRE_PROC_ARG_ENTRY
 
 BUILD_ASSERT(ARRAY_SIZE(vr_pre_read_args) == VR_INDEX_MAX * VR_PAGE_NUM,
 	     "vr_pre_read_args size must match VR_INDEX_MAX * VR_PAGE_NUM");
+
+mp2971_init_arg mp2971_init_args[] = {
+	[0] = { .vout_scale_enable = true },
+};
 
 void vr_mutex_init(void)
 {
@@ -212,14 +217,31 @@ static vr_mapping_sensor vr_rail_table[] = {
 	//PU626:
 	{ SENSOR_NUM_ASIC_P0V75_MAX_EW1_VDD_TEMP_C, "ASIC_P0V75_MAX_EW1_VDD", VR_PEAK_NONE },
 	{ SENSOR_NUM_ASIC_P0V85_HAMSA_VDD_TEMP_C, "ASIC_P0V85_HAMSA_VDD", VR_PEAK_NONE },
+	//PU200000 (EVB only):
+	{ SENSOR_NUM_P3V3_OSFP_TEMP_C, "P3V3_OSFP_VOLT", VR_PEAK_NONE },
 };
 BUILD_ASSERT(ARRAY_SIZE(vr_rail_table) == VR_RAIL_E_MAX, "vr_rail_table must cover VR_RAIL_E");
+BUILD_ASSERT(VR_RAIL_E_P3V3_OSFP == VR_RAIL_E_MAX - 1, "P3V3_OSFP must be the last rail");
+
+// Number of rails present on this board: P3V3_OSFP is the last rail and only exists on EVB,
+// so iterate rails with vr_rail_count() instead of VR_RAIL_E_MAX.
+uint8_t vr_rail_count(void)
+{
+	return (get_asic_board_id() == ASIC_BOARD_ID_EVB) ? VR_RAIL_E_MAX :
+							    vr_rail_count_without_osfp();
+}
+
+// Number of rails (VR_RAIL_E) except P3V3_OSFP, fixed on every board (not a VR_INDEX_E count).
+uint8_t vr_rail_count_without_osfp(void)
+{
+	return VR_RAIL_E_P3V3_OSFP;
+}
 
 bool vr_rail_name_get(uint8_t rail, uint8_t **name)
 {
 	CHECK_NULL_ARG_WITH_RETURN(name, false);
 
-	if (rail >= VR_RAIL_E_MAX) {
+	if (rail >= vr_rail_count()) {
 		*name = NULL;
 		return false;
 	}
@@ -233,7 +255,7 @@ bool vr_rail_enum_get(uint8_t *name, uint8_t *num)
 	CHECK_NULL_ARG_WITH_RETURN(name, false);
 	CHECK_NULL_ARG_WITH_RETURN(num, false);
 
-	for (int i = 0; i < VR_RAIL_E_MAX; i++) {
+	for (int i = 0; i < vr_rail_count(); i++) {
 		if (strcmp(name, vr_rail_table[i].sensor_name) == 0) {
 			*num = i;
 			return true;
@@ -248,7 +270,7 @@ bool vr_rail_sensor_id_get(uint8_t rail, uint8_t *sensor_id)
 {
 	CHECK_NULL_ARG_WITH_RETURN(sensor_id, false);
 
-	if (rail >= VR_RAIL_E_MAX) {
+	if (rail >= vr_rail_count()) {
 		return false;
 	}
 
@@ -275,7 +297,7 @@ bool vr_rail_peak_get(uint8_t rail, int32_t *peak_mv)
 {
 	CHECK_NULL_ARG_WITH_RETURN(peak_mv, false);
 
-	if (rail >= VR_RAIL_E_MAX) {
+	if (rail >= vr_rail_count()) {
 		return false;
 	}
 
@@ -285,7 +307,7 @@ bool vr_rail_peak_get(uint8_t rail, int32_t *peak_mv)
 
 bool vr_rail_peak_clear(uint8_t rail)
 {
-	if (rail >= VR_RAIL_E_MAX) {
+	if (rail >= vr_rail_count()) {
 		return false;
 	}
 
@@ -353,12 +375,17 @@ static const vr_index_rail_map_t vr_index_rail_table[] = {
 			    { VR_RAIL_E_ASIC_P0V75_MAX_EW1_VDD, VR_RAIL_E_ASIC_P0V85_HAMSA_VDD } },
 };
 
+// P3V3_OSFP (VR_INDEX_E_14) has no SMBALERT#, so it is not listed in vr_index_rail_table
+BUILD_ASSERT(VR_INDEX_E_14 == VR_INDEX_MAX - 1, "P3V3_OSFP must be the last VR index");
+BUILD_ASSERT(ARRAY_SIZE(vr_index_rail_table) == VR_INDEX_E_14,
+	     "vr_index_rail_table must cover every VR index except P3V3_OSFP");
+
 bool vr_index_get_rails(uint8_t vr_index, const uint8_t **rails, uint8_t *count)
 {
 	CHECK_NULL_ARG_WITH_RETURN(rails, false);
 	CHECK_NULL_ARG_WITH_RETURN(count, false);
 
-	if (vr_index >= VR_INDEX_MAX) {
+	if (vr_index >= ARRAY_SIZE(vr_index_rail_table)) {
 		return false;
 	}
 
@@ -371,7 +398,7 @@ bool vr_index_get_smbalert_sgpio(uint8_t vr_index, uint8_t *sgpio_num)
 {
 	CHECK_NULL_ARG_WITH_RETURN(sgpio_num, false);
 
-	if (vr_index >= VR_INDEX_MAX) {
+	if (vr_index >= ARRAY_SIZE(vr_index_rail_table)) {
 		return false;
 	}
 
