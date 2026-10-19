@@ -17,7 +17,7 @@
 #include <zephyr.h>
 #include <shell/shell.h>
 #include "plat_cpld.h"
-#include "plat_shell_item.h"
+#include "shell_plat_item.h"
 
 /* STRAP_HIZ_EN is low active: 0 = CPLD strap outputs Hi-Z (manual), 1 = CPLD drives straps */
 static const plat_shell_item_t strap_control_manual_items[] = {

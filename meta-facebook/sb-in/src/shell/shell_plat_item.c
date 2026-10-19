@@ -19,9 +19,9 @@
 #include <logging/log.h>
 #include "plat_cpld.h"
 #include "plat_user_setting.h"
-#include "plat_shell_item.h"
+#include "shell_plat_item.h"
 
-LOG_MODULE_REGISTER(plat_shell_item);
+LOG_MODULE_REGISTER(shell_plat_item);
 
 static uint8_t item_mask(const plat_shell_item_t *item)
 {
