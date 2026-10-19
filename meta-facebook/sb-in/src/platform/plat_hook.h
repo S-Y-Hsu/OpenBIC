@@ -40,6 +40,7 @@ enum VR_INDEX_E {
 	VR_INDEX_E_11,
 	VR_INDEX_E_12,
 	VR_INDEX_E_13,
+	VR_INDEX_E_14, // P3V3 OSFP (EVB only)
 	VR_INDEX_MAX,
 };
 
@@ -89,6 +90,8 @@ enum VR_RAIL_E {
 	//PU626
 	VR_RAIL_E_ASIC_P0V75_MAX_EW1_VDD,
 	VR_RAIL_E_ASIC_P0V85_HAMSA_VDD,
+	//PU200000 (EVB only), see vr_rail_count()/vr_rail_count_without_osfp()
+	VR_RAIL_E_P3V3_OSFP,
 	VR_RAIL_E_MAX,
 };
 
@@ -136,6 +139,8 @@ bool post_vr_read(sensor_cfg *cfg, void *args, int *const reading);
 bool is_mb_dc_on();
 void *vr_mutex_get(enum VR_INDEX_E vr_index);
 void vr_mutex_init(void);
+uint8_t vr_rail_count(void);
+uint8_t vr_rail_count_without_osfp(void);
 bool vr_rail_name_get(uint8_t rail, uint8_t **name);
 bool vr_rail_sensor_id_get(uint8_t rail, uint8_t *sensor_id);
 bool vr_rail_peak_get(uint8_t rail, int32_t *peak_mv);
@@ -155,4 +160,6 @@ bool plat_get_vr_status(uint8_t rail, uint8_t vr_status_rail, uint16_t *vr_statu
 bool plat_clear_vr_status(uint8_t rail);
 bool post_common_sensor_read(sensor_cfg *cfg, void *args, int *const reading);
 bool post_tmp_read(sensor_cfg *cfg, void *args, int *const reading);
+
+extern mp2971_init_arg mp2971_init_args[];
 #endif
