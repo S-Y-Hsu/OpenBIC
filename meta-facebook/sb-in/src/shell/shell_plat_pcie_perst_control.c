@@ -17,7 +17,7 @@
 #include <zephyr.h>
 #include <shell/shell.h>
 #include "plat_cpld.h"
-#include "plat_shell_item.h"
+#include "shell_plat_item.h"
 
 static const plat_shell_item_t pcie_perst_items[] = {
 	PLAT_SHELL_CPLD_BIT("HAMSA_PCIE0_PERST_B_PLD_N", CPLD_OFFSET_PCIE_PERST, 0),
