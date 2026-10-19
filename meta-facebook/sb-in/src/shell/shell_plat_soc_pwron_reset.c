@@ -18,7 +18,7 @@
 #include <shell/shell.h>
 #include <string.h>
 #include "plat_cpld.h"
-#include "plat_shell_item.h"
+#include "shell_plat_item.h"
 
 /* HAMSA/ZORA reset bits only, other bits in these registers are left untouched */
 #define POWER_ON_RESET_OVERRIDE_MASK (BIT(5) | BIT(4) | BIT(3) | BIT(2) | BIT(1))

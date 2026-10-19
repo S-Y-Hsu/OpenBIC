@@ -18,7 +18,7 @@
 #include <shell/shell.h>
 #include "plat_cpld.h"
 #include "plat_user_setting.h"
-#include "plat_shell_item.h"
+#include "shell_plat_item.h"
 #include "shell_plat_perm_config.h"
 
 static const plat_shell_item_t thermaltrip_items[] = {

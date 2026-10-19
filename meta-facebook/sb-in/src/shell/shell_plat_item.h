@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef PLAT_SHELL_ITEM_H
-#define PLAT_SHELL_ITEM_H
+#ifndef SHELL_PLAT_ITEM_H
+#define SHELL_PLAT_ITEM_H
 
 #include <zephyr.h>
 #include <shell/shell.h>

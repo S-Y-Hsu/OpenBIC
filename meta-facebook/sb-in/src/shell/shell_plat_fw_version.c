@@ -25,7 +25,7 @@
 #include "plat_pldm_sensor.h"
 #include "plat_hook.h"
 
-LOG_MODULE_REGISTER(shell_fw_version);
+LOG_MODULE_REGISTER(shell_plat_fw_version);
 
 void cmd_get_fw_version_vr(const struct shell *shell, size_t argc, char **argv)
 {
