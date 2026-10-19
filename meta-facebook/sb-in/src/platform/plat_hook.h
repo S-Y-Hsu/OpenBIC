@@ -137,6 +137,7 @@ typedef struct vr_mapping_sensor {
 bool pre_vr_read(sensor_cfg *cfg, void *args);
 bool post_vr_read(sensor_cfg *cfg, void *args, int *const reading);
 bool is_mb_dc_on();
+bool is_p3v3_pwrgd(void);
 void *vr_mutex_get(enum VR_INDEX_E vr_index);
 void vr_mutex_init(void);
 uint8_t vr_rail_count(void);
@@ -158,6 +159,7 @@ bool vr_rail_enum_get(uint8_t *name, uint8_t *num);
 bool vr_status_enum_get(uint8_t *name, uint8_t *num);
 bool plat_get_vr_status(uint8_t rail, uint8_t vr_status_rail, uint16_t *vr_status);
 bool plat_clear_vr_status(uint8_t rail);
+bool plat_set_vr_reg(uint8_t rail, uint8_t reg, uint8_t *data, uint8_t len);
 bool post_common_sensor_read(sensor_cfg *cfg, void *args, int *const reading);
 bool post_tmp_read(sensor_cfg *cfg, void *args, int *const reading);
 
