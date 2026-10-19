@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -14,216 +14,104 @@
  * limitations under the License.
  */
 
-#include <shell/shell.h>
-#include <stdlib.h>
-#include "sensor.h"
+#include <string.h>
 #include "plat_hook.h"
+#include "shell_plat_vr.h"
 
-static int cmd_vr_status_get(const struct shell *shell, size_t argc, char **argv)
+// status == VR_STAUS_E_MAX prints every status of the rail
+static void vr_status_print(const struct shell *shell, uint8_t rail, uint8_t status)
 {
-	if (!(argc == 3)) {
-		shell_error(shell, "vr_status get all|<voltage-rail> all|<which-status>");
-		return -1;
+	uint8_t *rail_name = NULL;
+	if (!vr_rail_name_get(rail, &rail_name)) {
+		shell_error(shell, "Can't find vr_rail_name by rail index: %x", rail);
+		return;
 	}
 
-	if (!strcmp(argv[1], "all")) {
-		for (int i = 0; i < vr_rail_count(); i++) {
-			uint8_t *rail_name = NULL;
-			if (!vr_rail_name_get((uint8_t)i, &rail_name)) {
-				shell_error(shell, "Can't find vr_rail_name by rail index: %x", i);
-				continue;
-			}
+	uint8_t first = status, last = status;
+	if (status == VR_STAUS_E_MAX) {
+		shell_print(shell, "[%-2x]%-50s", rail, rail_name);
+		first = 0;
+		last = VR_STAUS_E_MAX - 1;
+	}
 
-			if (!strcmp(argv[2], "all")) {
-				shell_print(shell, "[%-2x]%-50s", i, rail_name);
-				for (int j = 0; j < VR_STAUS_E_MAX; j++) {
-					uint8_t *vr_status_name = NULL;
-					if (!vr_status_name_get((uint8_t)j, &vr_status_name)) {
-						shell_error(
-							shell,
-							"Can't find vr_status_name by rail index: %x",
-							j);
-						continue;
-					}
-					uint16_t vr_status = 0xFFFF;
+	for (uint8_t i = first; i <= last; i++) {
+		uint8_t *status_name = NULL;
+		uint16_t vr_status = 0xFFFF;
 
-					if (!plat_get_vr_status(i, j, &vr_status)) {
-						shell_error(
-							shell,
-							"Can't find vr status[%x] by rail index: %x",
-							j, i);
-						continue;
-					}
-
-					shell_print(shell, "    %-10s:%2x", vr_status_name,
-						    vr_status);
-				}
-			} else {
-				enum VR_STAUS_E vr_status_rail;
-				if (vr_status_enum_get(argv[2], &vr_status_rail) == false) {
-					shell_error(shell, "Invalid vr_status rail name: %s",
-						    argv[2]);
-					return -1;
-				}
-
-				uint16_t vr_status = 0xFFFF;
-
-				if (!plat_get_vr_status(i, vr_status_rail, &vr_status)) {
-					shell_error(shell,
-						    "Can't find vr status[%x] by rail index: %x",
-						    vr_status_rail, i);
-					return -1;
-				}
-
-				shell_print(shell, "[%-2x]%-50s %-10s:%2x", i, rail_name, argv[2],
-					    vr_status);
-			}
-		}
-		return 0;
-	} else {
-		enum VR_RAIL_E rail;
-		if (vr_rail_enum_get(argv[1], &rail) == false) {
-			shell_error(shell, "Invalid rail name: %s", argv[1]);
-			return -1;
+		vr_status_name_get(i, &status_name);
+		if (!plat_get_vr_status(rail, i, &vr_status)) {
+			shell_error(shell, "Can't get %s by rail index: %x", status_name, rail);
+			continue;
 		}
 
-		if (!strcmp(argv[2], "all")) {
-			for (int j = 0; j < VR_STAUS_E_MAX; j++) {
-				uint8_t *vr_status_name = NULL;
-				if (!vr_status_name_get((uint8_t)j, &vr_status_name)) {
-					shell_error(shell,
-						    "Can't find vr_status_name by rail index: %x",
-						    j);
-					continue;
-				}
-				uint16_t vr_status = 0xFFFF;
-
-				if (!plat_get_vr_status(rail, j, &vr_status)) {
-					shell_error(shell,
-						    "Can't find vr status[%x] by rail index: %x", j,
-						    rail);
-					continue;
-				}
-
-				shell_print(shell, "[%-2x]%-50s %-10s:%2x", rail, argv[1],
-					    vr_status_name, vr_status);
-			}
-			return 0;
-		} else {
-			enum VR_STAUS_E vr_status_rail;
-			if (vr_status_enum_get(argv[2], &vr_status_rail) == false) {
-				shell_error(shell, "Invalid vr_status rail name: %s", argv[2]);
-				return -1;
-			}
-
-			uint16_t vr_status = 0xFFFF;
-
-			if (!plat_get_vr_status(rail, vr_status_rail, &vr_status)) {
-				shell_error(shell, "Can't find vr status[%x] by rail index: %x",
-					    vr_status_rail, rail);
-				return -1;
-			}
-
-			shell_print(shell, "[%-2x]%-50s %-10s:%2x", rail, argv[1], argv[2],
-				    vr_status);
-
-			return 0;
-		}
+		if (status == VR_STAUS_E_MAX)
+			shell_print(shell, "    %-18s: 0x%04x", status_name, vr_status);
+		else
+			shell_print(shell, "[%-2x]%-50s %-18s: 0x%04x", rail, rail_name,
+				    status_name, vr_status);
 	}
 }
 
-static int cmd_vr_status_clear(const struct shell *shell, size_t argc, char **argv)
+int cmd_vr_status_get(const struct shell *shell, size_t argc, char **argv)
 {
-	if (!(argc == 2)) {
-		shell_error(shell, "vr_status clear all|<voltage-rail>");
+	if (argc != 3) {
+		shell_error(shell, "vr status get all|<voltage-rail> all|<which-status>");
+		return -1;
+	}
+
+	if (!is_p3v3_pwrgd())
+		return -1;
+
+	uint8_t status = VR_STAUS_E_MAX;
+	if (strcmp(argv[2], "all") && !vr_status_enum_get((uint8_t *)argv[2], &status)) {
+		shell_error(shell, "Invalid vr status name: %s", argv[2]);
 		return -1;
 	}
 
 	if (!strcmp(argv[1], "all")) {
 		for (int i = 0; i < vr_rail_count(); i++) {
-			uint8_t *rail_name = NULL;
-			if (!vr_rail_name_get((uint8_t)i, &rail_name)) {
-				shell_error(shell, "Can't find vr_rail_name by rail index: %x", i);
-				continue;
-			}
+			vr_status_print(shell, (uint8_t)i, status);
+		}
+		return 0;
+	}
 
-			if (!plat_clear_vr_status(i)) {
+	uint8_t rail;
+	if (!vr_rail_arg_get(shell, argv[1], &rail))
+		return -1;
+
+	vr_status_print(shell, rail, status);
+	return 0;
+}
+
+int cmd_vr_status_clear(const struct shell *shell, size_t argc, char **argv)
+{
+	if (argc != 2) {
+		shell_error(shell, "vr status clear all|<voltage-rail>");
+		return -1;
+	}
+
+	if (!is_p3v3_pwrgd())
+		return -1;
+
+	if (!strcmp(argv[1], "all")) {
+		for (int i = 0; i < vr_rail_count(); i++) {
+			if (!plat_clear_vr_status((uint8_t)i)) {
 				shell_error(shell, "Can't clear vr status by rail index: %x", i);
-				continue;
 			}
 		}
 		shell_print(shell, "All VR clear vr status finish");
 		return 0;
-	} else {
-		enum VR_RAIL_E rail;
-		if (vr_rail_enum_get(argv[1], &rail) == false) {
-			shell_error(shell, "Invalid rail name: %s", argv[1]);
-			return -1;
-		}
-
-		if (!plat_clear_vr_status(rail)) {
-			shell_error(shell, "Can't clear vr status by rail index: %x", rail);
-			return -1;
-		}
-		shell_print(shell, "[%-2x]%-50s clear vr status finish", rail, argv[1]);
-		return 0;
 	}
+
+	uint8_t rail;
+	if (!vr_rail_arg_get(shell, argv[1], &rail))
+		return -1;
+
+	if (!plat_clear_vr_status(rail)) {
+		shell_error(shell, "Can't clear vr status by rail index: %x", rail);
+		return -1;
+	}
+
+	shell_print(shell, "[%-2x]%-50s clear vr status finish", rail, argv[1]);
+	return 0;
 }
-
-static void vr_status_rname_get(size_t idx, struct shell_static_entry *entry)
-{
-	uint8_t *name = NULL;
-	vr_status_name_get((uint8_t)idx, &name);
-	if (idx == VR_STAUS_E_MAX)
-		name = (uint8_t *)"all";
-
-	entry->syntax = (name) ? (const char *)name : NULL;
-	entry->handler = NULL;
-	entry->help = NULL;
-	entry->subcmd = NULL;
-}
-
-SHELL_DYNAMIC_CMD_CREATE(vr_status_rname_for_vr_status, vr_status_rname_get);
-
-static void voltage_rname_get(size_t idx, struct shell_static_entry *entry)
-{
-	uint8_t *name = NULL;
-	vr_rail_name_get((uint8_t)idx, &name);
-
-	if (idx == vr_rail_count())
-		name = (uint8_t *)"all";
-
-	entry->syntax = (name) ? (const char *)name : NULL;
-	entry->handler = NULL;
-	entry->help = NULL;
-	entry->subcmd = &vr_status_rname_for_vr_status;
-}
-
-static void voltage_rname_clear(size_t idx, struct shell_static_entry *entry)
-{
-	uint8_t *name = NULL;
-	vr_rail_name_get((uint8_t)idx, &name);
-
-	if (idx == vr_rail_count())
-		name = (uint8_t *)"all";
-
-	entry->syntax = (name) ? (const char *)name : NULL;
-	entry->handler = NULL;
-	entry->help = NULL;
-	entry->subcmd = NULL;
-}
-
-SHELL_DYNAMIC_CMD_CREATE(vr_rname_for_vr_status, voltage_rname_get);
-SHELL_DYNAMIC_CMD_CREATE(vr_rname_for_vr_status_clear, voltage_rname_clear);
-
-/* level 1 */
-SHELL_STATIC_SUBCMD_SET_CREATE(sub_vr_status_cmds,
-			       SHELL_CMD(get, &vr_rname_for_vr_status,
-					 "get all|<voltage-rail> all|<which-status>",
-					 cmd_vr_status_get),
-			       SHELL_CMD(clear, &vr_rname_for_vr_status_clear,
-					 "clear all|<voltage-rail>", cmd_vr_status_clear),
-			       SHELL_SUBCMD_SET_END);
-
-/* Root of command test */
-SHELL_CMD_REGISTER(vr_status, &sub_vr_status_cmds, "vr fault status set/get commands", NULL);
