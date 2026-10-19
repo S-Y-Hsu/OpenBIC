@@ -69,7 +69,8 @@ void cmd_log_dump(const struct shell *shell, size_t argc, char **argv)
 			uint8_t bit_position = (log.err_code >> 8) & 0x07;
 
 			shell_print(shell, "\tVR Power Fault   (1:Power Fault, 0=Normal)");
-			shell_print(shell, "\t\t%s", power_fault_get_bit_name(cpld_offset, bit_position));
+			shell_print(shell, "\t\t%s",
+				    power_fault_get_bit_name(cpld_offset, bit_position));
 
 			uint8_t rail = NOT_VR_RAIL;
 			uint8_t event_source = 0;
