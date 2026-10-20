@@ -29,7 +29,7 @@
 #include "plat_log.h"
 #include "plat_ioexp.h"
 #include "plat_work.h"
-#include "shell_plat_perm_config.h"
+#include "plat_user_setting.h"
 
 LOG_MODULE_REGISTER(plat_init);
 
@@ -57,7 +57,7 @@ void pal_post_init()
 {
 	plat_mctp_init();
 	init_fru_info();
-	plat_shell_perm_restore();
+	user_settings_init();
 	init_load_eeprom_log();
 	plat_init_platform_queue();
 	plat_sgpio_init();

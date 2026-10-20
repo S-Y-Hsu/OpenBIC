@@ -16,13 +16,19 @@
 
 #include <string.h>
 #include <logging/log.h>
+#include "eeprom.h"
 #include "plat_fru.h"
+#include "plat_temp_threshold.h"
 #include "plat_user_setting.h"
+#include "shell_plat_perm_config.h"
 
 LOG_MODULE_REGISTER(plat_user_setting);
 
-#define PERM_VALUE_MAX_SIZE 4
+/* The largest id is the temp threshold array, written in one EEPROM write */
+#define PERM_VALUE_MAX_SIZE (TEMP_THRESHOLD_COUNT * sizeof(int32_t))
 #define PERM_VALUE_UNSET 0xFF
+
+BUILD_ASSERT(PERM_VALUE_MAX_SIZE <= EEPROM_WRITE_SIZE, "perm value exceeds one EEPROM write");
 
 typedef struct {
 	const char *name;
@@ -32,6 +38,9 @@ typedef struct {
 
 static const plat_perm_layout_t perm_layout[PERM_ID_MAX] = {
 	[PERM_ID_THERMALTRIP] = { "THERMALTRIP_SWITCH", 0x8000, 1 },
+	/* int32_t array, one element per temp threshold table entry */
+	[PERM_ID_TEMP_THRESHOLD] = { "TEMP_THRESHOLD", 0x8100,
+				     TEMP_THRESHOLD_COUNT * sizeof(int32_t) },
 };
 
 static const plat_perm_layout_t *perm_find(uint8_t id, uint8_t len)
@@ -126,4 +135,10 @@ uint8_t plat_perm_get_size(uint8_t id)
 		return 0;
 
 	return perm_layout[id].size;
+}
+
+void user_settings_init(void)
+{
+	thermaltrip_switch_perm_restore();
+	plat_temp_threshold_init();
 }

@@ -17,10 +17,12 @@
 #ifndef SHELL_PLAT_PERM_CONFIG_H
 #define SHELL_PLAT_PERM_CONFIG_H
 
+#include <shell/shell.h>
+
 /* Perm restore of each shell command that supports [perm] */
 void thermaltrip_switch_perm_restore(void);
 
-/* Restore all shell command perm settings, called at boot */
-void plat_shell_perm_restore(void);
+/* Print every temp threshold perm entry that is set, return the number printed */
+int temp_threshold_perm_print(const struct shell *shell);
 
 #endif
