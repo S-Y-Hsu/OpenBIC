@@ -19,17 +19,17 @@
 #include "plat_user_setting.h"
 #include "shell_plat_perm_config.h"
 
-/* Restore perm settings of every shell command that supports [perm], called at boot */
-void plat_shell_perm_restore(void)
-{
-	thermaltrip_switch_perm_restore();
-}
-
 static int cmd_perm_config_get(const struct shell *shell, size_t argc, char **argv)
 {
 	int config_count = 0;
 
 	for (uint8_t id = PERM_ID_NONE + 1; id < PERM_ID_MAX; id++) {
+		/* array id, printed per element by its owner */
+		if (id == PERM_ID_TEMP_THRESHOLD) {
+			config_count += temp_threshold_perm_print(shell);
+			continue;
+		}
+
 		uint32_t val = 0; /* little-endian, up to 4 bytes */
 
 		int ret = plat_perm_get(id, &val, plat_perm_get_size(id));
