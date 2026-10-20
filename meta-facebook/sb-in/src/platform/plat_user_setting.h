@@ -34,6 +34,7 @@
 enum PLAT_PERM_ID {
 	PERM_ID_NONE = 0,
 	PERM_ID_THERMALTRIP,
+	PERM_ID_TEMP_THRESHOLD,
 	PERM_ID_MAX,
 };
 
@@ -42,5 +43,8 @@ int plat_perm_get(uint8_t id, void *val, uint8_t len);
 bool plat_perm_clear(void);
 const char *plat_perm_get_name(uint8_t id);
 uint8_t plat_perm_get_size(uint8_t id);
+
+/* Apply default and perm values of every user setting, called at boot */
+void user_settings_init(void);
 
 #endif
