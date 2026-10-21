@@ -50,4 +50,8 @@ bool plat_thermal_is_open(uint8_t sensor_num);
 const char *plat_thermal_get_sensor_name(uint8_t sensor_num);
 const char *plat_thermal_get_kind_name(uint8_t kind);
 
+/* TEMP_STATUS_REG of each alert sensor taken from the last scan, no I2C access */
+uint8_t plat_thermal_get_alert_count(void);
+bool plat_thermal_get_alert_status(uint8_t idx, uint8_t *sensor_num, uint8_t *status);
+
 #endif
