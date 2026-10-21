@@ -20,6 +20,7 @@
 #include "plat_user_setting.h"
 #include "shell_plat_item.h"
 #include "shell_plat_perm_config.h"
+#include "shell_plat_temp.h"
 
 static const plat_shell_item_t thermaltrip_items[] = {
 	PLAT_SHELL_CPLD_BIT_PERM("THERMALTRIP_SWITCH", CPLD_OFFSET_THERMALTRIP_SWITCH, 0,
@@ -31,26 +32,19 @@ void thermaltrip_switch_perm_restore(void)
 	plat_shell_item_restore(thermaltrip_items, ARRAY_SIZE(thermaltrip_items));
 }
 
-static int cmd_thermaltrip_get(const struct shell *shell, size_t argc, char **argv)
+int cmd_temp_thermaltrip_get(const struct shell *shell, size_t argc, char **argv)
 {
 	return plat_shell_item_get(shell, thermaltrip_items, ARRAY_SIZE(thermaltrip_items),
 				   argv[1]);
 }
 
-static int cmd_thermaltrip_set(const struct shell *shell, size_t argc, char **argv)
+int cmd_temp_thermaltrip_set(const struct shell *shell, size_t argc, char **argv)
 {
 	return plat_shell_item_set(shell, thermaltrip_items, ARRAY_SIZE(thermaltrip_items), argv[1],
 				   argv[2], (argc == 4) ? argv[3] : NULL);
 }
 
-PLAT_SHELL_ITEM_DYNAMIC_CMD_CREATE(thermaltrip_names, thermaltrip_items);
-
-SHELL_STATIC_SUBCMD_SET_CREATE(sub_thermaltrip_cmds,
-			       SHELL_CMD_ARG(get, &thermaltrip_names, "get all|<name>",
-					     cmd_thermaltrip_get, 2, 0),
-			       SHELL_CMD_ARG(set, &thermaltrip_names,
-					     "set all|<name> <0|1> [perm], 1 = enable",
-					     cmd_thermaltrip_set, 3, 1),
-			       SHELL_SUBCMD_SET_END);
-
-SHELL_CMD_REGISTER(thermaltrip_switch, &sub_thermaltrip_cmds, "thermal trip switch commands", NULL);
+void temp_thermaltrip_name_entry_get(size_t idx, struct shell_static_entry *entry)
+{
+	plat_shell_item_dynamic_get(thermaltrip_items, ARRAY_SIZE(thermaltrip_items), idx, entry);
+}

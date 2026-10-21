@@ -207,3 +207,21 @@ const char *plat_thermal_get_kind_name(uint8_t kind)
 		return "unknown";
 	}
 }
+
+uint8_t plat_thermal_get_alert_count(void)
+{
+	return ARRAY_SIZE(thermal_alert_table);
+}
+
+bool plat_thermal_get_alert_status(uint8_t idx, uint8_t *sensor_num, uint8_t *status)
+{
+	CHECK_NULL_ARG_WITH_RETURN(sensor_num, false);
+	CHECK_NULL_ARG_WITH_RETURN(status, false);
+
+	if (idx >= ARRAY_SIZE(thermal_alert_table))
+		return false;
+
+	*sensor_num = thermal_alert_table[idx].sensor_num;
+	*status = thermal_alert_table[idx].status;
+	return true;
+}
