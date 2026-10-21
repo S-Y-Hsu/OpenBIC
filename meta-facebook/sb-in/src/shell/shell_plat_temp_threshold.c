@@ -20,6 +20,7 @@
 #include <shell/shell.h>
 #include "plat_temp_threshold.h"
 #include "shell_plat_perm_config.h"
+#include "shell_plat_temp.h"
 
 /* Widest range of the temp chips (TMP432/EMC1413 extended range, TMP75) */
 #define TEMP_THRESHOLD_MIN_MC (-55000)
@@ -38,7 +39,7 @@ static int threshold_print(const struct shell *shell, uint8_t idx)
 	return 0;
 }
 
-static int cmd_temp_threshold_get(const struct shell *shell, size_t argc, char **argv)
+int cmd_temp_threshold_get(const struct shell *shell, size_t argc, char **argv)
 {
 	if (!strcmp(argv[1], "all")) {
 		int ret = 0;
@@ -58,7 +59,7 @@ static int cmd_temp_threshold_get(const struct shell *shell, size_t argc, char *
 	return threshold_print(shell, idx);
 }
 
-static int cmd_temp_threshold_set(const struct shell *shell, size_t argc, char **argv)
+int cmd_temp_threshold_set(const struct shell *shell, size_t argc, char **argv)
 {
 	bool is_perm = false;
 	if (argc == 4) {
@@ -145,29 +146,3 @@ int temp_threshold_perm_print(const struct shell *shell)
 
 	return count;
 }
-
-static void temp_threshold_names_get(size_t idx, struct shell_static_entry *entry)
-{
-	entry->syntax = NULL;
-	entry->handler = NULL;
-	entry->help = NULL;
-	entry->subcmd = NULL;
-
-	if (idx == 0)
-		entry->syntax = "all";
-	else if (idx <= TEMP_THRESHOLD_COUNT)
-		entry->syntax = plat_temp_threshold_get_name(idx - 1);
-}
-
-SHELL_DYNAMIC_CMD_CREATE(temp_threshold_names, temp_threshold_names_get);
-
-SHELL_STATIC_SUBCMD_SET_CREATE(sub_temp_threshold_cmds,
-			       SHELL_CMD_ARG(get, &temp_threshold_names, "get all|<name>",
-					     cmd_temp_threshold_get, 2, 0),
-			       SHELL_CMD_ARG(set, &temp_threshold_names,
-					     "set all|<name> <millidegree C> [perm]",
-					     cmd_temp_threshold_set, 3, 1),
-			       SHELL_SUBCMD_SET_END);
-
-SHELL_CMD_REGISTER(temp_threshold, &sub_temp_threshold_cmds, "temp threshold get/set commands",
-		   NULL);
