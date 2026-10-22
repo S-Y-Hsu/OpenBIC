@@ -19,5 +19,5 @@
 
 uint8_t pal_get_bmc_interface()
 {
-	return BMC_INTERFACE_I2C;
+	return BMC_INTERFACE_I3C;
 }
