@@ -28,12 +28,6 @@
 /* i2c dev bus */
 #define I2C_BUS_BMC I2C_BUS6
 
-/* i3c vendor-def-id */
-#define DEFAULT_VENDOR_DEF_ID_1 0x567
-#define DEFAULT_VENDOR_DEF_ID_2 0x577
-#define DEFAULT_VENDOR_DEF_ID_3 0x587
-#define DEFAULT_VENDOR_DEF_ID_4 0x597
-
 /* mctp endpoint */
 #define MCTP_EID_BMC 0x08
 
@@ -69,7 +63,6 @@ struct mctp_to_ipmi_sel_resp {
 
 /* init the mctp moduel for platform */
 void plat_mctp_init(void);
-void plat_i3c_set_pid(void);
 mctp *find_mctp_by_bus(uint8_t bus);
 void plat_set_eid(uint8_t slot_eid);
 #endif /* _PLAT_MCTP_h */
