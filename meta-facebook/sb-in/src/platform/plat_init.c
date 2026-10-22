@@ -45,7 +45,6 @@ void pal_pre_init()
 	ioexp_init();
 	init_plat_config();
 	vr_mutex_init();
-	plat_i3c_set_pid();
 }
 
 void pal_set_sys_status()
