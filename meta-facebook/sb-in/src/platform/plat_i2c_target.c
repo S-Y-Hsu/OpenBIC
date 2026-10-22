@@ -37,7 +37,7 @@ plat_sensor_reading *sensor_reading_table[DATA_TABLE_LENGTH_4] = { NULL };
 /* I2C target init-enable table */
 const bool I2C_TARGET_ENABLE_TABLE[MAX_TARGET_NUM] = {
 	TARGET_DISABLE, TARGET_DISABLE, TARGET_DISABLE, TARGET_ENABLE,
-	TARGET_ENABLE,	TARGET_ENABLE,	TARGET_ENABLE,	TARGET_DISABLE,
+	TARGET_ENABLE,	TARGET_DISABLE, TARGET_ENABLE,	TARGET_DISABLE,
 	TARGET_DISABLE, TARGET_DISABLE, TARGET_DISABLE, TARGET_DISABLE,
 };
 
@@ -56,7 +56,7 @@ const struct _i2c_target_config I2C_TARGET_CONFIG_TABLE[MAX_TARGET_NUM] = {
 	{ 0xFF, 0xA },
 	{ 0x40, 0xA }, // ZORA00
 	{ 0x40, 0xA }, // ZORA10
-	{ 0x42, 0xA }, // BMC MCTP over SMBus
+	{ 0xFF, 0xA }, // Astrid BMC interface change to i3c
 	{ 0x40, 0xA }, // HAMSA_CRM
 	{ 0xFF, 0xA },
 	{ 0xFF, 0xA },
