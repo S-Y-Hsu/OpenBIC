@@ -231,7 +231,10 @@ static uint8_t pldm_vr_update_streaming(pldm_fw_update_param_t *p, bool *handled
 	*handled = false;
 
 #ifdef ENABLE_MP29526
-	if (!strncmp(p->comp_version_str, KEYWORD_VR_MP29526, ARRAY_SIZE(KEYWORD_VR_MP29526) - 1)) {
+	/* MP29426 / MP29529 share the MP29526 register map and update flow */
+	if (!strncmp(p->comp_version_str, KEYWORD_VR_MP29526, ARRAY_SIZE(KEYWORD_VR_MP29526) - 1) ||
+	    !strncmp(p->comp_version_str, KEYWORD_VR_MP29426, ARRAY_SIZE(KEYWORD_VR_MP29426) - 1) ||
+	    !strncmp(p->comp_version_str, KEYWORD_VR_MP29529, ARRAY_SIZE(KEYWORD_VR_MP29529) - 1)) {
 		*handled = true;
 		return mp29526_pldm_update(p);
 	}
@@ -341,9 +344,8 @@ uint8_t pldm_vr_update(void *fw_update_param)
 			  ARRAY_SIZE(KEYWORD_VR_XDPE1E3G6A) - 1)) {
 		if (!xdpe1e3g6a_fwupdate(p->bus, p->addr, hex_buff, fw_update_cfg.image_size))
 			goto exit;
-	}
-	else if (!strncmp(p->comp_version_str, KEYWORD_VR_XDPE1EE496A,
-			  ARRAY_SIZE(KEYWORD_VR_XDPE1EE496A) - 1)) {
+	} else if (!strncmp(p->comp_version_str, KEYWORD_VR_XDPE1EE496A,
+			    ARRAY_SIZE(KEYWORD_VR_XDPE1EE496A) - 1)) {
 		if (!xdpe1e496a_fwupdate(p->bus, p->addr, hex_buff, fw_update_cfg.image_size))
 			goto exit;
 	}
