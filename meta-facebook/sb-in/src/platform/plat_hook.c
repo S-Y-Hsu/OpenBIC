@@ -99,6 +99,13 @@ bool pre_vr_read(sensor_cfg *cfg, void *args)
 		}
 	}
 
+	/* select i2c mux channel if this VR is behind the mux */
+	if (!switch_mux(cfg->num)) {
+		k_mutex_unlock(pre_proc_args->mutex);
+		LOG_ERR("0x%02x pre_vr_read, switch mux fail", cfg->num);
+		return false;
+	}
+
 	/* set page */
 	msg.bus = cfg->port;
 	msg.target_addr = cfg->target_addr;
