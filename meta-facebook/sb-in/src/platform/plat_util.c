@@ -17,6 +17,7 @@
 #include "libutil.h"
 #include "plat_util.h"
 #include "plat_i2c.h"
+#include "plat_pldm_sensor.h"
 #include <logging/log.h>
 
 LOG_MODULE_REGISTER(plat_util);
@@ -60,6 +61,53 @@ bool plat_i2c_write(uint8_t bus, uint8_t addr, uint8_t offset, uint8_t *data, ui
 
 	if (i2c_master_write(&i2c_msg, retry)) {
 		LOG_ERR("Failed to write reg, bus: %d, addr: 0x%x, reg: 0x%x", bus, addr, offset);
+		return false;
+	}
+	return true;
+}
+
+/* PU7/PU8/PU9 VR sit behind this I2C mux, other VR are connected directly */
+#define VR_I2C_MUX_BUS I2C_BUS9
+#define VR_I2C_MUX_ADDR 0x73
+#define VR_I2C_MUX_CH_PU7 0x04 // channel 3
+#define VR_I2C_MUX_CH_PU8 0x02 // channel 2
+#define VR_I2C_MUX_CH_PU9 0x01 // channel 1
+
+/* Return the mux channel of the sensor, 0 if the sensor is not behind the mux */
+static uint8_t vr_mux_channel_get(uint8_t sensor_num)
+{
+	if (sensor_num >= SENSOR_NUM_ASIC_P0V75_ZORA11_VDDL_TEMP_C &&
+	    sensor_num <= SENSOR_NUM_ASIC_P0V75_ZORA11_VDDH_PWR_W)
+		return VR_I2C_MUX_CH_PU7;
+
+	if (sensor_num >= SENSOR_NUM_ASIC_P0V75_ZORA10_VDDL_TEMP_C &&
+	    sensor_num <= SENSOR_NUM_ASIC_P0V75_ZORA10_VDDH_PWR_W)
+		return VR_I2C_MUX_CH_PU8;
+
+	if (sensor_num >= SENSOR_NUM_ASIC_P0V75_ZORA01_VDDL_TEMP_C &&
+	    sensor_num <= SENSOR_NUM_ASIC_P0V75_ZORA01_VDDH_PWR_W)
+		return VR_I2C_MUX_CH_PU9;
+
+	return 0;
+}
+
+/* Select the mux channel for the sensor if it is behind the mux, otherwise do nothing.
+ * Caller must hold the VR mutex so the channel is not changed before the VR access. */
+bool switch_mux(uint8_t sensor_num)
+{
+	uint8_t channel = vr_mux_channel_get(sensor_num);
+	if (!channel)
+		return true;
+
+	I2C_MSG i2c_msg = { 0 };
+	uint8_t retry = 5;
+	i2c_msg.bus = VR_I2C_MUX_BUS;
+	i2c_msg.target_addr = VR_I2C_MUX_ADDR;
+	i2c_msg.tx_len = 1;
+	i2c_msg.data[0] = channel;
+
+	if (i2c_master_write(&i2c_msg, retry)) {
+		LOG_ERR("Failed to switch mux, sensor: 0x%x, channel: 0x%x", sensor_num, channel);
 		return false;
 	}
 	return true;

@@ -144,6 +144,12 @@ static uint8_t pldm_pre_vr_update(void *fw_update_param)
 	sensor_cfg *cfg = get_sensor_cfg_by_sensor_id(sensor_id);
 	CHECK_NULL_ARG_WITH_RETURN(cfg, 1);
 
+	/* Hold VR mutex (and switch mux) during update, released in pldm_post_vr_update */
+	if (!pre_vr_read(cfg, cfg->pre_sensor_read_args)) {
+		LOG_ERR("comp id: 0x%x, pre_vr_read fail", p->comp_id);
+		return 1;
+	}
+
 	/* Get bus and target address by sensor number in sensor configuration */
 	p->bus = cfg->port;
 	p->addr = cfg->target_addr;
@@ -153,7 +159,19 @@ static uint8_t pldm_pre_vr_update(void *fw_update_param)
 
 static uint8_t pldm_post_vr_update(void *fw_update_param)
 {
-	ARG_UNUSED(fw_update_param);
+	CHECK_NULL_ARG_WITH_RETURN(fw_update_param, 1);
+
+	pldm_fw_update_param_t *p = (pldm_fw_update_param_t *)fw_update_param;
+	uint8_t sensor_id = 0;
+	char sensor_name[MAX_AUX_SENSOR_NAME_LEN] = { 0 };
+
+	/* Release VR mutex taken in pldm_pre_vr_update */
+	if (find_sensor_id_and_name_by_firmware_comp_id(p->comp_id, &sensor_id, sensor_name)) {
+		sensor_cfg *cfg = get_sensor_cfg_by_sensor_id(sensor_id);
+		if (cfg) {
+			post_vr_read(cfg, cfg->pre_sensor_read_args, NULL);
+		}
+	}
 
 	/* Start sensor polling */
 	k_msleep(2000);
