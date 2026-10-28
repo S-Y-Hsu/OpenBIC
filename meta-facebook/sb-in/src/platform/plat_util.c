@@ -18,6 +18,7 @@
 #include "plat_util.h"
 #include "plat_i2c.h"
 #include "plat_pldm_sensor.h"
+#include "plat_hook.h"
 #include <logging/log.h>
 
 LOG_MODULE_REGISTER(plat_util);
@@ -91,14 +92,12 @@ static uint8_t vr_mux_channel_get(uint8_t sensor_num)
 	return 0;
 }
 
-/* Select the mux channel for the sensor if it is behind the mux, otherwise do nothing.
- * Caller must hold the VR mutex so the channel is not changed before the VR access. */
-bool switch_mux(uint8_t sensor_num)
-{
-	uint8_t channel = vr_mux_channel_get(sensor_num);
-	if (!channel)
-		return true;
+/* The VRs behind the mux each have their own VR mutex, but they share the mux channel.
+ * This mutex keeps the channel from being switched by another thread during a VR access. */
+static K_MUTEX_DEFINE(vr_mux_mutex);
 
+static bool vr_mux_write_channel(uint8_t channel)
+{
 	I2C_MSG i2c_msg = { 0 };
 	uint8_t retry = 5;
 	i2c_msg.bus = VR_I2C_MUX_BUS;
@@ -106,9 +105,34 @@ bool switch_mux(uint8_t sensor_num)
 	i2c_msg.tx_len = 1;
 	i2c_msg.data[0] = channel;
 
-	if (i2c_master_write(&i2c_msg, retry)) {
+	return i2c_master_write(&i2c_msg, retry) == 0;
+}
+
+bool vr_mux_select(uint8_t sensor_num)
+{
+	uint8_t channel = vr_mux_channel_get(sensor_num);
+	if (!channel)
+		return true;
+
+	if (k_mutex_lock(&vr_mux_mutex, K_MSEC(VR_MUTEX_LOCK_TIMEOUT_MS))) {
+		LOG_ERR("Failed to lock vr mux, sensor: 0x%x", sensor_num);
+		return false;
+	}
+
+	if (!vr_mux_write_channel(channel)) {
 		LOG_ERR("Failed to switch mux, sensor: 0x%x, channel: 0x%x", sensor_num, channel);
+		k_mutex_unlock(&vr_mux_mutex);
 		return false;
 	}
 	return true;
+}
+
+/* Release the mux channel held by vr_mux_select(). Does nothing if not behind the mux. */
+void vr_mux_release(uint8_t sensor_num)
+{
+	if (!vr_mux_channel_get(sensor_num))
+		return;
+
+	if (k_mutex_unlock(&vr_mux_mutex))
+		LOG_ERR("Failed to release vr mux, sensor: 0x%x", sensor_num);
 }

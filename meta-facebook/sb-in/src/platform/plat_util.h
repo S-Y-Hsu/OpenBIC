@@ -19,9 +19,11 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 bool plat_i2c_read(uint8_t bus, uint8_t addr, uint8_t offset, uint8_t *data, uint8_t len);
 bool plat_i2c_write(uint8_t bus, uint8_t addr, uint8_t offset, uint8_t *data, uint8_t len);
-bool switch_mux(uint8_t sensor_num);
+bool vr_mux_select(uint8_t sensor_num);
+void vr_mux_release(uint8_t sensor_num);
 
 #endif
