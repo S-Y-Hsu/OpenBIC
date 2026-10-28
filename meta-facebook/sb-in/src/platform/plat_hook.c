@@ -99,11 +99,10 @@ bool pre_vr_read(sensor_cfg *cfg, void *args)
 		}
 	}
 
-	/* select i2c mux channel if this VR is behind the mux */
-	if (!switch_mux(cfg->num)) {
-		k_mutex_unlock(pre_proc_args->mutex);
-		LOG_ERR("0x%02x pre_vr_read, switch mux fail", cfg->num);
-		return false;
+	/* hold the shared mux channel (only if this VR is behind it), released in post_vr_read */
+	if (!vr_mux_select(cfg->num)) {
+		LOG_ERR("0x%02x pre_vr_read, select mux fail", cfg->num);
+		goto unlock_vr;
 	}
 
 	/* set page */
@@ -113,11 +112,16 @@ bool pre_vr_read(sensor_cfg *cfg, void *args)
 	msg.data[0] = 0x00;
 	msg.data[1] = pre_proc_args->vr_page;
 	if (i2c_master_write(&msg, retry)) {
-		k_mutex_unlock(pre_proc_args->mutex);
 		LOG_ERR("0x%02x pre_vr_read, set page fail", cfg->num);
-		return false;
+		vr_mux_release(cfg->num);
+		goto unlock_vr;
 	}
 	return true;
+
+unlock_vr:
+	if (pre_proc_args->mutex)
+		k_mutex_unlock(pre_proc_args->mutex);
+	return false;
 }
 
 static void vr_rail_peak_update(uint8_t sensor_num, int32_t value_mv);
@@ -128,6 +132,9 @@ bool post_vr_read(sensor_cfg *cfg, void *args, int *const reading)
 	CHECK_NULL_ARG_WITH_RETURN(args, false);
 
 	vr_pre_proc_arg *pre_proc_args = (vr_pre_proc_arg *)args;
+
+	/* release in reverse order of pre_vr_read: mux first, then VR mutex */
+	vr_mux_release(cfg->num);
 
 	/* mutex unlock */
 	if (pre_proc_args->mutex) {
