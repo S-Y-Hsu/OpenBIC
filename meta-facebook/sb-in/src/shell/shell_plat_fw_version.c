@@ -54,36 +54,54 @@ void cmd_get_fw_version_vr(const struct shell *shell, size_t argc, char **argv)
 		if (cfg == NULL)
 			continue;
 
+		/* take the VR mutex and switch the mux (if any), like sensor polling does */
+		if (cfg->pre_sensor_read_hook &&
+		    !cfg->pre_sensor_read_hook(cfg, cfg->pre_sensor_read_args)) {
+			shell_print(shell, "comp id 0x%x pre hook fail", i);
+			continue;
+		}
+
 		uint32_t version = 0;
 		uint16_t remain = 0xFFFF;
+		bool read_ok = false;
 		switch (cfg->type) {
 		case sensor_dev_mp2971:
 			if (!mp2971_get_checksum(cfg->port, cfg->target_addr, &version)) {
 				shell_print(shell, "The VR MPS2971 version reading failed");
-				continue;
+				break;
 			}
+			read_ok = true;
 			break;
 		case sensor_dev_mp29816a:
 			if (!mp29816a_get_fw_version(cfg->port, cfg->target_addr, &version)) {
 				shell_print(shell, "The VR MPS29816a version reading failed");
-				continue;
+				break;
 			}
+			read_ok = true;
 			break;
 		case sensor_dev_raa228249:
 			if (!raa228249_get_crc(cfg->port, cfg->target_addr, &version)) {
 				shell_print(shell, "The VR RAA228249 version reading failed");
-				continue;
+				break;
 			}
 			if (raa228249_get_remaining_wr(cfg->port, cfg->target_addr,
 						       (uint8_t *)&remain) < 0) {
 				shell_print(shell, "The VR RAA228249 remaining reading failed");
-				continue;
+				break;
 			}
+			read_ok = true;
 			break;
 		default:
 			shell_print(shell, "Unsupport VR type(%d)", i);
-			return;
+			break;
 		}
+
+		if (cfg->post_sensor_read_hook &&
+		    !cfg->post_sensor_read_hook(cfg, cfg->post_sensor_read_args, NULL))
+			shell_print(shell, "comp id 0x%x post hook fail", i);
+
+		if (!read_ok)
+			continue;
 
 		if (remain != 0xFFFF) {
 			remain = (uint8_t)((remain % 10) | (remain / 10 << 4));
