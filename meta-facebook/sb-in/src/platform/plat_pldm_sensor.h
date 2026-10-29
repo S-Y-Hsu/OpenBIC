@@ -417,7 +417,7 @@ enum SENSOR_THREAD_LIST {
 
 enum PCA9554APW_REG { INPUT_PORT = 0, OUTPUT_PORT = 1, POLARITY_INVERSION = 2, CONFIG = 3 };
 
-enum VR_ADDRESS_VIRSION { FAB1_MPS = 0, FAB1_RNS, FAB1_SNU, FAB1_SNI, MAX_VR_ADDRESS_VIRSION };
+enum VR_ADDRESS_VIRSION { FAB1_MPS = 0, FAB1_RNS, FAB1_SNI, MAX_VR_ADDRESS_VIRSION };
 
 int plat_pldm_sensor_get_sensor_count(int thread_id);
 sensor_cfg *get_sensor_cfg_by_sensor_id(uint8_t sensor_id);

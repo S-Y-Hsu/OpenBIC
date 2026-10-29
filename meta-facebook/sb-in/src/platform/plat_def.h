@@ -40,6 +40,7 @@
 #define ENABLE_BMR316
 #define ENABLE_MP29526
 #define ENABLE_xdpe1e3g6a
+#define ENABLE_RSM3514E
 
 #define DISABLE_AST_ADC
 #define DISABLE_NVME

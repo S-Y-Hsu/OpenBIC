@@ -179,79 +179,66 @@ static const addr_map_t vr_addr_map_table[] = {
 	{ I2C_BUS2,
 	  { [FAB1_MPS] = ASIC_P1V05_VDDC_HBM0145_ADDR,
 	    [FAB1_RNS] = ASIC_P1V05_VDDC_HBM0145_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P1V05_VDDC_HBM0145_SNI_ADDR } },
 	// PU2
 	{ I2C_BUS2,
 	  { [FAB1_MPS] = ASIC_P0V75_OWL_W_VDD_ADDR,
 	    [FAB1_RNS] = ASIC_P0V75_OWL_W_VDD_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P0V75_OWL_W_VDD_SNI_ADDR } },
 	// PU3
 	{ I2C_BUS2,
 	  { [FAB1_MPS] = ASIC_P0V75_VDDPHY_HBM0145_ADDR,
 	    [FAB1_RNS] = ASIC_P0V75_VDDPHY_HBM0145_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P0V75_VDDPHY_HBM0145_SNI_ADDR } },
 	// PU4
 	{ I2C_BUS2,
 	  { [FAB1_MPS] = ASIC_P1V05_VDDC_HBM2367_ADDR,
 	    [FAB1_RNS] = ASIC_P1V05_VDDC_HBM2367_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P1V05_VDDC_HBM2367_SNI_ADDR } },
 	// PU5
 	{ I2C_BUS2,
 	  { [FAB1_MPS] = ASIC_P0V75_OWL_E_VDD_ADDR,
 	    [FAB1_RNS] = ASIC_P0V75_OWL_E_VDD_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P0V75_OWL_E_VDD_SNI_ADDR } },
 	// PU6
 	{ I2C_BUS2,
 	  { [FAB1_MPS] = ASIC_P0V75_VDDPHY_HBM2367_ADDR,
 	    [FAB1_RNS] = ASIC_P0V75_VDDPHY_HBM2367_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P0V75_VDDPHY_HBM2367_SNI_ADDR } },
 	// PU7
 	{ I2C_BUS9,
 	  { [FAB1_MPS] = ASIC_P0V75_ZORA11_VDDL_ADDR,
 	    [FAB1_RNS] = ASIC_P0V75_ZORA11_VDDL_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P0V75_ZORA11_VDDL_SNI_ADDR } },
 	// PU8
 	{ I2C_BUS9,
 	  { [FAB1_MPS] = ASIC_P0V75_ZORA10_VDDL_ADDR,
 	    [FAB1_RNS] = ASIC_P0V75_ZORA10_VDDL_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P0V75_ZORA10_VDDL_SNI_ADDR } },
 	// PU9
 	{ I2C_BUS9,
 	  { [FAB1_MPS] = ASIC_P0V75_ZORA01_VDDL_ADDR,
 	    [FAB1_RNS] = ASIC_P0V75_ZORA01_VDDL_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P0V75_ZORA01_VDDL_SNI_ADDR } },
 	// PU10
 	{ I2C_BUS8,
 	  { [FAB1_MPS] = ASIC_P0V75_ZORA00_VDDL_ADDR,
 	    [FAB1_RNS] = ASIC_P0V75_ZORA00_VDDL_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P0V75_ZORA00_VDDL_SNI_ADDR } },
 	// PU11
 	{ I2C_BUS3,
 	  { [FAB1_MPS] = ASIC_P1V8_ADDR,
 	    [FAB1_RNS] = ASIC_P1V8_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P1V8_SNI_ADDR } },
 	// PU624
 	{ I2C_BUS3,
 	  { [FAB1_MPS] = ASIC_P0V75_MAX_EW2_VDD_ADDR,
 	    [FAB1_RNS] = ASIC_P0V75_MAX_EW2_VDD_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P0V75_MAX_EW2_VDD_SNI_ADDR } },
 	// PU626
 	{ I2C_BUS3,
 	  { [FAB1_MPS] = ASIC_P0V75_MAX_EW1_VDD_ADDR,
 	    [FAB1_RNS] = ASIC_P0V75_MAX_EW1_VDD_RNS_ADDR,
-	    [FAB1_SNU] = ADDR_UNKNOWN,
 	    [FAB1_SNI] = ASIC_P0V75_MAX_EW1_VDD_SNI_ADDR } },
 };
 
@@ -282,9 +269,6 @@ void change_vr_sensor_cfg(uint8_t asic_board_id, uint8_t vr_module, uint8_t boar
 		break;
 	case VR_MODULE_RNS:
 		vr_change_mode = FAB1_RNS;
-		break;
-	case VR_MODULE_SNU:
-		vr_change_mode = FAB1_SNU;
 		break;
 	case VR_MODULE_SNI:
 		vr_change_mode = FAB1_SNI;
@@ -334,8 +318,7 @@ void change_ubc_sensor_cfg(uint8_t asic_board_id, uint8_t ubc_module, uint8_t bo
 		ubc_sensor_type = sensor_dev_lx6301;
 		break;
 	case UBC_MODULE_REED:
-		// waiting for sensor driver to be ready, use sensor_dev_rsm3514e once it's added to common code
-		// ubc_sensor_type = sensor_dev_rsm3514e;
+		ubc_sensor_type = sensor_dev_rsm3514e;
 		break;
 	default:
 		return;

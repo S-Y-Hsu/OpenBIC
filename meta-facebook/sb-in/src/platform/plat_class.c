@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <logging/log.h>
+#include <shell/shell.h>
 
 #include "plat_class.h"
 #include "plat_cpld.h"
@@ -39,18 +40,45 @@ static uint8_t vr_module = VR_MODULE_UNKNOWN;
 static uint8_t ubc_module = UBC_MODULE_UNKNOWN;
 static uint8_t tmp_module = TMP_MODULE_TYPE_UNKNOWN;
 static uint8_t vr_vendor_module = VENDOR_TYPE_UNKNOWN;
+static uint8_t vr_vendor_raw = 0xFF; // raw TYPE[3:0] kept for debug print, 0xFF = read failed
 static uint8_t mmc_slot = 0;
-static uint8_t asic_board_id = 0;
+static uint8_t asic_board_id = ASIC_BOARD_ID_UNKNOWN;
 static uint8_t tray_location = 0;
-static uint8_t board_rev_id = 0;
+static uint8_t board_rev_id = REV_ID_UNKNOWN;
 
 // clang-format off
+const char *asic_board_id_name[] = {
+	"INGRID_LPD",
+	"INGRID_PT",
+	"PTTV",
+	"EVB",
+	"ASIC_BOARD_ID_UNKNOWN",
+};
+
+const char *board_rev_id_name[] = {
+	"POC1",
+	"POC2",
+	"EVT1",
+	"EVT2",
+	"DVT",
+	"PVT",
+	"MP",
+	"TBD",
+	"REV_ID_UNKNOWN",
+};
+
+const char *tmp_module_name[] = {
+	"TMP_TMP75_TMP432",
+	"TMP_TMP75_EMC1413",
+	"TMP_MODULE_TYPE_UNKNOWN",
+};
+
 const char *vr_vendor_module_name[] = {
 	"FLEX_UBC_AND_MPS_VR_LPD",
 	"FLEX_UBC_AND_SNI_VR_LPD",
 	"REED_UBC_AND_RNS_VR_LPD",
 	"REED_UBC_AND_MPS_VR_PT",
-	"LUX_UBC_AND_SNU_VR_PT",
+	"LUX_UBC_AND_SNI_VR_PT",
 	"REED_UBC_AND_RNS_VR_PT",
 	"VENDOR_TYPE_UNKNOWN",
 };
@@ -59,7 +87,6 @@ const char *vr_module_name[] = {
 	"VR_MODULE_MPS",
 	"VR_MODULE_SNI",
 	"VR_MODULE_RNS",
-	"VR_MODULE_SNU",
 	"VR_MODULE_UNKNOWN",
 };
 
@@ -97,68 +124,30 @@ bool plat_cpld_eerprom_read(uint8_t *data, uint16_t offset, uint8_t len)
 
 void init_board_type(void)
 {
-	uint8_t board_type_data = ASIC_BOARD_ID_UNKNOWN;
+	uint8_t board_type_data = 0;
 	//get CPLD BOARD_TYPE
 	if (!plat_read_cpld(CPLD_OFFSET_ASIC_BOARD_ID, &board_type_data, 1)) {
 		LOG_ERR("Failed to get CPLD BOARD_TYPE 0x%02X", CPLD_OFFSET_ASIC_BOARD_ID);
+		return;
 	}
-	board_type_data = board_type_data & BOARD_TYPE_MASK;
 
-	//print board type word
-	switch (board_type_data) {
-	case ASIC_BOARD_ID_INGRID:
-		asic_board_id = ASIC_BOARD_ID_INGRID;
-		LOG_INF("BOARD_TYPE(0x%02X) = INGRID", asic_board_id);
-		break;
-	case ASIC_BOARD_ID_EVB:
-		asic_board_id = ASIC_BOARD_ID_EVB;
-		LOG_INF("BOARD_TYPE(0x%02X) = EVB_BD", asic_board_id);
-		break;
-	default:
-		LOG_ERR("BOARD_TYPE = 0x%02X", board_type_data);
-		break;
-	}
+	// all 4 codes of [1:0] are defined, so the masked value maps directly to the enum
+	asic_board_id = board_type_data & BOARD_TYPE_MASK;
+	LOG_INF("BOARD_TYPE(0x%02X) = %s", asic_board_id, asic_board_id_name[asic_board_id]);
 }
+
 void init_board_stage(void)
 {
-	uint8_t board_stage_data = REV_ID_UNKNOWN;
-	//get CPLD BOARD_STAGE
+	uint8_t board_stage_data = 0;
+	//get IOEXP(U753) BOARD_STAGE
 	if (!pca6416a_i2c_read(PCA6416A_U753, PCA6416A_INPUT_PORT_0, &board_stage_data, 1)) {
 		LOG_ERR("Failed to get BOARD_STAGE from PCA6416A_U753_INPUT_PORT_0");
-	} else {
-		board_stage_data = FIELD_GET(REV_ID_MASK, board_stage_data);
+		return;
 	}
 
-	//print board stage word
-	switch (board_stage_data) {
-	case REV_ID_EVT1A:
-		board_rev_id = REV_ID_EVT1A;
-		LOG_INF("BOARD_STAGE(0x%02X) = EVT1A", board_rev_id);
-		break;
-	case REV_ID_EVT1B:
-		board_rev_id = REV_ID_EVT1B;
-		LOG_INF("BOARD_STAGE(0x%02X) = EVT1B", board_rev_id);
-		break;
-	case REV_ID_EVT2:
-		board_rev_id = REV_ID_EVT2;
-		LOG_INF("BOARD_STAGE(0x%02X) = EVT2", board_rev_id);
-		break;
-	case REV_ID_DVT:
-		board_rev_id = REV_ID_DVT;
-		LOG_INF("BOARD_STAGE(0x%02X) = DVT", board_rev_id);
-		break;
-	case REV_ID_PVT:
-		board_rev_id = REV_ID_PVT;
-		LOG_INF("BOARD_STAGE(0x%02X) = PVT", board_rev_id);
-		break;
-	case REV_ID_MP:
-		board_rev_id = REV_ID_MP;
-		LOG_INF("BOARD_STAGE(0x%02X) = MP", board_rev_id);
-		break;
-	default:
-		LOG_INF("BOARD_STAGE = 0x%02X", board_stage_data);
-		break;
-	}
+	// all 8 codes of [6:4] are defined, so the field maps directly to the enum
+	board_rev_id = FIELD_GET(REV_ID_MASK, board_stage_data);
+	LOG_INF("BOARD_STAGE(0x%02X) = %s", board_rev_id, board_rev_id_name[board_rev_id]);
 }
 
 void init_tmp_vendor_type(void)
@@ -186,12 +175,13 @@ void init_tmp_vendor_type(void)
 
 void init_vr_ubc_vendor_type(void)
 {
-	//get CPLD VR_VENDOR_TYPE
+	//get IPexp(u753) VR_VENDOR_TYPE
 	if (!pca6416a_i2c_read(PCA6416A_U753, PCA6416A_INPUT_PORT_0, &vr_vendor_module, 1)) {
 		LOG_ERR("Failed to get VR_VENDOR_TYPE from PCA6416A_U753_INPUT_PORT_0");
 	}
 
 	vr_vendor_module &= 0x0F;
+	vr_vendor_raw = vr_vendor_module;
 
 	switch (vr_vendor_module) {
 	case FLEX_UBC_AND_MPS_VR_LPD:
@@ -211,9 +201,9 @@ void init_vr_ubc_vendor_type(void)
 		ubc_module = UBC_MODULE_REED;
 		vr_module = VR_MODULE_MPS;
 		break;
-	case LUX_UBC_AND_SNU_VR_PT:
+	case LUX_UBC_AND_SNI_VR_PT:
 		ubc_module = UBC_MODULE_LUX;
-		vr_module = VR_MODULE_SNU;
+		vr_module = VR_MODULE_SNI;
 		break;
 	default:
 		LOG_ERR("Unknown VR_VENDOR_TYPE 0x%02X", vr_vendor_module);
@@ -221,6 +211,13 @@ void init_vr_ubc_vendor_type(void)
 		ubc_module = UBC_MODULE_UNKNOWN;
 		vr_module = VR_MODULE_UNKNOWN;
 		break;
+	}
+
+	/* POC1 quirk: FLEX UBC is replaced by REED on all POC1 boards (per EE),
+	 * but the strap still reports FLEX. Fixed from POC2. */
+	if (board_rev_id == REV_ID_POC1 && ubc_module == UBC_MODULE_FLEX) {
+		LOG_WRN("POC1 quirk: UBC FLEX -> REED");
+		ubc_module = UBC_MODULE_REED;
 	}
 
 	LOG_INF("VR_MODULE = %s", vr_module_name[vr_module]);
@@ -278,4 +275,20 @@ uint8_t get_tray_location()
 	return tray_location;
 }
 
-// clang-format off
+#define NAME_OR_UNSUPPORTED(tbl, idx) (((idx) < ARRAY_SIZE(tbl)) ? (tbl)[(idx)] : "not supported")
+
+void pal_show_extra_info(const struct shell *shell)
+{
+	shell_print(shell, "* BOARD_TYPE:    (0x%02X)%s", asic_board_id,
+		    NAME_OR_UNSUPPORTED(asic_board_id_name, asic_board_id));
+	shell_print(shell, "* BOARD_STAGE:   (0x%02X)%s", board_rev_id,
+		    NAME_OR_UNSUPPORTED(board_rev_id_name, board_rev_id));
+	shell_print(shell, "* VR_VENDOR_TYPE:(0x%02X)%s", vr_vendor_raw,
+		    NAME_OR_UNSUPPORTED(vr_vendor_module_name, vr_vendor_module));
+	shell_print(shell, "* UBC_TYPE:      (0x%02X)%s", ubc_module,
+		    NAME_OR_UNSUPPORTED(ubc_module_name, ubc_module));
+	shell_print(shell, "* VR_TYPE:       (0x%02X)%s", vr_module,
+		    NAME_OR_UNSUPPORTED(vr_module_name, vr_module));
+	shell_print(shell, "* TMP_TYPE:      (0x%02X)%s", tmp_module,
+		    NAME_OR_UNSUPPORTED(tmp_module_name, tmp_module));
+}
