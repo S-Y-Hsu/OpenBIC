@@ -27,6 +27,7 @@ LOG_MODULE_REGISTER(plat_user_setting);
 /* The largest id is the temp threshold array, written in one EEPROM write */
 #define PERM_VALUE_MAX_SIZE (TEMP_THRESHOLD_COUNT * sizeof(int32_t))
 #define PERM_VALUE_UNSET 0xFF
+#define EEPROM_MAX_WRITE_TIME 5 // the BR24G512 eeprom max write time is 3.5 ms
 
 BUILD_ASSERT(PERM_VALUE_MAX_SIZE <= EEPROM_WRITE_SIZE, "perm value exceeds one EEPROM write");
 
@@ -64,6 +65,14 @@ static bool perm_is_unset(const uint8_t *buf, uint8_t len)
 	return true;
 }
 
+/* The EEPROM NACKs every access during its internal write cycle, wait it out before returning */
+static bool perm_write(uint16_t offset, const void *val, uint8_t len)
+{
+	bool ret = plat_eeprom_write(offset, (uint8_t *)val, len);
+	k_msleep(EEPROM_MAX_WRITE_TIME);
+	return ret;
+}
+
 bool plat_perm_set(uint8_t id, const void *val, uint8_t len)
 {
 	CHECK_NULL_ARG_WITH_RETURN(val, false);
@@ -80,7 +89,7 @@ bool plat_perm_set(uint8_t id, const void *val, uint8_t len)
 		return false;
 	}
 
-	return plat_eeprom_write(perm->offset, (uint8_t *)val, len);
+	return perm_write(perm->offset, val, len);
 }
 
 /* Return 0 on success, -ENODATA if the id is not set */
@@ -112,7 +121,7 @@ bool plat_perm_clear(void)
 
 	memset(buf, PERM_VALUE_UNSET, sizeof(buf));
 	for (uint8_t id = PERM_ID_NONE + 1; id < PERM_ID_MAX; id++) {
-		if (!plat_eeprom_write(perm_layout[id].offset, buf, perm_layout[id].size)) {
+		if (!perm_write(perm_layout[id].offset, buf, perm_layout[id].size)) {
 			LOG_ERR("clear %s perm failed", perm_layout[id].name);
 			ret = false;
 		}

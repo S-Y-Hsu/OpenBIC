@@ -29,13 +29,14 @@
 static int threshold_print(const struct shell *shell, uint8_t idx)
 {
 	int32_t val = 0;
+	int32_t def = 0;
 
-	if (!plat_temp_threshold_get(idx, &val)) {
+	if (!plat_temp_threshold_get(idx, &val) || !plat_temp_threshold_get_default(idx, &def)) {
 		shell_error(shell, "%s : read failed", plat_temp_threshold_get_name(idx));
 		return -EIO;
 	}
 
-	shell_print(shell, "%s : %d", plat_temp_threshold_get_name(idx), val);
+	shell_print(shell, "%s : %d (default %d)", plat_temp_threshold_get_name(idx), val, def);
 	return 0;
 }
 
@@ -70,12 +71,22 @@ int cmd_temp_threshold_set(const struct shell *shell, size_t argc, char **argv)
 		is_perm = true;
 	}
 
-	char *end = NULL;
-	long val = strtol(argv[2], &end, 0);
-	if (*end != '\0' || val < TEMP_THRESHOLD_MIN_MC || val > TEMP_THRESHOLD_MAX_MC) {
-		shell_error(shell, "Invalid value %s, range %d ~ %d millidegree C", argv[2],
-			    TEMP_THRESHOLD_MIN_MC, TEMP_THRESHOLD_MAX_MC);
+	/* default only writes the chip, perm values are cleared by perm_config clear */
+	bool is_default = !strcmp(argv[2], "default");
+	if (is_default && is_perm) {
+		shell_error(shell, "default can't be stored as perm, use perm_config clear");
 		return -EINVAL;
+	}
+
+	long val = 0;
+	if (!is_default) {
+		char *end = NULL;
+		val = strtol(argv[2], &end, 0);
+		if (*end != '\0' || val < TEMP_THRESHOLD_MIN_MC || val > TEMP_THRESHOLD_MAX_MC) {
+			shell_error(shell, "Invalid value %s, range %d ~ %d millidegree C", argv[2],
+				    TEMP_THRESHOLD_MIN_MC, TEMP_THRESHOLD_MAX_MC);
+			return -EINVAL;
+		}
 	}
 
 	/* the perm array uses this value as "not set" */
@@ -104,17 +115,22 @@ int cmd_temp_threshold_set(const struct shell *shell, size_t argc, char **argv)
 	int ret = 0;
 	for (uint8_t i = first; i <= last; i++) {
 		const char *name = plat_temp_threshold_get_name(i);
+		int32_t set_val = val;
 
-		if (!plat_temp_threshold_set(i, val)) {
+		if (is_default)
+			plat_temp_threshold_get_default(i, &set_val);
+
+		if (!plat_temp_threshold_set(i, set_val)) {
 			shell_error(shell, "%s : write failed", name);
 			ret = -EIO;
 			continue;
 		}
 
 		if (is_perm)
-			perm[i] = val;
+			perm[i] = set_val;
 
-		shell_print(shell, "%s : set to %ld%s", name, val, is_perm ? " (perm)" : "");
+		shell_print(shell, "%s : set to %d%s", name, set_val,
+			    is_perm ? " (perm)" : (is_default ? " (default)" : ""));
 	}
 
 	/* one EEPROM write for all updated entries */

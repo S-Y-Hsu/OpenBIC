@@ -42,7 +42,7 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_temp_threshold_cmds,
 			       SHELL_CMD_ARG(get, &temp_threshold_name_dcmd, "get all|<name>",
 					     cmd_temp_threshold_get, 2, 0),
 			       SHELL_CMD_ARG(set, &temp_threshold_name_dcmd,
-					     "set all|<name> <millidegree C> [perm]",
+					     "set all|<name> <millidegree C> [perm] | default",
 					     cmd_temp_threshold_set, 3, 1),
 			       SHELL_SUBCMD_SET_END);
 
