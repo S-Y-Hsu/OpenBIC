@@ -28,6 +28,7 @@
 
 const char *plat_temp_threshold_get_name(uint8_t idx);
 int plat_temp_threshold_find(const char *name);
+bool plat_temp_threshold_get_default(uint8_t idx, int32_t *millidegree_celsius);
 bool plat_temp_threshold_get(uint8_t idx, int32_t *millidegree_celsius);
 bool plat_temp_threshold_set(uint8_t idx, int32_t millidegree_celsius);
 

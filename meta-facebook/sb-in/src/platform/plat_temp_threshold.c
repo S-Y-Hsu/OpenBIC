@@ -90,6 +90,17 @@ int plat_temp_threshold_find(const char *name)
 	return -1;
 }
 
+bool plat_temp_threshold_get_default(uint8_t idx, int32_t *millidegree_celsius)
+{
+	CHECK_NULL_ARG_WITH_RETURN(millidegree_celsius, false);
+
+	if (idx >= TEMP_THRESHOLD_COUNT)
+		return false;
+
+	*millidegree_celsius = temp_threshold_table[idx].default_mC;
+	return true;
+}
+
 static sensor_cfg *item_cfg(const temp_threshold_item_t *item)
 {
 	sensor_cfg *cfg = get_sensor_cfg_by_sensor_id(item->sensor_num);
