@@ -35,7 +35,7 @@
 
 LOG_MODULE_REGISTER(plat_log);
 
-#define LOG_MAX_INDEX 0x0FFF // err_log_data[].index range: 0 ~ (LOG_MAX_INDEX - 1), then wraps
+#define LOG_MAX_INDEX 0x0FFF // err_log_data[].index range: 1 ~ LOG_MAX_INDEX, then wraps
 #define LOG_MAX_NUM 50 // total log amount: 50
 #define FRU_LOG_START 0x0000 // log offset: 0KB
 #define EEPROM_MAX_WRITE_TIME 5 // the BR24G512 eeprom max write time is 3.5 ms
@@ -45,7 +45,7 @@ static plat_err_log_mapping err_log_data[LOG_MAX_NUM];
 static uint16_t err_code_caches[200];
 // codes currently asserting (not yet deasserted); extend if concurrent error types > 200
 static uint16_t next_log_position; // next RAM/EEPROM slot to write, 0-based
-static uint16_t next_index; // next value for err_log_data[].index, 0-based, wraps at LOG_MAX_INDEX
+static uint16_t next_index; // next value for err_log_data[].index, 1-based, wraps at LOG_MAX_INDEX
 static uint8_t log_num; // Number of logs in EEPROM
 
 bool vr_fault_get_error_data(uint8_t sensor_id, uint8_t *data)
@@ -251,7 +251,7 @@ static bool update_active_fault_cache(uint16_t error_code, bool log_status)
 static void fill_log_entry(plat_err_log_mapping *entry, uint16_t error_code)
 {
 	entry->index = next_index;
-	next_index = (next_index + 1) % LOG_MAX_INDEX;
+	next_index = (next_index % LOG_MAX_INDEX) + 1;
 
 	entry->err_code = error_code;
 	entry->sys_time = k_uptime_get();
@@ -374,47 +374,59 @@ void plat_clear_log()
 		k_msleep(EEPROM_MAX_WRITE_TIME);
 	}
 	log_num = 0;
-	next_index = 0;
+	next_index = 1;
+	next_log_position = 0;
+}
+
+static bool is_valid_log_index(uint16_t index)
+{
+	return (index != 0) && (index <= LOG_MAX_INDEX);
 }
 
 void find_last_log_position()
 {
-	uint16_t max_index = 0; // Highest valid index found
-	uint16_t last_position = 0; // Position (0-based) of the highest valid index
-	bool all_empty = true; // Flag to detect if all entries are empty
-	plat_err_log_mapping log_entry;
+	uint16_t last_position = 0; // Position (0-based) of the newest log
+	bool found = false;
 
+	log_num = 0;
 	for (uint16_t i = 0; i < LOG_MAX_NUM; i++) {
-		uint16_t eeprom_address = FRU_LOG_START + i * sizeof(plat_err_log_mapping);
-
-		if (!plat_eeprom_read(eeprom_address, (uint8_t *)&log_entry,
-				      sizeof(plat_err_log_mapping))) {
-			LOG_ERR("Failed to read log at position %d (address: 0x%X)", i,
-				eeprom_address);
-			continue;
-		}
-
-		// Check if the entry is valid
-		if (log_entry.index != 0xFFFF && log_entry.index < LOG_MAX_INDEX) {
-			all_empty = false; // At least one entry is valid
+		if (is_valid_log_index(err_log_data[i].index))
 			log_num++;
-			if (log_entry.index > max_index) {
-				max_index = log_entry.index; // Update max index
-				last_position = i; // Update last position, 0-based
-			}
-		}
 	}
 
 	// All entries are empty
-	if (all_empty) {
-		LOG_INF("All entries are empty. Initializing next_log_position and next_index to 0.");
+	if (log_num == 0) {
+		LOG_INF("All entries are empty. Initializing next_log_position to 0 and next_index to 1.");
 		next_log_position = 0;
-		next_index = 0;
+		next_index = 1;
 		return;
 	}
 
+	/*
+	 * Logs are written to consecutive positions with consecutive indexes, so the newest log
+	 * is the one whose next position does not hold the next index. This still works after
+	 * the index recounts from LOG_MAX_INDEX to 1.
+	 */
+	for (uint16_t i = 0; i < LOG_MAX_NUM; i++) {
+		uint16_t index = err_log_data[i].index;
+		if (!is_valid_log_index(index))
+			continue;
+
+		uint16_t next_entry_index = err_log_data[(i + 1) % LOG_MAX_NUM].index;
+		if (next_entry_index != (index % LOG_MAX_INDEX) + 1) {
+			last_position = i;
+			found = true;
+			break;
+		}
+	}
+
+	if (!found) {
+		LOG_ERR("Failed to find the newest log, restart from position 0");
+		last_position = LOG_MAX_NUM - 1;
+	}
+
 	next_log_position = (last_position + 1) % LOG_MAX_NUM;
-	next_index = (max_index + 1) % LOG_MAX_INDEX;
+	next_index = (err_log_data[last_position].index % LOG_MAX_INDEX) + 1;
 	LOG_INF("Next log position: %d, next index: %d", next_log_position, next_index);
 }
 
