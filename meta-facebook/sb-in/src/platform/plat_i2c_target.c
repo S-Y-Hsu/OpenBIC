@@ -27,8 +27,12 @@
 #include <zephyr.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <logging/log.h>
 #include "pldm_sensor.h"
+#include "plat_class.h"
 #include "plat_i2c_target.h"
+
+LOG_MODULE_REGISTER(plat_i2c_target);
 
 #define DATA_TABLE_LENGTH_4 4
 
@@ -41,12 +45,36 @@ const bool I2C_TARGET_ENABLE_TABLE[MAX_TARGET_NUM] = {
 	TARGET_DISABLE, TARGET_DISABLE, TARGET_DISABLE, TARGET_DISABLE,
 };
 
-// static bool command_reply_data_handle(void *arg)
-// {
-// 	/*TODO: put board telemetry here*/
+static bool command_reply_data_handle(void *arg)
+{
+	struct i2c_target_data *data = (struct i2c_target_data *)arg;
 
-// 	return false;
-// }
+	// same as sb-el: nothing to reply before an offset is written
+	if (data->wr_buffer_idx == 0)
+		return false;
+
+	if (data->wr_buffer_idx > 1) {
+		LOG_ERR("Received data length: 0x%02x", data->wr_buffer_idx);
+		data->target_rd_msg.msg_length = 1;
+		data->target_rd_msg.msg[0] = 0xFF;
+		return false;
+	}
+
+	uint8_t reg_offset = data->target_wr_msg.msg[0];
+	switch (reg_offset) {
+	case VR_VENDOR_TYPE_REG:
+		data->target_rd_msg.msg_length = 1;
+		data->target_rd_msg.msg[0] = get_vr_module();
+		break;
+	default:
+		LOG_ERR("Unknown reg offset: 0x%02x", reg_offset);
+		data->target_rd_msg.msg_length = 1;
+		data->target_rd_msg.msg[0] = 0xFF;
+		break;
+	}
+
+	return false;
+}
 
 /* I2C target init-config table */
 // clang-format off
@@ -54,10 +82,10 @@ const struct _i2c_target_config I2C_TARGET_CONFIG_TABLE[MAX_TARGET_NUM] = {
 	{ 0xFF, 0xA },
 	{ 0xFF, 0xA },
 	{ 0xFF, 0xA },
-	{ 0x40, 0xA }, // ZORA00
-	{ 0x40, 0xA }, // ZORA10
+	{ 0x40, 0xA, command_reply_data_handle }, // ZORA00
+	{ 0x40, 0xA, command_reply_data_handle }, // ZORA10
 	{ 0x42, 0xA }, // BMC MCTP over SMBus
-	{ 0x40, 0xA }, // HAMSA_CRM
+	{ 0x40, 0xA, command_reply_data_handle }, // HAMSA_CRM
 	{ 0xFF, 0xA },
 	{ 0xFF, 0xA },
 	{ 0xFF, 0xA },
