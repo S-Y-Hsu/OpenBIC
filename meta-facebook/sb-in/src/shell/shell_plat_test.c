@@ -3,6 +3,7 @@
 
 #include "plat_pldm_sensor.h"
 #include "plat_cpld.h"
+#include "plat_class.h"
 
 // test command
 void cmd_test(const struct shell *shell, size_t argc, char **argv)
@@ -80,6 +81,13 @@ void cmd_cpld_write(const struct shell *shell, size_t argc, char **argv)
 	shell_warn(shell, "cpld write %02x to offset %02x", data, offset);
 }
 
+void cmd_info(const struct shell *shell, size_t argc, char **argv)
+{
+	pal_show_extra_info(shell);
+	shell_print(shell, "* MMC_SLOT:      %d", get_mmc_slot() + 1);
+	shell_print(shell, "* TRAY_LOCATION: %d", get_tray_location());
+}
+
 SHELL_STATIC_SUBCMD_SET_CREATE(sub_cpld_cmds, SHELL_CMD(dump, NULL, "cpld dump", cmd_cpld_dump),
 			       SHELL_CMD(write, NULL, "cpld write", cmd_cpld_write),
 			       SHELL_SUBCMD_SET_END);
@@ -88,6 +96,7 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_test_cmds, SHELL_CMD(test, NULL, "test comman
 			       SHELL_CMD(read_raw, NULL, "read raw data test command",
 					 cmd_read_raw),
 			       SHELL_CMD(cpld, &sub_cpld_cmds, "cpld commands", NULL),
+			       SHELL_CMD(info, NULL, "info commands", cmd_info),
 			       SHELL_SUBCMD_SET_END);
 
 /* Root of command test */
