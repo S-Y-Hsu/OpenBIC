@@ -23,6 +23,8 @@
 #define TARGET_ENABLE 1
 #define TARGET_DISABLE 0
 
+#define VR_VENDOR_TYPE_REG 0xA0 // reply: enum VR_MODULE
+
 #endif
 
 typedef struct __attribute__((__packed__)) {
