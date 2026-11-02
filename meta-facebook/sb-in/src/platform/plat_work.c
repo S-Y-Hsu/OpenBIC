@@ -285,7 +285,7 @@ static int heartbeat_led(struct plat_work *pw)
 	uint32_t interval = HEARTBEAT_LED_NORMAL_MS;
 
 	for (size_t i = 0; i < ARRAY_SIZE(heartbeat_led_sensors); i++) {
-		int reading = 0; // millidegree C
+		int reading = 0; // degree C * PLAT_SENSOR_UNIT_SCALE
 		uint8_t op_state = PLDM_SENSOR_STATUSUNKOWN;
 
 		if (pldm_sensor_get_reading_from_cache(heartbeat_led_sensors[i], &reading,
@@ -294,9 +294,10 @@ static int heartbeat_led(struct plat_work *pw)
 			continue;
 		}
 
-		uint32_t candidate = (reading <= 70000)	 ? HEARTBEAT_LED_NORMAL_MS :
-				     (reading <= 100000) ? HEARTBEAT_LED_WARM_MS :
-							   HEARTBEAT_LED_CRITICAL_MS;
+		uint32_t candidate =
+			(reading <= 70 * PLAT_SENSOR_UNIT_SCALE)  ? HEARTBEAT_LED_NORMAL_MS :
+			(reading <= 100 * PLAT_SENSOR_UNIT_SCALE) ? HEARTBEAT_LED_WARM_MS :
+								    HEARTBEAT_LED_CRITICAL_MS;
 		if (candidate < interval)
 			interval = candidate;
 	}

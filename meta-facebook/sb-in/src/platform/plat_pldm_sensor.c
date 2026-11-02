@@ -360,7 +360,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -389,7 +389,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			65000, //uint32_t critical_high;
+			650000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -429,7 +429,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -458,7 +458,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			65000, //uint32_t critical_high;
+			650000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -498,7 +498,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -527,7 +527,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			100000, //uint32_t critical_high;
+			1000000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -567,7 +567,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -596,7 +596,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			95000, //uint32_t critical_high;
+			950000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -636,7 +636,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -665,7 +665,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			95000, //uint32_t critical_high;
+			950000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -705,7 +705,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -734,7 +734,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			95000, //uint32_t critical_high;
+			950000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -774,7 +774,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -803,7 +803,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			95000, //uint32_t critical_high;
+			950000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -843,7 +843,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -872,7 +872,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			95000, //uint32_t critical_high;
+			950000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -912,7 +912,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -941,7 +941,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			95000, //uint32_t critical_high;
+			950000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -981,7 +981,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1010,7 +1010,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			95000, //uint32_t critical_high;
+			950000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -1050,7 +1050,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1079,7 +1079,7 @@ pldm_sensor_info plat_pldm_sensor_temp_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			95000, //uint32_t critical_high;
+			950000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -1122,7 +1122,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1149,9 +1149,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -1194,7 +1194,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1223,8 +1223,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			615000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			6150000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -1266,7 +1266,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1293,9 +1293,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -1338,7 +1338,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1367,8 +1367,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			263000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			2630000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -1410,7 +1410,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1437,9 +1437,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -1482,7 +1482,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1511,8 +1511,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			615000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			6150000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -1554,7 +1554,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1581,9 +1581,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -1626,7 +1626,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1655,8 +1655,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			263000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			2630000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -1698,7 +1698,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1725,9 +1725,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -1770,7 +1770,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1799,8 +1799,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			615000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			6150000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -1842,7 +1842,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1869,9 +1869,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -1914,7 +1914,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -1943,8 +1943,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			263000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			2630000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -1986,7 +1986,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2013,9 +2013,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -2058,7 +2058,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2087,8 +2087,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			615000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			6150000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -2130,7 +2130,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2157,9 +2157,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -2202,7 +2202,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2231,8 +2231,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			263000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			2630000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -2274,7 +2274,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2301,9 +2301,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -2346,7 +2346,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2418,7 +2418,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2447,8 +2447,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			22600, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			226000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -2490,7 +2490,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2519,8 +2519,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			20340, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			203400, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -2562,7 +2562,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2589,9 +2589,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -2634,7 +2634,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2706,7 +2706,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2735,8 +2735,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			10400, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			104000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -2778,7 +2778,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2807,8 +2807,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			7800, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			78000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -2850,7 +2850,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2877,9 +2877,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -2922,7 +2922,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -2994,7 +2994,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3023,8 +3023,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			162500, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			1625000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -3066,7 +3066,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3095,8 +3095,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			121870, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			1218700, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -3138,7 +3138,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3165,9 +3165,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -3210,7 +3210,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3282,7 +3282,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3311,8 +3311,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			22600, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			226000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -3354,7 +3354,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3383,8 +3383,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			20340, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			203400, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -3426,7 +3426,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3453,9 +3453,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -3498,7 +3498,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3570,7 +3570,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3599,8 +3599,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			10400, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			104000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -3642,7 +3642,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3671,8 +3671,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			7800, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			78000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -3714,7 +3714,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3741,9 +3741,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -3786,7 +3786,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3858,7 +3858,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3887,8 +3887,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			162500, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			1625000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -3930,7 +3930,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -3959,8 +3959,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			121870, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			1218700, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -4002,7 +4002,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4029,9 +4029,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -4074,7 +4074,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4146,7 +4146,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4175,8 +4175,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			53200, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			532000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -4218,7 +4218,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4247,8 +4247,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			42560, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			425600, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -4290,7 +4290,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4317,9 +4317,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -4362,7 +4362,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4434,7 +4434,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4463,8 +4463,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			50000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			500000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -4506,7 +4506,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4535,8 +4535,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			37500, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			375000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -4578,7 +4578,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4605,9 +4605,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -4650,7 +4650,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4722,7 +4722,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4751,8 +4751,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			50000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			500000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -4794,7 +4794,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4823,8 +4823,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			40000, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			400000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -4866,7 +4866,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -4893,9 +4893,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -4938,7 +4938,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5010,7 +5010,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5039,8 +5039,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			76000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			760000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -5082,7 +5082,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5111,8 +5111,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			57000, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			570000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -5154,7 +5154,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5181,9 +5181,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -5226,7 +5226,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5298,7 +5298,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5327,8 +5327,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			76000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			760000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -5370,7 +5370,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5399,8 +5399,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			57000, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			570000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -5442,7 +5442,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5469,9 +5469,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -5514,7 +5514,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5586,7 +5586,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5615,8 +5615,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			40000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			400000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -5658,7 +5658,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5687,8 +5687,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			32000, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			320000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -5730,7 +5730,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5757,9 +5757,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -5802,7 +5802,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5874,7 +5874,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5903,8 +5903,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			81000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			810000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -5946,7 +5946,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -5975,8 +5975,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			68850, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			688500, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -6018,7 +6018,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6045,9 +6045,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -6090,7 +6090,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6162,7 +6162,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6191,8 +6191,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			152000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			1520000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -6234,7 +6234,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6263,8 +6263,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			114000, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			1140000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -6306,7 +6306,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6333,9 +6333,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -6378,7 +6378,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6450,7 +6450,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6479,8 +6479,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			60000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			600000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -6522,7 +6522,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6551,8 +6551,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			24000, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			240000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -6594,7 +6594,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6621,9 +6621,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -6666,7 +6666,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6738,7 +6738,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6767,8 +6767,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			224000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			2240000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -6810,7 +6810,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6839,8 +6839,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			235200, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			2352000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -6882,7 +6882,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -6909,9 +6909,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -6954,7 +6954,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7026,7 +7026,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7055,8 +7055,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			190000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			1900000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -7098,7 +7098,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7127,8 +7127,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			171000, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			1710000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -7170,7 +7170,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7197,9 +7197,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -7242,7 +7242,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7314,7 +7314,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7343,8 +7343,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			15000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			150000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -7386,7 +7386,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7415,8 +7415,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			27000, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			270000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -7458,7 +7458,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7485,9 +7485,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -7530,7 +7530,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7602,7 +7602,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7631,8 +7631,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			19500, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			195000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -7674,7 +7674,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7703,8 +7703,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			35100, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			351000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -7746,7 +7746,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7773,9 +7773,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -7818,7 +7818,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7890,7 +7890,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7919,8 +7919,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			152000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			1520000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -7962,7 +7962,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -7991,8 +7991,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			114000, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			1140000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -8034,7 +8034,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8061,9 +8061,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -8106,7 +8106,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8178,7 +8178,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8207,8 +8207,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			60000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			600000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -8250,7 +8250,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8279,8 +8279,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			24000, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			240000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -8322,7 +8322,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8349,9 +8349,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -8394,7 +8394,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8466,7 +8466,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8495,8 +8495,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			224000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			2240000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -8538,7 +8538,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8567,8 +8567,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			235200, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			2352000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -8610,7 +8610,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8637,9 +8637,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -8682,7 +8682,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8754,7 +8754,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8783,8 +8783,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			190000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			1900000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -8826,7 +8826,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8855,8 +8855,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			171000, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			1710000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -8898,7 +8898,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -8925,9 +8925,9 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t nominal_value;
 			0x00000000, //uint32_t normal_max;
 			0x00000000, //uint32_t normal_min;
-			105000, //uint32_t warning_high;
+			1050000, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			110000, //uint32_t critical_high;
+			1100000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -8970,7 +8970,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9042,7 +9042,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9071,8 +9071,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			15000, //uint32_t critical_high;
-			-5000, //uint32_t critical_low;
+			150000, //uint32_t critical_high;
+			-50000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -9114,7 +9114,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9143,8 +9143,8 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			27000, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			270000, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -9186,7 +9186,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-4, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9258,7 +9258,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-4, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9331,7 +9331,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-4, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9403,7 +9403,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-4, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9479,7 +9479,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9551,7 +9551,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9580,8 +9580,8 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			461250, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			4612500, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -9623,7 +9623,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9695,7 +9695,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9724,8 +9724,8 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			197250, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			1972500, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -9767,7 +9767,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9839,7 +9839,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9868,8 +9868,8 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			461250, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			4612500, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -9911,7 +9911,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -9983,7 +9983,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10012,8 +10012,8 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			197250, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			1972500, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -10055,7 +10055,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10127,7 +10127,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10156,8 +10156,8 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			461250, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			4612500, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -10199,7 +10199,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10271,7 +10271,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10300,8 +10300,8 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			197250, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			1972500, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -10343,7 +10343,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10415,7 +10415,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10444,8 +10444,8 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			461250, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			4612500, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -10487,7 +10487,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10559,7 +10559,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10588,8 +10588,8 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			197250, //uint32_t critical_high;
-			-10000, //uint32_t critical_low;
+			1972500, //uint32_t critical_high;
+			-100000, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -10634,7 +10634,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10663,7 +10663,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			120000, //uint32_t critical_high;
+			1200000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -10703,7 +10703,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10732,8 +10732,8 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			13770, //uint32_t critical_high;
-			11730, //uint32_t critical_low;
+			137700, //uint32_t critical_high;
+			117300, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -10772,7 +10772,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10801,7 +10801,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			180000, //uint32_t critical_high;
+			1800000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -10841,7 +10841,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10870,7 +10870,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			2295000, //uint32_t critical_high;
+			22950000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -10910,7 +10910,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -10939,8 +10939,8 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			55557, //uint32_t critical_high;
-			45620, //uint32_t critical_low;
+			555570, //uint32_t critical_high;
+			456200, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -10979,7 +10979,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x02, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -11008,7 +11008,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			120000, //uint32_t critical_high;
+			1200000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -11048,7 +11048,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -11077,8 +11077,8 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			13770, //uint32_t critical_high;
-			11730, //uint32_t critical_low;
+			137700, //uint32_t critical_high;
+			117300, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
@@ -11117,7 +11117,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x06, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -11146,7 +11146,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			180000, //uint32_t critical_high;
+			1800000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -11186,7 +11186,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x07, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -11215,7 +11215,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			2295000, //uint32_t critical_high;
+			22950000, //uint32_t critical_high;
 			0, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
@@ -11255,7 +11255,7 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00, //uint8_t sensor_init; //Need to check
 			0x01, //uint8_t sensor_auxiliary_names_pdr;
 			0x05, //uint8_t base_unit;  //unit
-			-3, //int8_t unit_modifier; //Need to check
+			PLAT_SENSOR_UNIT_MODIFIER, //int8_t unit_modifier; //Need to check
 			0x00, //uint8_t rate_unit;
 			0x00, //uint8_t base_oem_unit_handle;
 			0x00, //uint8_t aux_unit;
@@ -11284,8 +11284,8 @@ pldm_sensor_info plat_pldm_sensor_ubc_table[] = {
 			0x00000000, //uint32_t normal_min;
 			0, //uint32_t warning_high;
 			0, //uint32_t warning_low;
-			55557, //uint32_t critical_high;
-			45620, //uint32_t critical_low;
+			555570, //uint32_t critical_high;
+			456200, //uint32_t critical_low;
 			0, //uint32_t fatal_high;
 			0, //uint32_t fatal_low;
 		},
