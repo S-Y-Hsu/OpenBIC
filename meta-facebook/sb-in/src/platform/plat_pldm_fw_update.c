@@ -26,8 +26,8 @@
 #include "plat_class.h"
 #include "plat_hook.h"
 #include "mp2971.h"
-#include "mp29816a.h"
-#include "raa228249.h"
+#include "mp29526.h"
+#include "xdpe1e3g6a.h"
 #include "drivers/i2c_npcm4xx.h"
 #include "util_spi.h"
 #include "plat_gpio.h"
@@ -192,8 +192,16 @@ static bool get_vr_fw_version(void *info_p, uint8_t *buf, uint8_t *len)
 	uint8_t sensor_id = 0;
 	char sensor_name[MAX_AUX_SENSOR_NAME_LEN] = { 0 };
 
-	if (is_mb_dc_on() == false)
+	/* VR PMBus is accessible once P3V3 is up, no need to wait for DC on */
+	if (sgpio_get(PWRGD_P3V3_R) != GPIO_HIGH)
 		return ret;
+
+	/* block getting vr fw version during update */
+	if (is_update_state_idle_or_learn_comp() == false) {
+		LOG_INF("Comp id %d FW version request failed due to FW update in progress",
+			p->comp_identifier);
+		return ret;
+	}
 
 	if (get_asic_board_id() != ASIC_BOARD_ID_EVB && p->comp_identifier == COMPNT_VR_3V3) {
 		LOG_INF("only evb support 3V3 vr version get");
@@ -218,28 +226,30 @@ static bool get_vr_fw_version(void *info_p, uint8_t *buf, uint8_t *len)
 
 	uint8_t vr_module = get_vr_module();
 	uint32_t version = 0;
-	uint16_t remain = 0xFFFF;
+	uint32_t remain = 0;
+	bool has_remain = false;
 	switch (cfg->type) {
+	case sensor_dev_mp29526:
+		if (!mp29526_get_fw_version(cfg->port, cfg->target_addr, &version)) {
+			LOG_ERR("The VR MP29526 version reading failed");
+			goto err;
+		}
+		break;
+	case sensor_dev_xdpe1e3g6a:
+		if (!xdpe1e3g6a_get_config_checksum(cfg->port, cfg->target_addr, &version)) {
+			LOG_ERR("The VR XDPE1E3G6A version reading failed");
+			goto err;
+		}
+		/* partition 0 = configuration, unit: bytes */
+		if (!xdpe1e_get_otp_remaining(cfg->port, cfg->target_addr, 0, &remain)) {
+			LOG_ERR("The VR XDPE1E3G6A remaining reading failed");
+			goto err;
+		}
+		has_remain = true;
+		break;
 	case sensor_dev_mp2971:
 		if (!mp2971_get_checksum(cfg->port, cfg->target_addr, &version)) {
 			LOG_ERR("The VR MPS2971 version reading failed");
-			goto err;
-		}
-		break;
-	case sensor_dev_mp29816a:
-		if (!mp29816a_get_fw_version(cfg->port, cfg->target_addr, &version)) {
-			LOG_ERR("The VR MPS29816a version reading failed");
-			goto err;
-		}
-		break;
-	case sensor_dev_raa228249:
-		if (!raa228249_get_crc(cfg->port, cfg->target_addr, &version)) {
-			LOG_ERR("The VR RAA228249 version reading failed");
-			goto err;
-		}
-		if (raa228249_get_remaining_wr(cfg->port, cfg->target_addr, (uint8_t *)&remain) <
-		    0) {
-			LOG_ERR("The VR RAA228249 remaining reading failed");
 			goto err;
 		}
 		break;
@@ -248,22 +258,19 @@ static bool get_vr_fw_version(void *info_p, uint8_t *buf, uint8_t *len)
 		goto err;
 	}
 
-	if (cfg->type == sensor_dev_mp2891 || cfg->type == sensor_dev_mp29816a)
-		version = sys_cpu_to_be16(version);
-	else if (cfg->type == sensor_dev_raa228249 || cfg->type == sensor_dev_mp2971)
-		version = sys_cpu_to_be32(version);
-	else
-		LOG_ERR("Unsupport VR type(%d)", cfg->type);
+	/* all supported VR versions are 32-bit, print MSB first */
+	version = sys_cpu_to_be32(version);
 
 	const char *vr_name[] = {
 		[VR_MODULE_MPS] = "MPS ",
+		[VR_MODULE_SNI] = "SNI ",
 		[VR_MODULE_RNS] = "RNS ",
 		[VR_MODULE_UNKNOWN] = NULL,
 	};
 
 	const char *remain_str_p = ", Remaining Write: ";
 	uint8_t *buf_p = buf;
-	const uint8_t *vr_name_p = vr_name[vr_module];
+	const char *vr_name_p = (vr_module < ARRAY_SIZE(vr_name)) ? vr_name[vr_module] : NULL;
 	*len = 0;
 
 	if (!vr_name_p) {
@@ -275,26 +282,23 @@ static bool get_vr_fw_version(void *info_p, uint8_t *buf, uint8_t *len)
 	buf_p += strlen(vr_name_p);
 	*len += strlen(vr_name_p);
 
-	if (cfg->type == sensor_dev_mp2891 || cfg->type == sensor_dev_mp29816a) {
-		*len += bin2hex((uint8_t *)&version, 2, buf_p, 4);
-		buf_p += 4;
-	} else if (cfg->type == sensor_dev_raa228249 || cfg->type == sensor_dev_mp2971) {
-		*len += bin2hex((uint8_t *)&version, 4, buf_p, 8);
-		buf_p += 8;
-	} else {
-		LOG_ERR("Unsupport VR type(%d)", cfg->type);
-	}
+	*len += bin2hex((uint8_t *)&version, 4, buf_p, 8);
+	buf_p += 8;
 
 	memcpy(buf_p, remain_str_p, strlen(remain_str_p));
 	buf_p += strlen(remain_str_p);
 	*len += strlen(remain_str_p);
 
-	if (remain != 0xFFFF) {
-		uint8_t packed_remain = (uint8_t)((remain % 10) | (remain / 10 << 4));
-		*len += bin2hex(&packed_remain, 1, buf_p, 2);
-		buf_p += 2;
+	if (has_remain) {
+		/* XDPE OTP remaining, decimal bytes (max 32768) */
+		char remain_str[8] = { 0 };
+		int n = snprintf(remain_str, sizeof(remain_str), "%u", remain);
+		memcpy(buf_p, remain_str, n);
+		buf_p += n;
+		*len += n;
 	} else {
-		*len += bin2hex((uint8_t *)&remain, 2, buf_p, 4);
+		uint16_t no_remain = 0xFFFF;
+		*len += bin2hex((uint8_t *)&no_remain, 2, buf_p, 4);
 		buf_p += 4;
 	}
 

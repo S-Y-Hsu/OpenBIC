@@ -25,8 +25,7 @@
 #include "pldm_oem.h"
 #include "plat_pldm_sensor.h"
 #include "mp2971.h"
-#include "mp29816a.h"
-#include "raa228249.h"
+#include "mp29526.h"
 #include "plat_i2c_target.h"
 #include "plat_thermal.h"
 #include "plat_class.h"
@@ -721,22 +720,15 @@ bool plat_get_vr_status(uint8_t rail, uint8_t vr_status_rail, uint16_t *vr_statu
 	uint16_t pmbus_reg_id = vr_status_table[vr_status_rail].pmbus_reg;
 
 	switch (cfg->type) {
+	case sensor_dev_mp29526:
+		if (!mp29526_get_vr_status(cfg, pre_proc_args->vr_page, pmbus_reg_id, vr_status)) {
+			LOG_ERR("The VR MP29526 vr status reading failed");
+			goto err;
+		}
+		break;
 	case sensor_dev_mp2971:
 		if (!mp2971_get_vr_status(cfg, pre_proc_args->vr_page, pmbus_reg_id, vr_status)) {
 			LOG_ERR("The VR MPS2971 vr status reading failed");
-			goto err;
-		}
-		break;
-	case sensor_dev_mp29816a:
-		if (!mp29816a_get_vr_status(cfg, pre_proc_args->vr_page, pmbus_reg_id, vr_status)) {
-			LOG_ERR("The VR MPS29816a vr status reading failed");
-			goto err;
-		}
-		break;
-	case sensor_dev_raa228249:
-		if (!raa228249_get_vr_status(cfg, pre_proc_args->vr_page, pmbus_reg_id,
-					     vr_status)) {
-			LOG_ERR("The VR RAA228249 vr status reading failed");
 			goto err;
 		}
 		break;
@@ -780,21 +772,15 @@ bool plat_clear_vr_status(uint8_t rail)
 	}
 
 	switch (cfg->type) {
+	case sensor_dev_mp29526:
+		if (!mp29526_clear_vr_status(cfg, pre_proc_args->vr_page)) {
+			LOG_ERR("The VR MP29526 vr status clear failed");
+			goto err;
+		}
+		break;
 	case sensor_dev_mp2971:
 		if (!mp2971_clear_vr_status(cfg, pre_proc_args->vr_page)) {
 			LOG_ERR("The VR MPS2971 vr status clear failed");
-			goto err;
-		}
-		break;
-	case sensor_dev_mp29816a:
-		if (!mp29816a_clear_vr_status(cfg, pre_proc_args->vr_page)) {
-			LOG_ERR("The VR MPS29816a vr status clear failed");
-			goto err;
-		}
-		break;
-	case sensor_dev_raa228249:
-		if (!raa228249_clear_vr_status(cfg, pre_proc_args->vr_page)) {
-			LOG_ERR("The VR RAA228249 vr status clear failed");
 			goto err;
 		}
 		break;
