@@ -19,11 +19,15 @@
 #include <shell/shell.h>
 #include "plat_cpld.h"
 #include "mp2971.h"
-#include "mp29816a.h"
-#include "raa228249.h"
+#include "mp29526.h"
+#include "xdpe1e3g6a.h"
+#include "plat_class.h"
 #include "plat_pldm_fw_update.h"
 #include "plat_pldm_sensor.h"
 #include "plat_hook.h"
+#include "plat_gpio.h"
+#include "hal_gpio.h"
+#include "pldm_firmware_update.h"
 
 LOG_MODULE_REGISTER(shell_plat_fw_version);
 
@@ -34,15 +38,28 @@ void cmd_get_fw_version_vr(const struct shell *shell, size_t argc, char **argv)
 		return;
 	}
 
-	/* Stop sensor polling */
+	/* VR PMBus is accessible once P3V3 is up, no need to wait for DC on */
+	if (sgpio_get(PWRGD_P3V3_R) != GPIO_HIGH) {
+		shell_warn(shell, "PWRGD_P3V3_R is not on, skip get VR version");
+		return;
+	}
+
+	if (is_update_state_idle_or_learn_comp() == false) {
+		shell_warn(shell, "FW update in progress, skip get VR version");
+		return;
+	}
+
+	/* save the polling flag, stop sensor polling */
+	bool polling_flag = get_plat_sensor_polling_enable_flag();
 	set_plat_sensor_polling_enable_flag(false);
 
 	shell_print(shell, "comp_id |                rail name               |version |remain");
-	for (int i = COMPNT_VR_1; i <= COMPNT_VR_12; i++) {
+	for (int i = COMPNT_VR_1; i <= COMPNT_VR_3V3; i++) {
 		uint8_t sensor_id = 0;
 		char sensor_name[MAX_AUX_SENSOR_NAME_LEN] = { 0 };
 
-		if (is_mb_dc_on() == false)
+		/* same as PLDM get_vr_fw_version: only EVB has the 3V3 VR */
+		if (get_asic_board_id() != ASIC_BOARD_ID_EVB && i == COMPNT_VR_3V3)
 			continue;
 
 		if (!find_sensor_id_and_name_by_firmware_comp_id(i, &sensor_id, sensor_name)) {
@@ -62,37 +79,43 @@ void cmd_get_fw_version_vr(const struct shell *shell, size_t argc, char **argv)
 		}
 
 		uint32_t version = 0;
-		uint16_t remain = 0xFFFF;
+		uint32_t remain = 0;
+		bool has_remain = false;
 		bool read_ok = false;
 		switch (cfg->type) {
+		case sensor_dev_mp29526:
+			if (!mp29526_get_fw_version(cfg->port, cfg->target_addr, &version)) {
+				shell_print(shell, "comp id 0x%x MP29526 version reading failed",
+					    i);
+				break;
+			}
+			read_ok = true;
+			break;
+		case sensor_dev_xdpe1e3g6a:
+			if (!xdpe1e3g6a_get_config_checksum(cfg->port, cfg->target_addr,
+							    &version)) {
+				shell_print(shell, "comp id 0x%x XDPE1E3G6A version reading failed",
+					    i);
+				break;
+			}
+			/* partition 0 = configuration, unit: bytes */
+			if (!xdpe1e_get_otp_remaining(cfg->port, cfg->target_addr, 0, &remain)) {
+				shell_print(shell,
+					    "comp id 0x%x XDPE1E3G6A remaining reading failed", i);
+				break;
+			}
+			has_remain = true;
+			read_ok = true;
+			break;
 		case sensor_dev_mp2971:
 			if (!mp2971_get_checksum(cfg->port, cfg->target_addr, &version)) {
-				shell_print(shell, "The VR MPS2971 version reading failed");
-				break;
-			}
-			read_ok = true;
-			break;
-		case sensor_dev_mp29816a:
-			if (!mp29816a_get_fw_version(cfg->port, cfg->target_addr, &version)) {
-				shell_print(shell, "The VR MPS29816a version reading failed");
-				break;
-			}
-			read_ok = true;
-			break;
-		case sensor_dev_raa228249:
-			if (!raa228249_get_crc(cfg->port, cfg->target_addr, &version)) {
-				shell_print(shell, "The VR RAA228249 version reading failed");
-				break;
-			}
-			if (raa228249_get_remaining_wr(cfg->port, cfg->target_addr,
-						       (uint8_t *)&remain) < 0) {
-				shell_print(shell, "The VR RAA228249 remaining reading failed");
+				shell_print(shell, "comp id 0x%x MP2971 version reading failed", i);
 				break;
 			}
 			read_ok = true;
 			break;
 		default:
-			shell_print(shell, "Unsupport VR type(%d)", i);
+			shell_print(shell, "comp id 0x%x unsupport sensor_dev: %d", i, cfg->type);
 			break;
 		}
 
@@ -103,22 +126,15 @@ void cmd_get_fw_version_vr(const struct shell *shell, size_t argc, char **argv)
 		if (!read_ok)
 			continue;
 
-		if (remain != 0xFFFF) {
-			remain = (uint8_t)((remain % 10) | (remain / 10 << 4));
-		}
-
-		if (cfg->type == sensor_dev_mp2891 || cfg->type == sensor_dev_mp29816a)
-			shell_print(shell, "%-8x|%-40s|    %04x|%04x", i, sensor_name, version,
+		if (has_remain)
+			shell_print(shell, "%-8x|%-40s|%08x|%u bytes", i, sensor_name, version,
 				    remain);
-		else if (cfg->type == sensor_dev_isl69259 || cfg->type == sensor_dev_raa228238 ||
-			 cfg->type == sensor_dev_raa228249 || cfg->type == sensor_dev_mp2971)
-			shell_print(shell, "%-8x|%-40s|%08x|%04x", i, sensor_name, version, remain);
 		else
-			shell_print(shell, "not support sensor_dev: %d", cfg->type);
+			shell_print(shell, "%-8x|%-40s|%08x|-", i, sensor_name, version);
 	}
 
-	/* Start sensor polling */
-	set_plat_sensor_polling_enable_flag(true);
+	/* set back to the original polling flag */
+	set_plat_sensor_polling_enable_flag(polling_flag);
 
 	return;
 }
