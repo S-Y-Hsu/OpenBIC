@@ -43,8 +43,8 @@ enum FIRMWARE_COMPONENT {
 	COMPNT_VR_11,
 	COMPNT_VR_12,
 	COMPNT_VR_13,
-	COMPNT_HAMSA,
 	COMPNT_VR_3V3,
+	COMPNT_HAMSA,
 };
 
 bool plat_set_asic_reset(bool hold);
