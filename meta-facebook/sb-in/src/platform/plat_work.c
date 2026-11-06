@@ -28,6 +28,7 @@
 #include "pldm_sensor.h"
 #include "plat_thermal.h"
 #include <errno.h>
+#include <string.h>
 #include <logging/log.h>
 
 LOG_MODULE_REGISTER(plat_work);
@@ -346,6 +347,32 @@ const struct plat_work *plat_get_work_list(size_t *count)
 {
 	*count = ARRAY_SIZE(plat_work_list);
 	return plat_work_list;
+}
+
+int plat_work_resume(const char *name)
+{
+	bool all = (name == NULL) || (strcmp(name, "all") == 0);
+	bool found = false;
+	int resumed = 0;
+
+	for (size_t i = 0; i < ARRAY_SIZE(plat_work_list); i++) {
+		struct plat_work *pw = &plat_work_list[i];
+
+		if (!all && strcmp(pw->name, name) != 0)
+			continue;
+
+		found = true;
+		if (!pw->suspended)
+			continue;
+
+		pw->fail_cnt = 0;
+		pw->suspended = false;
+		k_work_schedule_for_queue(&plat_work_q_obj, &pw->work, K_NO_WAIT);
+		LOG_INF("plat work %s resumed", pw->name);
+		resumed++;
+	}
+
+	return found ? resumed : -ENOENT;
 }
 
 void plat_init_platform_queue(void)
