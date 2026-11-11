@@ -27,9 +27,27 @@
 
 LOG_MODULE_REGISTER(plat_isr);
 
+// set while `astrid_power steps_on` is powering rails one by one (CPLD 1-step mode)
+static bool pwr_steps_on_flag = false;
+
+void set_pwr_steps_on_flag(bool value)
+{
+	pwr_steps_on_flag = value;
+}
+
+bool get_pwr_steps_on_flag(void)
+{
+	return pwr_steps_on_flag;
+}
+
 void ISR_SGPIO_PWR_EN()
 {
 	LOG_INF("PWR_EN = %d", sgpio_get(PWR_EN));
+
+	// manual steps on is a debug flow, do not log DC on/off to blackbox / BMC
+	if (get_pwr_steps_on_flag()) {
+		return;
+	}
 
 	if (sgpio_get(PWR_EN) == GPIO_HIGH) {
 		error_log_event(MAKE_ERR_CODE(DC_ON_TRIGGER_CAUSE, 0), LOG_ASSERT);
@@ -74,6 +92,11 @@ void ISR_SGPIO_MODULE_PWRGD()
 void ISR_SGPIO_PWRSEQ_TO_FAULT()
 {
 	LOG_INF("PWRSEQ_TO_FAULT = %d", sgpio_get(PWRSEQ_TO_FAULT));
+
+	// steps on waits for the user between rails, the sequence timeout is expected
+	if (get_pwr_steps_on_flag()) {
+		return;
+	}
 
 	if (sgpio_get(PWRSEQ_TO_FAULT) == GPIO_HIGH) {
 		plat_power_seq_fault_handler();

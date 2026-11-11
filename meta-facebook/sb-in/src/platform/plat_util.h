@@ -21,6 +21,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define DC_ON_DELAY_TIMMING 1500
+
 bool plat_i2c_read(uint8_t bus, uint8_t addr, uint8_t offset, uint8_t *data, uint8_t len);
 bool plat_i2c_write(uint8_t bus, uint8_t addr, uint8_t offset, uint8_t *data, uint8_t len);
 bool vr_mux_select(uint8_t sensor_num);

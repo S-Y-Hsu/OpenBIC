@@ -17,6 +17,8 @@
 #ifndef PLAT_ISR_H
 #define PLAT_ISR_H
 
+#include <stdbool.h>
+
 void ISR_GPIO_RST_ASTRID_PWR_ON_PLD_R1_N();
 void ISR_SGPIO_VR_SMBALERT();
 void ISR_SGPIO_EVENT();
@@ -24,5 +26,8 @@ void ISR_SGPIO_PWR_EN();
 void ISR_SGPIO_PWR_FAULT();
 void ISR_SGPIO_MODULE_PWRGD();
 void ISR_SGPIO_PWRSEQ_TO_FAULT();
+
+void set_pwr_steps_on_flag(bool value);
+bool get_pwr_steps_on_flag(void);
 
 #endif
