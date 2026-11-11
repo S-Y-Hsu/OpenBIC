@@ -41,9 +41,11 @@
 };
 
 &i2c4a {
-	clock-frequency = <I2C_BITRATE_FAST>;
-    scllt = <65>;
+	clock-frequency = <I2C_BITRATE_FAST_PLUS>;
+	scllt = <65>;
 	sclht = <60>;
+	scllt_fp = <26>;
+	sclht_fp = <24>;
 	status = "okay";
 };
 
@@ -52,9 +54,11 @@
 };
 
 &i2c5a {
-	clock-frequency = <I2C_BITRATE_FAST>;
-    scllt = <65>;
+	clock-frequency = <I2C_BITRATE_FAST_PLUS>;
+	scllt = <65>;
 	sclht = <60>;
+	scllt_fp = <26>;
+	sclht_fp = <24>;
 	status = "okay";
 };
 
@@ -68,27 +72,38 @@
 };
 
 &i2c6b {
-    status = "disabled";
+	clock-frequency = <I2C_BITRATE_FAST_PLUS>;
+	scllt = <65>;
+	sclht = <60>;
+	scllt_fp = <26>;
+	sclht_fp = <24>;
+	status = "disabled";
 };
 
 &i2c7a {
-	clock-frequency = <I2C_BITRATE_FAST>;
-    scllt = <65>;
+	clock-frequency = <I2C_BITRATE_FAST_PLUS>;
+	scllt = <65>;
 	sclht = <60>;
+	scllt_fp = <26>;
+	sclht_fp = <24>;
 	status = "okay";
 };
 
 &i2c8a {
-	clock-frequency = <I2C_BITRATE_FAST>;
-    scllt = <65>;
+	clock-frequency = <I2C_BITRATE_FAST_PLUS>;
+	scllt = <65>;
 	sclht = <60>;
+	scllt_fp = <26>;
+	sclht_fp = <24>;
 	status = "okay";
 };
 
 &i2c9a {
-	clock-frequency = <I2C_BITRATE_FAST>;
-    scllt = <65>;
+	clock-frequency = <I2C_BITRATE_FAST_PLUS>;
+	scllt = <65>;
 	sclht = <60>;
+	scllt_fp = <26>;
+	sclht_fp = <24>;
 	status = "okay";
 };
 
@@ -107,9 +122,11 @@
 };
 
 &i2c12a {
-	clock-frequency = <I2C_BITRATE_FAST>;
-    scllt = <65>;
+	clock-frequency = <I2C_BITRATE_FAST_PLUS>;
+	scllt = <65>;
 	sclht = <60>;
+	scllt_fp = <26>;
+	sclht_fp = <24>;
 	status = "okay";
 };
 
