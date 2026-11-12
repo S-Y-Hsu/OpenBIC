@@ -128,11 +128,35 @@ enum VR_RAIL_SENSOR_E {
 // peak_mv value meaning no voltage reading has been recorded since boot/clear
 #define VR_PEAK_NONE INT32_MIN
 
+// Power history for the `average_power` shell command: the last PWR_HIST_SIZE readings.
+// Each sample is stored as uint16_t in units of 10^PWR_HIST_UNIT_MODIFIER W (0.1 W), which keeps
+// the buffer small and still covers up to 6553.5 W.
+#define PWR_HIST_SIZE 10
+#define PWR_HIST_UNIT_MODIFIER (-1)
+
+// average power value meaning no power reading has been recorded since boot
+#define PWR_AVG_NONE INT32_MIN
+
+typedef struct pwr_hist {
+	uint16_t buf[PWR_HIST_SIZE]; // ring buffer, see PWR_HIST_UNIT_MODIFIER for the unit
+	uint8_t idx; // next slot to write
+	uint8_t cnt; // valid samples, up to PWR_HIST_SIZE
+} pwr_hist_t;
+
+// Also used by ubc_rail_table: UBC sensors follow the same VR_RAIL_SENSOR_E order, and UBC
+// rails leave peak_mv unused (VR_PEAK_NONE).
 typedef struct vr_mapping_sensor {
 	uint8_t sensor_id; // base sensor of the rail, see VR_RAIL_SENSOR_E
 	uint8_t *sensor_name;
 	int32_t peak_mv; // highest VOLT reading in mV, VR_PEAK_NONE if none
+	pwr_hist_t pwr_hist; // recent PWR readings of the rail
 } vr_mapping_sensor;
+
+enum UBC_RAIL_E {
+	UBC_RAIL_E_UBC1 = 0,
+	UBC_RAIL_E_UBC2,
+	UBC_RAIL_E_MAX,
+};
 
 bool pre_vr_read(sensor_cfg *cfg, void *args);
 bool post_vr_read(sensor_cfg *cfg, void *args, int *const reading);
@@ -146,6 +170,11 @@ bool vr_rail_name_get(uint8_t rail, uint8_t **name);
 bool vr_rail_sensor_id_get(uint8_t rail, uint8_t *sensor_id);
 bool vr_rail_peak_get(uint8_t rail, int32_t *peak_mv);
 bool vr_rail_peak_clear(uint8_t rail);
+bool vr_rail_avg_pwr_get(uint8_t rail, int32_t *avg_mw);
+bool ubc_rail_name_get(uint8_t rail, uint8_t **name);
+bool ubc_rail_enum_get(uint8_t *name, uint8_t *num);
+bool ubc_rail_avg_pwr_get(uint8_t rail, int32_t *avg_mw);
+bool post_ubc_read(sensor_cfg *cfg, void *args, int *const reading);
 bool vr_index_get_rails(uint8_t vr_index, const uint8_t **rails, uint8_t *count);
 bool vr_index_get_smbalert_sgpio(uint8_t vr_index, uint8_t *sgpio_num);
 uint8_t sgpio_event_count(void);
