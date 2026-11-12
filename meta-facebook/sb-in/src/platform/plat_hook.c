@@ -124,6 +124,8 @@ unlock_vr:
 }
 
 static void vr_rail_peak_update(uint8_t sensor_num, int32_t value_mv);
+static void vr_rail_pwr_update(uint8_t sensor_num, int32_t value_mw);
+static void ubc_rail_pwr_update(uint8_t sensor_num, int32_t value_mw);
 
 bool post_vr_read(sensor_cfg *cfg, void *args, int *const reading)
 {
@@ -166,6 +168,35 @@ bool post_vr_read(sensor_cfg *cfg, void *args, int *const reading)
 	}
 
 	vr_rail_peak_update(cfg->num, sensor_value);
+	vr_rail_pwr_update(cfg->num, sensor_value);
+
+	return true;
+}
+
+// post hook of the UBC PWR sensors: common handling, then record the power history
+bool post_ubc_read(sensor_cfg *cfg, void *args, int *const reading)
+{
+	CHECK_NULL_ARG_WITH_RETURN(cfg, false);
+
+	if (!post_common_sensor_read(cfg, args, reading))
+		return false;
+
+	/* reading is NULL when the sensor read failed */
+	if (reading == NULL) {
+		return true;
+	}
+
+	sensor_val tmp_reading;
+	tmp_reading.integer = (int16_t)(*reading & 0xFFFF);
+	tmp_reading.fraction = (int16_t)((*reading >> 16) & 0xFFFF);
+
+	/* sensor_value = 1000 times of true value, only clamped for the history */
+	int32_t sensor_value = tmp_reading.integer * 1000 + tmp_reading.fraction;
+	if (sensor_value < 0) {
+		sensor_value = 0;
+	}
+
+	ubc_rail_pwr_update(cfg->num, sensor_value);
 
 	return true;
 }
@@ -191,6 +222,43 @@ bool is_p3v3_pwrgd(void)
 	}
 
 	return true;
+}
+
+/**************************************************************************************/
+/******************************** PWR_HIST_HELPER *************************************/
+/**************************************************************************************/
+// Ring buffer helpers on a pwr_hist_t only; they never touch a table directly.
+// Hook readings are 1000 times the true value (unit modifier -3, mW for power), while
+// pwr_hist_t stores 10^PWR_HIST_UNIT_MODIFIER W. One stored unit is this many hook units:
+// 10^(PWR_HIST_UNIT_MODIFIER - (-3)) = 100.
+#define PWR_HIST_MW_PER_UNIT 100
+
+// value_mw: power in mW, already clamped to >= 0 by the caller
+static void pwr_hist_push(pwr_hist_t *hist, int32_t value_mw)
+{
+	int32_t value = (value_mw + PWR_HIST_MW_PER_UNIT / 2) / PWR_HIST_MW_PER_UNIT;
+
+	hist->buf[hist->idx] = (value > UINT16_MAX) ? UINT16_MAX : (uint16_t)value;
+	hist->idx = (hist->idx + 1) % PWR_HIST_SIZE;
+	if (hist->cnt < PWR_HIST_SIZE) {
+		hist->cnt++;
+	}
+}
+
+// average of the stored samples in mW, PWR_AVG_NONE if there is no sample yet
+static int32_t pwr_hist_avg_mw(const pwr_hist_t *hist)
+{
+	if (hist->cnt == 0) {
+		return PWR_AVG_NONE;
+	}
+
+	// at most PWR_HIST_SIZE * UINT16_MAX * PWR_HIST_MW_PER_UNIT, fits in uint32_t
+	uint32_t sum = 0;
+	for (uint8_t i = 0; i < hist->cnt; i++) {
+		sum += hist->buf[i];
+	}
+
+	return (int32_t)((sum * PWR_HIST_MW_PER_UNIT + hist->cnt / 2) / hist->cnt);
 }
 
 /**************************************************************************************/
@@ -340,6 +408,96 @@ bool vr_rail_peak_clear(uint8_t rail)
 	}
 
 	vr_rail_table[rail].peak_mv = VR_PEAK_NONE;
+	return true;
+}
+
+// called from post_vr_read for every VR sensor; only the rail's PWR sensor is recorded
+static void vr_rail_pwr_update(uint8_t sensor_num, int32_t value_mw)
+{
+	for (int i = 0; i < VR_RAIL_E_MAX; i++) {
+		if (sensor_num != vr_rail_table[i].sensor_id + VR_RAIL_SENSOR_PWR) {
+			continue;
+		}
+
+		pwr_hist_push(&vr_rail_table[i].pwr_hist, value_mw);
+		return;
+	}
+}
+
+bool vr_rail_avg_pwr_get(uint8_t rail, int32_t *avg_mw)
+{
+	CHECK_NULL_ARG_WITH_RETURN(avg_mw, false);
+
+	if (rail >= vr_rail_count()) {
+		return false;
+	}
+
+	*avg_mw = pwr_hist_avg_mw(&vr_rail_table[rail].pwr_hist);
+	return true;
+}
+
+/**************************************************************************************/
+/*********************************** UBC_RAIL_TABLE ***********************************/
+/**************************************************************************************/
+//the order is following enum UBC_RAIL_E; same layout as vr_rail_table (sensor_id is the
+//base TEMP sensor), peak_mv is not used for UBC
+static vr_mapping_sensor ubc_rail_table[] = {
+	{ SENSOR_NUM_UBC1_P12V_TEMP_C, "UBC1_P12V", VR_PEAK_NONE },
+	{ SENSOR_NUM_UBC2_P12V_TEMP_C, "UBC2_P12V", VR_PEAK_NONE },
+};
+BUILD_ASSERT(ARRAY_SIZE(ubc_rail_table) == UBC_RAIL_E_MAX, "ubc_rail_table must cover UBC_RAIL_E");
+
+bool ubc_rail_name_get(uint8_t rail, uint8_t **name)
+{
+	CHECK_NULL_ARG_WITH_RETURN(name, false);
+
+	if (rail >= UBC_RAIL_E_MAX) {
+		*name = NULL;
+		return false;
+	}
+
+	*name = (uint8_t *)ubc_rail_table[rail].sensor_name;
+	return true;
+}
+
+// no error log on a miss: callers also try the name as a VR rail
+bool ubc_rail_enum_get(uint8_t *name, uint8_t *num)
+{
+	CHECK_NULL_ARG_WITH_RETURN(name, false);
+	CHECK_NULL_ARG_WITH_RETURN(num, false);
+
+	for (int i = 0; i < UBC_RAIL_E_MAX; i++) {
+		if (strcmp(name, ubc_rail_table[i].sensor_name) == 0) {
+			*num = i;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// called from post_ubc_read; only the UBC's PWR sensor is recorded
+static void ubc_rail_pwr_update(uint8_t sensor_num, int32_t value_mw)
+{
+	for (int i = 0; i < UBC_RAIL_E_MAX; i++) {
+		if (sensor_num != ubc_rail_table[i].sensor_id + VR_RAIL_SENSOR_PWR) {
+			continue;
+		}
+
+		pwr_hist_push(&ubc_rail_table[i].pwr_hist, value_mw);
+		return;
+	}
+}
+
+bool ubc_rail_avg_pwr_get(uint8_t rail, int32_t *avg_mw)
+{
+	CHECK_NULL_ARG_WITH_RETURN(avg_mw, false);
+
+	if (rail >= UBC_RAIL_E_MAX) {
+		return false;
+	}
+
+	*avg_mw = pwr_hist_avg_mw(&ubc_rail_table[rail].pwr_hist);
 	return true;
 }
 
