@@ -35,8 +35,8 @@
 
 &i2c3a {
 	clock-frequency = <I2C_BITRATE_FAST>;
-	scllt = <65>;
-    sclht = <60>;
+	scllt = <70>;
+	sclht = <55>;
 	status = "okay";
 };
 

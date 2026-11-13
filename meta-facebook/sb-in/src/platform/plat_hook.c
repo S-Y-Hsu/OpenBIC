@@ -207,7 +207,8 @@ bool is_mb_dc_on()
 	 * 1 -> power on
 	 * 0 -> power off
 	 */
-	return sgpio_get(MODULE_PWRGD) == GPIO_HIGH;
+	// return sgpio_get(MODULE_PWRGD) == GPIO_HIGH;
+	return sgpio_get(PWRGD_HAMSA_VDDHRXTX_PCIE0) == GPIO_HIGH;
 }
 
 bool is_p3v3_pwrgd(void)
