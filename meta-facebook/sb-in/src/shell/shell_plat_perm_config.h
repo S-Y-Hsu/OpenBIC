@@ -25,4 +25,7 @@ void thermaltrip_switch_perm_restore(void);
 /* Print every temp threshold perm entry that is set, return the number printed */
 int temp_threshold_perm_print(const struct shell *shell);
 
+/* Print every bootstrap perm entry that is set, return the number printed */
+int bootstrap_perm_print(const struct shell *shell);
+
 #endif

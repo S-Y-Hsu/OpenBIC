@@ -19,13 +19,14 @@
 #include "eeprom.h"
 #include "plat_fru.h"
 #include "plat_temp_threshold.h"
+#include "plat_bootstrap.h"
 #include "plat_user_setting.h"
 #include "shell_plat_perm_config.h"
 
 LOG_MODULE_REGISTER(plat_user_setting);
 
-/* The largest id is the temp threshold array, written in one EEPROM write */
-#define PERM_VALUE_MAX_SIZE (TEMP_THRESHOLD_COUNT * sizeof(int32_t))
+/* The largest id is written in one EEPROM write */
+#define PERM_VALUE_MAX_SIZE MAX(TEMP_THRESHOLD_COUNT * sizeof(int32_t), BOOTSTRAP_PERM_SIZE)
 #define PERM_VALUE_UNSET 0xFF
 #define EEPROM_MAX_WRITE_TIME 5 // the BR24G512 eeprom max write time is 3.5 ms
 
@@ -42,6 +43,8 @@ static const plat_perm_layout_t perm_layout[PERM_ID_MAX] = {
 	/* int32_t array, one element per temp threshold table entry */
 	[PERM_ID_TEMP_THRESHOLD] = { "TEMP_THRESHOLD", 0x8100,
 				     TEMP_THRESHOLD_COUNT * sizeof(int32_t) },
+	/* uint16_t array, one element per bootstrap table entry */
+	[PERM_ID_BOOTSTRAP] = { "BOOTSTRAP", 0x8400, BOOTSTRAP_PERM_SIZE },
 };
 
 static const plat_perm_layout_t *perm_find(uint8_t id, uint8_t len)
@@ -150,4 +153,6 @@ void user_settings_init(void)
 {
 	thermaltrip_switch_perm_restore();
 	plat_temp_threshold_init();
+	bootstrap_default_settings_init();
+	bootstrap_user_settings_init();
 }

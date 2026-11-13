@@ -34,9 +34,9 @@
 #define PCA6416A_U753_BUS I2C_BUS1
 #define PCA6416A_U753_ADDR 0x21 // 7-bit
 
-// TODO: fill in real initial values, 0xFF = power-on default
-#define PCA6416A_U641_OUTPUT_0 0xFF
-#define PCA6416A_U641_OUTPUT_1 0xFF
+// U641 P0 = OWL_E_BOOT_SOURCE_0~7, P1 = OWL_W_BOOT_SOURCE_0~7, HW default 0
+#define PCA6416A_U641_OUTPUT_0 0x00
+#define PCA6416A_U641_OUTPUT_1 0x00
 #define PCA6416A_U753_OUTPUT_0 0xFF // all input
 #define PCA6416A_U753_OUTPUT_1 0xFF
 
