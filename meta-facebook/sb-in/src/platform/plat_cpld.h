@@ -23,6 +23,22 @@
 #define CPLD_OFFSET_PCIE_PERST 0xA3
 #define CPLD_OFFSET_MANUAL_CONTROL_STRAP 0xB2
 
+/* CPLD bootstrap mapping registers */
+#define VQPS_CTRL_0 0x14 // bit0 ZORA11_VQPS_TOP, bit7-3 are VRHOT, not in bootstrap table
+#define VQPS_CTRL_1 0x15
+#define HAMSA_STRAP 0x16
+#define HAMSA_MFIO_REG 0x17
+#define HAMSA_CONTROL_IO 0x18
+#define HAMSA_JTAG_JTCE 0x19
+#define ZORA0X_STRAP 0x1A
+#define ZORA0X_CONTROL_IO 0x1B
+#define ZORA1X_STRAP 0x1C
+#define ZORA1X_CONTROL_IO 0x1D
+#define ZORA0X_JTAG_JTCE 0x20
+#define ZORA1X_JTAG_JTCE 0x23
+#define OWL_CONTROL_IO 0x24
+#define OWL_DVT_ENABLE 0x9E
+
 /* VR Power Fault Registers */
 #define VR_POWER_FAULT_1_REG 0x0D
 #define VR_POWER_FAULT_2_REG 0x0E

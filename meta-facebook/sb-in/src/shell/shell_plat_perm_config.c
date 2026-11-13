@@ -29,6 +29,10 @@ static int cmd_perm_config_get(const struct shell *shell, size_t argc, char **ar
 			config_count += temp_threshold_perm_print(shell);
 			continue;
 		}
+		if (id == PERM_ID_BOOTSTRAP) {
+			config_count += bootstrap_perm_print(shell);
+			continue;
+		}
 
 		uint32_t val = 0; /* little-endian, up to 4 bytes */
 
