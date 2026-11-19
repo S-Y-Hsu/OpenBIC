@@ -80,6 +80,7 @@ const char *vr_vendor_module_name[] = {
 	"REED_UBC_AND_MPS_VR_PT",
 	"LUX_UBC_AND_SNI_VR_PT",
 	"REED_UBC_AND_RNS_VR_PT",
+	"REED_UBC_AND_SNI_VR_PT",
 	"VENDOR_TYPE_UNKNOWN",
 };
 
@@ -203,6 +204,10 @@ void init_vr_ubc_vendor_type(void)
 		break;
 	case LUX_UBC_AND_SNI_VR_PT:
 		ubc_module = UBC_MODULE_LUX;
+		vr_module = VR_MODULE_SNI;
+		break;
+	case REED_UBC_AND_SNI_VR_PT:
+		ubc_module = UBC_MODULE_REED;
 		vr_module = VR_MODULE_SNI;
 		break;
 	default:
