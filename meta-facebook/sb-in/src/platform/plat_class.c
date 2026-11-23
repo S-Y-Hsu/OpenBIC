@@ -151,27 +151,21 @@ void init_board_stage(void)
 	LOG_INF("BOARD_STAGE(0x%02X) = %s", board_rev_id, board_rev_id_name[board_rev_id]);
 }
 
+/* Temp chip follows VR_VENDOR_TYPE: MPS VR pairs with TMP432 (main source),
+ * all other types use EMC1413 (second source). Must run after init_vr_ubc_vendor_type(). */
 void init_tmp_vendor_type(void)
 {
-	sensor_cfg *cfg = get_sensor_cfg_by_sensor_id(SENSOR_NUM_ASIC_ZORA00_TEMP_C);
-	I2C_MSG i2c_msg = { 0 };
-	uint8_t retry = 5;
-	i2c_msg.bus = cfg->port;
-	i2c_msg.target_addr = cfg->target_addr;
-	i2c_msg.tx_len = 1;
-	i2c_msg.rx_len = 1;
-	i2c_msg.data[0] = 0xFE; //MFG ID REG
-
-	int ret = 0;
-	if (ret == i2c_master_read_without_error_log(&i2c_msg, retry)) {
-		LOG_INF("TEMP_MODULD = TMP432");
+	switch (vr_vendor_module) {
+	case FLEX_UBC_AND_MPS_VR_LPD:
+	case REED_UBC_AND_MPS_VR_PT:
 		tmp_module = TMP_MODULE_TMP432;
-		return;
-	} else {
-		LOG_INF("TEMP_MODULD = EMC1413");
+		break;
+	default:
 		tmp_module = TMP_MODULE_EMC1413;
-		return;
+		break;
 	}
+
+	LOG_INF("TEMP_MODULE = %s", tmp_module_name[tmp_module]);
 }
 
 void init_vr_ubc_vendor_type(void)
@@ -233,11 +227,11 @@ void init_plat_config()
 {
 	init_board_type();
 	init_board_stage();
-	init_tmp_vendor_type();
-	change_tmp_sensor_cfg(asic_board_id, tmp_module, board_rev_id);
 	init_vr_ubc_vendor_type();
 	change_vr_sensor_cfg(asic_board_id, vr_module, board_rev_id);
 	change_ubc_sensor_cfg(asic_board_id, ubc_module, board_rev_id);
+	init_tmp_vendor_type();
+	change_tmp_sensor_cfg(asic_board_id, tmp_module, board_rev_id);
 
 	// cpld fru offset 0: slot
 	plat_cpld_eerprom_read(&mmc_slot, MMC_SLOT_USER_SETTING_OFFSET, 1);
