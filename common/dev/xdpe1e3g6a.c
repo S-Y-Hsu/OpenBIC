@@ -173,8 +173,8 @@ static const struct xdpe1e_dev_info *xdpe1e_get_dev_info(uint8_t dev)
 
 static bool xdpe1e_is_partial_section(uint8_t header_code)
 {
-	return (header_code == XDPE1E_HC_CONFIG_PARTIAL ||
-		header_code == XDPE1E_HC_PMBUS_PARTIAL || header_code == XDPE1E_HC_HSIF_PARTIAL);
+	return (header_code == XDPE1E_HC_CONFIG_PARTIAL || header_code == XDPE1E_HC_PMBUS_PARTIAL ||
+		header_code == XDPE1E_HC_HSIF_PARTIAL);
 }
 
 /* -------------------------------------------------------------------------
@@ -204,8 +204,7 @@ static bool xdpe1e3g6a_i2c_read(uint8_t bus, uint8_t addr, uint8_t reg, uint8_t 
 	return true;
 }
 
-static bool xdpe1e3g6a_i2c_write(uint8_t bus, uint8_t addr, uint8_t reg, uint8_t *data,
-				 uint8_t len)
+static bool xdpe1e3g6a_i2c_write(uint8_t bus, uint8_t addr, uint8_t reg, uint8_t *data, uint8_t len)
 {
 	CHECK_NULL_ARG_WITH_RETURN(data, false);
 
@@ -266,8 +265,9 @@ static bool xdpe1e3g6a_block_read(uint8_t bus, uint8_t addr, uint8_t reg, uint8_
 	}
 
 	if (i2c_msg.data[0] != len) {
-		LOG_WRN("Block read reg 0x%x returned byte count %d, expected %d", reg,
+		LOG_ERR("Block read reg 0x%x returned byte count %d, expected %d", reg,
 			i2c_msg.data[0], len);
+		return false;
 	}
 
 	memcpy(data, &i2c_msg.data[1], len);
@@ -325,8 +325,7 @@ static bool xdpe1e3g6a_ahb_set_address(uint8_t bus, uint8_t addr, uint32_t ahb_a
 
 static bool xdpe1e3g6a_ahb_write_dword(uint8_t bus, uint8_t addr, uint32_t val)
 {
-	uint8_t data[4] = { val & 0xFF, (val >> 8) & 0xFF, (val >> 16) & 0xFF,
-			    (val >> 24) & 0xFF };
+	uint8_t data[4] = { val & 0xFF, (val >> 8) & 0xFF, (val >> 16) & 0xFF, (val >> 24) & 0xFF };
 	return xdpe1e3g6a_block_write(bus, addr, XDPE1E3G6A_MFR_REG_WRITE_REG, data, sizeof(data));
 }
 
@@ -351,8 +350,8 @@ static bool xdpe1e3g6a_set_write_protect_reg(uint8_t bus, uint8_t addr, uint8_t 
 	}
 
 	if (!xdpe1e3g6a_i2c_write(bus, addr, PMBUS_WRITE_PROTECT, &set_val, sizeof(set_val))) {
-		LOG_ERR("Set write protect register fail, bus: 0x%x, addr: 0x%x, set_val: 0x%x", bus,
-			addr, set_val);
+		LOG_ERR("Set write protect register fail, bus: 0x%x, addr: 0x%x, set_val: 0x%x",
+			bus, addr, set_val);
 		return false;
 	}
 
@@ -520,9 +519,9 @@ static bool xdpe1e496a_check_update_allowed(uint8_t bus, uint8_t addr)
 
 	uint8_t ext_wp = 0;
 	if (xdpe1e496a_get_ext_write_protect(bus, addr, &ext_wp)) {
-		uint8_t blocking = ext_wp & (XDPE1E496A_EXT_WP_LOCK_BIT |
-					     XDPE1E496A_EXT_WP_STORE_NVM_BIT |
-					     XDPE1E496A_EXT_WP_MFR_BIT);
+		uint8_t blocking =
+			ext_wp & (XDPE1E496A_EXT_WP_LOCK_BIT | XDPE1E496A_EXT_WP_STORE_NVM_BIT |
+				  XDPE1E496A_EXT_WP_MFR_BIT);
 		if (blocking) {
 			LOG_ERR("EXT_WRITE_PROTECT 0x%02x blocks MFR/NVM writes, update would not stick",
 				ext_wp);
@@ -1020,9 +1019,8 @@ static int xdpe1e_scan_config(struct xdpe1e_config_file *file, const uint8_t *bu
 
 	while (xdpe1e_next_line(buf, size, &pos, &line_start, &line_len)) {
 		if (!in_data) {
-			if (line_len >= len_start &&
-			    !strncmp((const char *)&buf[line_start], XDPE1E_DATA_START_TAG,
-				     len_start)) {
+			if (line_len >= len_start && !strncmp((const char *)&buf[line_start],
+							      XDPE1E_DATA_START_TAG, len_start)) {
 				in_data = true;
 				continue;
 			}
@@ -1034,8 +1032,8 @@ static int xdpe1e_scan_config(struct xdpe1e_config_file *file, const uint8_t *bu
 			continue;
 		}
 
-		if (line_len >= len_end && !strncmp((const char *)&buf[line_start],
-						    XDPE1E_DATA_END_TAG, len_end)) {
+		if (line_len >= len_end &&
+		    !strncmp((const char *)&buf[line_start], XDPE1E_DATA_END_TAG, len_end)) {
 			xdpe1e_close_section(file, sect_idx, line_start);
 			sect_idx = -1;
 			break;
@@ -1263,27 +1261,37 @@ static bool xdpe1e_otp_config_store(uint8_t bus, uint8_t addr, uint32_t size_byt
 		LOG_WRN("CLEAR_FAULTS failed before OTP store");
 	}
 
+	/*
+	 * PAGE must not stay at 0xFF: reads issued while PAGE is 0xFF (STATUS_CML,
+	 * the MFR_FW_COMMAND_DATA result block) come back as all 0xFF on the
+	 * XDPE1E496A, which looks exactly like a failed upload.
+	 */
+	if (!xdpe1e_set_page(bus, addr, 0)) {
+		return false;
+	}
+
 	uint8_t tx[4] = { size_bytes & 0xFF, (size_bytes >> 8) & 0xFF, 0, 0 };
 
 	return xdpe1e3g6a_fw_command(bus, addr, XDPE1E_FW_CMD_OTP_CONFIG_STORE, tx, NULL, 0);
 }
 
 /*
- * Polls CONFIGURATOR_STATUS_GET instead of sleeping the whole soak time blind.
+ * Sleeps the programming soak time (2 ms per byte, chapter 6.4) without
+ * touching the device, then confirms completion with CONFIGURATOR_STATUS_GET:
  * 0 means the upload finished, 1 means still busy, anything else is an upload
  * error (chapter 6.5).
  */
-static bool xdpe1e_wait_upload_done(uint8_t bus, uint8_t addr, uint32_t timeout_ms)
+static bool xdpe1e_wait_upload_done(uint8_t bus, uint8_t addr, uint32_t soak_ms)
 {
 	const uint32_t poll_ms = 50;
+	const uint32_t extra_ms = 1000;
 	uint32_t waited = 0;
 	uint8_t tx[4] = { 0, 0, 0, 0 };
 	uint8_t rx[4] = { 0 };
 
-	while (waited < timeout_ms) {
-		k_msleep(poll_ms);
-		waited += poll_ms;
+	k_msleep(soak_ms);
 
+	while (true) {
 		if (!xdpe1e3g6a_fw_command(bus, addr, XDPE1E_FW_CMD_CONFIGURATOR_STATUS_GET, tx, rx,
 					   0)) {
 			return false;
@@ -1297,9 +1305,16 @@ static bool xdpe1e_wait_upload_done(uint8_t bus, uint8_t addr, uint32_t timeout_
 			LOG_ERR("Upload reported error status 0x%02x", rx[0]);
 			return false;
 		}
+
+		if (waited >= extra_ms) {
+			break;
+		}
+
+		k_msleep(poll_ms);
+		waited += poll_ms;
 	}
 
-	LOG_ERR("Upload did not complete within %d ms", timeout_ms);
+	LOG_ERR("Upload still busy %d ms after the %d ms soak", waited, soak_ms);
 	return false;
 }
 
@@ -1420,8 +1435,8 @@ static bool xdpe1e_fwupdate(uint8_t dev, uint8_t bus, uint8_t addr, uint8_t *img
 			goto restore_protect;
 		}
 
-		// Soak is 2 ms per byte uploaded, plus margin before the poll gives up
-		if (!xdpe1e_wait_upload_done(bus, addr, size_bytes * 2 + 1000)) {
+		// Soak is 2 ms per byte uploaded (chapter 6.4)
+		if (!xdpe1e_wait_upload_done(bus, addr, size_bytes * 2)) {
 			LOG_ERR("Section %d (hc: 0x%x, xv: 0x%x): upload did not complete", s,
 				sect->header_code, sect->xvcode);
 			goto restore_protect;
