@@ -161,7 +161,7 @@ static uint8_t pldm_post_vr_update(void *fw_update_param)
 {
 	CHECK_NULL_ARG_WITH_RETURN(fw_update_param, 1);
 
-	pldm_fw_update_param_t *p = (pldm_fw_update_param_t *)fw_update_param;
+	const pldm_fw_update_param_t *p = (const pldm_fw_update_param_t *)fw_update_param;
 	uint8_t sensor_id = 0;
 	char sensor_name[MAX_AUX_SENSOR_NAME_LEN] = { 0 };
 
@@ -186,7 +186,7 @@ static bool get_vr_fw_version(void *info_p, uint8_t *buf, uint8_t *len)
 	CHECK_NULL_ARG_WITH_RETURN(buf, false);
 	CHECK_NULL_ARG_WITH_RETURN(len, false);
 
-	pldm_fw_update_info_t *p = (pldm_fw_update_info_t *)info_p;
+	const pldm_fw_update_info_t *p = (const pldm_fw_update_info_t *)info_p;
 
 	bool ret = false;
 	uint8_t sensor_id = 0;
@@ -576,7 +576,7 @@ pldm_fw_update_info_t PLDMUPDATE_FW_CONFIG_TABLE[] = {
 		.inf = COMP_UPDATE_VIA_SPI,
 		.activate_method = COMP_ACT_SELF,
 		.self_act_func = pldm_bic_activate,
-		.get_fw_version_fn = NULL,
+		.get_fw_version_fn = pldm_get_bic_comp_fw_version,
 		.self_apply_work_func = NULL,
 		.comp_version_str = NULL,
 	},
