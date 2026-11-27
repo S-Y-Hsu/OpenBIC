@@ -168,100 +168,136 @@ static uint8_t get_reg_mask(uint8_t strap)
 	return mask;
 }
 
-bool set_ioexp_val_to_bootstrap_table(void)
+/* Table value -> the bits this strap drives on the device (reverse applied, not shifted yet) */
+static uint8_t bootstrap_raw_bits(uint8_t rail, uint8_t val)
 {
-	uint8_t data[2] = { 0 };
-	uint8_t direction[2] = { 0 };
+	if (bootstrap_table[rail].reverse)
+		val = reverse_bits(val, bootstrap_table[rail].bit_count);
 
-	if (!is_mb_dc_on())
-		return true;
-
-	if (!pca6416a_i2c_read(BOOTSTRAP_PCA6416A, PCA6416A_OUTPUT_PORT_0, data, 2)) {
-		LOG_ERR("Can't find bootstrap value from pca6416a");
-		return false;
-	}
-	if (!pca6416a_i2c_read(BOOTSTRAP_PCA6416A, PCA6416A_CONFIG_0, direction, 2)) {
-		LOG_ERR("Can't find bootstrap direction from pca6416a");
-		return false;
-	}
-
-	// update output pins only, keep the table value of input pins
-	uint8_t old_e = bootstrap_table[STRAP_INDEX_OWL_E_BOOT_SOURCE_0_7].change_setting_value;
-	uint8_t old_w = bootstrap_table[STRAP_INDEX_OWL_W_BOOT_SOURCE_0_7].change_setting_value;
-
-	bootstrap_table[STRAP_INDEX_OWL_E_BOOT_SOURCE_0_7].change_setting_value =
-		(old_e & direction[0]) | (data[0] & (~direction[0]));
-	bootstrap_table[STRAP_INDEX_OWL_W_BOOT_SOURCE_0_7].change_setting_value =
-		(old_w & direction[1]) | (data[1] & (~direction[1]));
-
-	return true;
-}
-
-bool set_bootstrap_table_val_to_ioexp(void)
-{
-	uint8_t data[2] = {
-		bootstrap_table[STRAP_INDEX_OWL_E_BOOT_SOURCE_0_7].change_setting_value,
-		bootstrap_table[STRAP_INDEX_OWL_W_BOOT_SOURCE_0_7].change_setting_value,
-	};
-
-	if (!pca6416a_i2c_write(BOOTSTRAP_PCA6416A, PCA6416A_OUTPUT_PORT_0, data, 2)) {
-		LOG_ERR("Can't set pca6416a from bootstrap_table");
-		return false;
-	}
-
-	return true;
-}
-
-bool bootstrap_default_settings_init(void)
-{
-	for (int i = 0; i < STRAP_INDEX_MAX; i++) {
-		uint8_t data = 0;
-
-		switch (bootstrap_table[i].type) {
-		case STRAP_TYPE_CPLD: {
-			if (!plat_read_cpld(bootstrap_table[i].cpld_offsets, &data, 1)) {
-				LOG_ERR("Can't find bootstrap default from CPLD, index: %d", i);
-				return false;
-			}
-
-			uint8_t mask = GENMASK(bootstrap_table[i].bit_offset +
-						       bootstrap_table[i].bit_count - 1,
-					       bootstrap_table[i].bit_offset);
-
-			bootstrap_table[i].change_setting_value =
-				(data & mask) >> bootstrap_table[i].bit_offset;
-			break;
-		}
-		case STRAP_TYPE_GPIO:
-			bootstrap_table[i].change_setting_value =
-				gpio_get(bootstrap_table[i].cpld_offsets);
-			break;
-		default:
-			continue;
-		}
-
-		if (bootstrap_table[i].reverse) {
-			bootstrap_table[i].change_setting_value =
-				reverse_bits(bootstrap_table[i].change_setting_value,
-					     bootstrap_table[i].bit_count);
-		}
-	}
-
-	return set_ioexp_val_to_bootstrap_table();
+	return val & GENMASK(bootstrap_table[rail].bit_count - 1, 0);
 }
 
 /*
- * SGPIO is initialized after the bootstrap table, so SGPIO straps are read on demand.
- * Keep the table value when the read fails (SGPIO not ready).
+ * Raw value to write to the device for rail, with new_val as the rail's table value:
+ * - CPLD: every strap sharing the register merged into one byte
+ * - GPIO/IOEXP: the strap owns the whole pin/port, so just its own bits
+ * SGPIO straps are not supported yet, so they can't be set (table and perm stay untouched).
  */
-static void bootstrap_sgpio_refresh(uint8_t rail)
+static bool bootstrap_get_reg_val(uint8_t rail, uint8_t new_val, uint8_t *reg_val)
 {
-	if (bootstrap_table[rail].type != STRAP_TYPE_SGPIO)
-		return;
+	bootstrap_mapping_register *item = &bootstrap_table[rail];
 
-	int val = sgpio_get(bootstrap_table[rail].cpld_offsets);
-	if (val >= 0)
-		bootstrap_table[rail].change_setting_value = val;
+	switch (item->type) {
+	case STRAP_TYPE_CPLD:
+		*reg_val = 0;
+		for (int j = 0; j < STRAP_INDEX_MAX; j++) {
+			if ((bootstrap_table[j].type != item->type) ||
+			    (bootstrap_table[j].cpld_offsets != item->cpld_offsets))
+				continue;
+
+			uint8_t val =
+				(j == rail) ? new_val : bootstrap_table[j].change_setting_value;
+
+			*reg_val |= bootstrap_raw_bits(j, val) << bootstrap_table[j].bit_offset;
+		}
+		break;
+	case STRAP_TYPE_GPIO:
+	case STRAP_TYPE_IOEXP_PCA6416A:
+		*reg_val = bootstrap_raw_bits(rail, new_val) << item->bit_offset;
+		break;
+	case STRAP_TYPE_SGPIO:
+		LOG_ERR("%s: SGPIO strap is not supported yet", item->strap_name);
+		return false;
+	default:
+		LOG_ERR("Invalid bootstrap_table[%d] type: %d", rail, item->type);
+		return false;
+	}
+
+	return true;
+}
+
+/* PCA6416A CONFIG register of the same port as an OUTPUT register */
+#define PCA6416A_CONFIG_OF(output_port) ((output_port) - PCA6416A_OUTPUT_PORT_0 + PCA6416A_CONFIG_0)
+
+/*
+ * Read the raw strap bits of an IOEXP entry (cpld_offsets is its OUTPUT port).
+ * Only output pins are taken from the device, input pins keep the table value.
+ */
+static bool bootstrap_ioexp_read(uint8_t rail, uint8_t *raw)
+{
+	uint8_t port = bootstrap_table[rail].cpld_offsets;
+	uint8_t data = 0;
+	uint8_t direction = 0; // CONFIG: 1 = input, 0 = output
+
+	if (!pca6416a_i2c_read(BOOTSTRAP_PCA6416A, port, &data, 1) ||
+	    !pca6416a_i2c_read(BOOTSTRAP_PCA6416A, PCA6416A_CONFIG_OF(port), &direction, 1)) {
+		LOG_ERR("Can't read %s from pca6416a", bootstrap_table[rail].strap_name);
+		return false;
+	}
+
+	uint8_t old = bootstrap_raw_bits(rail, bootstrap_table[rail].change_setting_value);
+
+	*raw = (old & direction) | (data & ~direction);
+	return true;
+}
+
+bool bootstrap_apply_current_status_to_table(void)
+{
+	bool ret = true;
+
+	for (int i = 0; i < STRAP_INDEX_MAX; i++) {
+		bootstrap_mapping_register *item = &bootstrap_table[i];
+		uint8_t raw = 0; // bits read from the device, shifted down to bit 0
+
+		switch (item->type) {
+		case STRAP_TYPE_CPLD: {
+			uint8_t data = 0;
+
+			if (!plat_read_cpld(item->cpld_offsets, &data, 1)) {
+				LOG_ERR("Can't read %s from CPLD", item->strap_name);
+				ret = false;
+				continue;
+			}
+
+			raw = (data >> item->bit_offset) & GENMASK(item->bit_count - 1, 0);
+			break;
+		}
+		case STRAP_TYPE_GPIO: {
+			int val = gpio_get(item->cpld_offsets);
+
+			if (val < 0) {
+				LOG_ERR("Can't read %s from GPIO", item->strap_name);
+				ret = false;
+				continue;
+			}
+
+			raw = val;
+			break;
+		}
+		case STRAP_TYPE_IOEXP_PCA6416A:
+			// IO expander is off without DC, keep the table value; written at DC on
+			if (!is_mb_dc_on())
+				continue;
+
+			if (!bootstrap_ioexp_read(i, &raw)) {
+				ret = false;
+				continue;
+			}
+			break;
+		case STRAP_TYPE_SGPIO:
+			// TODO: SGPIO strap not supported yet, keep the table default
+			continue;
+		default:
+			LOG_ERR("Invalid bootstrap_table[%d] type: %d", i, item->type);
+			ret = false;
+			continue;
+		}
+
+		item->change_setting_value =
+			item->reverse ? reverse_bits(raw, item->bit_count) : raw;
+	}
+
+	return ret;
 }
 
 static bool check_is_bootstrap_setting_value_valid(uint8_t rail, uint8_t value)
@@ -278,7 +314,6 @@ bool find_bootstrap_by_rail(uint8_t rail, bootstrap_mapping_register *result)
 	if (rail >= STRAP_INDEX_MAX)
 		return false;
 
-	bootstrap_sgpio_refresh(rail);
 	*result = bootstrap_table[rail];
 	return true;
 }
@@ -292,7 +327,6 @@ bool get_bootstrap_change_drive_level(int rail, int *drive_level)
 		return false;
 	}
 
-	bootstrap_sgpio_refresh(rail);
 	*drive_level = bootstrap_table[rail].change_setting_value;
 	return true;
 }
@@ -343,10 +377,17 @@ static void bootstrap_perm_load(void)
 		memset(&bootstrap_perm, 0xFF, sizeof(bootstrap_perm));
 }
 
-bool set_bootstrap_table_and_user_settings(uint8_t rail, uint8_t *change_setting_value,
+/*
+ * Set table and user settings: update bootstrap_table[rail] to the new level (the strap default
+ * if is_default), and also save it to EEPROM perm if is_perm.
+ * *reg_val returns the raw value to write to the device (see bootstrap_get_reg_val()); this
+ * function does NOT touch the device, pass *reg_val to set_bootstrap_val_to_device().
+ * The table is only updated when everything succeeded.
+ */
+bool set_bootstrap_table_and_user_settings(uint8_t rail, uint8_t *reg_val,
 					   uint8_t drive_index_level, bool is_perm, bool is_default)
 {
-	CHECK_NULL_ARG_WITH_RETURN(change_setting_value, false);
+	CHECK_NULL_ARG_WITH_RETURN(reg_val, false);
 
 	if (rail >= STRAP_INDEX_MAX)
 		return false;
@@ -361,38 +402,22 @@ bool set_bootstrap_table_and_user_settings(uint8_t rail, uint8_t *change_setting
 		return false;
 	}
 
-	item->change_setting_value = drive_index_level;
-	*change_setting_value = 0;
-
-	if ((item->type == STRAP_TYPE_GPIO) || (item->type == STRAP_TYPE_SGPIO)) {
-		*change_setting_value = item->change_setting_value;
-	} else {
-		// merge every strap sharing the same register into one byte
-		for (int j = 0; j < STRAP_INDEX_MAX; j++) {
-			if ((bootstrap_table[j].cpld_offsets != item->cpld_offsets) ||
-			    (bootstrap_table[j].type != item->type))
-				continue;
-
-			uint8_t value = bootstrap_table[j].change_setting_value;
-
-			if (bootstrap_table[j].reverse)
-				value = reverse_bits(value, bootstrap_table[j].bit_count);
-
-			*change_setting_value |=
-				(value & GENMASK(bootstrap_table[j].bit_count - 1, 0))
-				<< bootstrap_table[j].bit_offset;
-		}
-	}
+	if (!bootstrap_get_reg_val(rail, drive_index_level, reg_val))
+		return false;
 
 	if (is_perm) {
-		bootstrap_perm.value[rail] = item->change_setting_value;
-		bootstrap_perm.unset[rail / 8] &= ~BIT(rail % 8);
-		if (!plat_perm_set(PERM_ID_BOOTSTRAP, &bootstrap_perm, BOOTSTRAP_PERM_SIZE)) {
+		bootstrap_perm_t perm = bootstrap_perm;
+
+		perm.value[rail] = drive_index_level;
+		perm.unset[rail / 8] &= ~BIT(rail % 8);
+		if (!plat_perm_set(PERM_ID_BOOTSTRAP, &perm, BOOTSTRAP_PERM_SIZE)) {
 			LOG_ERR("bootstrap failed to write perm");
 			return false;
 		}
+		bootstrap_perm = perm;
 	}
 
+	item->change_setting_value = drive_index_level;
 	return true;
 }
 
@@ -414,22 +439,16 @@ bool set_bootstrap_val_to_device(uint8_t strap, uint8_t val)
 		if (gpio_set(bootstrap_table[strap].cpld_offsets, val) < 0)
 			return false;
 		break;
-	case STRAP_TYPE_SGPIO:
-		// only SGPIO outputs (BIC --> CPLD) can be driven
-		if (sgpio_cfg[bootstrap_table[strap].cpld_offsets].direction != GPIO_OUTPUT) {
-			LOG_ERR("%s is a SGPIO input, can't be set",
-				bootstrap_table[strap].strap_name);
-			return false;
-		}
-		if (sgpio_set(bootstrap_table[strap].cpld_offsets, val) < 0)
-			return false;
-		break;
 	case STRAP_TYPE_IOEXP_PCA6416A:
-		if (is_mb_dc_on()) {
-			if (!pca6416a_i2c_write(BOOTSTRAP_PCA6416A,
-						bootstrap_table[strap].cpld_offsets, &val, 1))
-				return false;
+		// IO expander is off without DC, the table value is written at DC on
+		if (!is_mb_dc_on()) {
+			LOG_WRN("DC off, %s will be applied at DC on",
+				bootstrap_table[strap].strap_name);
+			break;
 		}
+		if (!pca6416a_i2c_write(BOOTSTRAP_PCA6416A, bootstrap_table[strap].cpld_offsets,
+					&val, 1))
+			return false;
 		break;
 	default:
 		LOG_ERR("Invalid bootstrap_table[%d] type: %d", strap, type);
@@ -439,32 +458,102 @@ bool set_bootstrap_val_to_device(uint8_t strap, uint8_t val)
 	return true;
 }
 
-bool bootstrap_user_settings_init(void)
+/* Load the perm values from EEPROM into the table only, bootstrap_apply_table_to_device() writes them */
+bool bootstrap_apply_user_setting_to_table(void)
 {
+	bool ret = true;
+
 	bootstrap_perm_load();
 
 	for (int i = 0; i < STRAP_INDEX_MAX; i++) {
 		uint8_t drive_index_level = 0;
-		uint8_t change_setting_value = 0;
+		uint8_t reg_val = 0;
 
 		if (!bootstrap_perm_get(i, &drive_index_level))
 			continue;
 
-		if (!set_bootstrap_table_and_user_settings(i, &change_setting_value,
-							   drive_index_level, false, false)) {
+		if (!set_bootstrap_table_and_user_settings(i, &reg_val, drive_index_level, false,
+							   false)) {
 			LOG_ERR("set bootstrap_table[%2d]:%d failed", i, drive_index_level);
+			ret = false;
 			continue;
 		}
 
-		if (!set_bootstrap_val_to_device(i, change_setting_value)) {
-			LOG_ERR("Can't set bootstrap[%2d]=%02x by user settings", i,
-				change_setting_value);
-			continue;
-		}
+		LOG_INF("perm [%2d]%s: %x", i, bootstrap_table[i].strap_name, drive_index_level);
+	}
 
-		LOG_INF("set [%2d]%s: %02x", i, bootstrap_table[i].strap_name,
-			change_setting_value);
+	return ret;
+}
+
+/* Straps sharing a CPLD register are written together, only at the first strap of the register */
+static bool is_first_strap_of_reg(uint8_t strap)
+{
+	for (int j = 0; j < strap; j++) {
+		if ((bootstrap_table[j].type == bootstrap_table[strap].type) &&
+		    (bootstrap_table[j].cpld_offsets == bootstrap_table[strap].cpld_offsets))
+			return false;
 	}
 
 	return true;
+}
+
+/*
+ * Write the whole table to the devices. Called at AC on (after the default values are read and
+ * the perm values are loaded) and at every DC on, so the settings are kept across DC cycles.
+ */
+bool bootstrap_apply_table_to_device(void)
+{
+	bool ret = true;
+	bool dc_on = is_mb_dc_on();
+
+	for (int i = 0; i < STRAP_INDEX_MAX; i++) {
+		bootstrap_mapping_register *item = &bootstrap_table[i];
+		uint8_t reg_val = 0;
+
+		switch (item->type) {
+		case STRAP_TYPE_CPLD:
+			if (!is_first_strap_of_reg(i))
+				continue;
+			break;
+		case STRAP_TYPE_GPIO:
+			break;
+		case STRAP_TYPE_SGPIO:
+			// TODO: SGPIO strap not supported yet
+			continue;
+		case STRAP_TYPE_IOEXP_PCA6416A:
+			// IO expander is off without DC, applied again at DC on
+			if (!dc_on)
+				continue;
+			break;
+		default:
+			LOG_ERR("Invalid bootstrap_table[%d] type: %d", i, item->type);
+			ret = false;
+			continue;
+		}
+
+		if (!bootstrap_get_reg_val(i, item->change_setting_value, &reg_val) ||
+		    !set_bootstrap_val_to_device(i, reg_val)) {
+			LOG_ERR("Can't apply %s = 0x%02x", item->strap_name, reg_val);
+			ret = false;
+		}
+	}
+
+	return ret;
+}
+
+/*
+ * The bootstrap IO expander is powered by DC, so it is set up again, then the whole table is
+ * applied. The ASIC is powered up later, so the straps are ready before they are sampled.
+ * Runs on plat_work_q (I2C), not in the ISR.
+ */
+bool bootstrap_dc_on_apply(void)
+{
+	bool ret = true;
+
+	if (!pca6416a_init(BOOTSTRAP_PCA6416A)) {
+		LOG_ERR("Can't init bootstrap pca6416a at DC on");
+		ret = false;
+	}
+
+	return bootstrap_apply_table_to_device() && ret;
 }

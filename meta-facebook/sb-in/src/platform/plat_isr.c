@@ -86,6 +86,8 @@ void ISR_SGPIO_MODULE_PWRGD()
 	if (sgpio_get(MODULE_PWRGD) == GPIO_HIGH) {
 		// power faults are latched until DC on, clear them so the next fault is logged
 		reset_error_log_event(POWER_FAULT_TRIGGER_CAUSE);
+		// write the bootstrap table again, the IO expander is powered by DC
+		plat_bootstrap_trigger_dc_on_apply();
 	}
 }
 

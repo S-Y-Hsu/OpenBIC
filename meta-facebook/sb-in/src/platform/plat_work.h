@@ -37,6 +37,7 @@ int plat_work_resume(const char *name);
 void plat_vr_smbalert_trigger_scan(void);
 void plat_sgpio_event_trigger_scan(void);
 void plat_power_fault_trigger_scan(void);
+void plat_bootstrap_trigger_dc_on_apply(void);
 void set_sgpio_fault_scan_enable_flag(bool enable);
 void set_heartbeat_led_event_flag(bool flag);
 

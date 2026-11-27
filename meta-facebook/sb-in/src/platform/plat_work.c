@@ -27,6 +27,7 @@
 #include "pmbus.h"
 #include "pldm_sensor.h"
 #include "plat_thermal.h"
+#include "plat_bootstrap.h"
 #include <errno.h>
 #include <string.h>
 #include <logging/log.h>
@@ -218,6 +219,26 @@ static void power_fault_scan_handler(struct k_work *work)
 void plat_power_fault_trigger_scan(void)
 {
 	k_work_submit_to_queue(&plat_work_q_obj, &power_fault_scan_work);
+}
+
+/* Bootstrap DC on apply
+ * Every DC on (MODULE_PWRGD rising) writes the whole bootstrap table to the devices again, so the
+ * settings are kept across DC cycles. I2C access, so it runs here instead of in the SGPIO ISR.
+ */
+static void bootstrap_dc_on_handler(struct k_work *work)
+{
+	ARG_UNUSED(work);
+
+	if (sgpio_get(MODULE_PWRGD) != GPIO_HIGH)
+		return;
+
+	bootstrap_dc_on_apply();
+}
+static K_WORK_DEFINE(bootstrap_dc_on_work, bootstrap_dc_on_handler);
+
+void plat_bootstrap_trigger_dc_on_apply(void)
+{
+	k_work_submit_to_queue(&plat_work_q_obj, &bootstrap_dc_on_work);
 }
 
 /* ===== Periodic works =====
