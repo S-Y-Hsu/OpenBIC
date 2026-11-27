@@ -17,6 +17,7 @@
 #include <logging/log.h>
 #include "plat_util.h"
 #include "plat_ioexp.h"
+#include "plat_hook.h"
 
 LOG_MODULE_REGISTER(plat_ioexp);
 
@@ -76,6 +77,9 @@ bool pca6416a_init(uint8_t idx)
 void ioexp_init(void)
 {
 	for (uint8_t i = 0; i < PCA6416A_MAX; i++) {
+		// U641 (bootstrap) is powered by DC, it is set up at DC on instead
+		if ((i == PCA6416A_U641) && !is_mb_dc_on())
+			continue;
 		if (!pca6416a_init(i))
 			LOG_ERR("pca6416a %d init fail", i);
 	}

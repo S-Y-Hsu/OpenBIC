@@ -154,17 +154,19 @@ bool strap_name_get(uint8_t rail, uint8_t **name);
 bool strap_enum_get(const char *name, uint8_t *num);
 bool find_bootstrap_by_rail(uint8_t rail, bootstrap_mapping_register *result);
 bool get_bootstrap_change_drive_level(int rail, int *drive_level);
-bool set_bootstrap_table_and_user_settings(uint8_t rail, uint8_t *change_setting_value,
+bool set_bootstrap_table_and_user_settings(uint8_t rail, uint8_t *reg_val,
 					   uint8_t drive_index_level, bool is_perm,
 					   bool is_default);
 bool set_bootstrap_val_to_device(uint8_t strap, uint8_t val);
-bool set_ioexp_val_to_bootstrap_table(void);
-bool set_bootstrap_table_val_to_ioexp(void);
 bool bootstrap_perm_get(uint8_t rail, uint8_t *value);
 
 /* Read the current strap values from CPLD/GPIO/IO expander into the table, called at boot */
-bool bootstrap_default_settings_init(void);
-/* Apply the perm values stored in EEPROM, called at boot */
-bool bootstrap_user_settings_init(void);
+bool bootstrap_apply_current_status_to_table(void);
+/* Load the perm values stored in EEPROM into the table, called at boot */
+bool bootstrap_apply_user_setting_to_table(void);
+/* Write the whole table to the devices, called at boot and at every DC on */
+bool bootstrap_apply_table_to_device(void);
+/* Init the bootstrap IO expander (powered by DC) and apply the table, call at DC on */
+bool bootstrap_dc_on_apply(void);
 
 #endif

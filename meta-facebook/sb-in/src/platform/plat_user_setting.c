@@ -153,6 +153,7 @@ void user_settings_init(void)
 {
 	thermaltrip_switch_perm_restore();
 	plat_temp_threshold_init();
-	bootstrap_default_settings_init();
-	bootstrap_user_settings_init();
+	bootstrap_apply_current_status_to_table();
+	bootstrap_apply_user_setting_to_table();
+	bootstrap_apply_table_to_device();
 }
